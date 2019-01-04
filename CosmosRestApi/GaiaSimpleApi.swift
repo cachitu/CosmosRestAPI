@@ -43,7 +43,7 @@ import Foundation
  
  */
 
-public class GaiaSimpleAPI: RestNetworking {
+public class GaiaSimpleAPI: RestNetworking {    
     
     public let scheme: String
     public let host: String
@@ -57,10 +57,6 @@ public class GaiaSimpleAPI: RestNetworking {
     
     public func getAbciInfo(completion: ((RestResult<AbciInfo>) -> Void)?) {
         genericGet(scheme: scheme, host: host, port: port, path: "/abci_info", completion: completion)
-    }
-    
-    public func submitAbciInfo(info: AbciInfo, completion:((Error?) -> Void)?) {
-        genericPost(info: info, scheme: scheme, host: host, port: port, path: "/abci_info", completion: completion)
     }
     
 }

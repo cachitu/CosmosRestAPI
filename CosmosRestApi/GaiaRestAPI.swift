@@ -24,7 +24,7 @@ import Foundation
  
  ICS0 - endermint APIs, such as query blocks, transactions and validatorset
  
- GET /node_info - The properties of the connected node
+ * GET /node_info - The properties of the connected node
  GET /syncing - Syncing state of node
  GET /blocks/latest - Get the latest block
  GET /blocks/{height} - Get a block at a certain height
@@ -37,14 +37,14 @@ import Foundation
  
  ICS1 - Key management APIs
  
- GET /keys - List of accounts stored locally
- POST/keys - Create a new account locally
- GET /keys/seed - Create a new seed to create a new account with
- POST /keys/{name}/recover - Recover a account from a seed
- GET /keys/{name} - Get a certain locally stored account
- PUT /keys/{name} - Update the password for this account in the KMS
- DELETE /keys/{name} - Remove an account
- GET /auth/accounts/{address} - Get the account information on blockchain
+ * GET /keys - List of accounts stored locally
+ * POST/keys - Create a new account locally
+ * GET /keys/seed - Create a new seed to create a new account with
+ * POST /keys/{name}/recover - Recover a account from a seed
+ * GET /keys/{name} - Get a certain locally stored account
+ * PUT /keys/{name} - Update the password for this account in the KMS
+ * DELETE /keys/{name} - Remove an account
+ * GET /auth/accounts/{address} - Get the account information on blockchain
  
  
  ICS20 - Create, sign and broadcast transactions
@@ -136,19 +136,50 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         super.init()
     }
     
-    public func getkeys(completion: ((RestResult<[Key]>) -> Void)?) {
-        genericGet(scheme: scheme, host: host, port: port, path: "/keys", delegate: self, completion: completion)
-    }
-    
-    public func getAccount(address: String?, completion: ((RestResult<Account>) -> Void)?) {
-        guard let addr = address else {
-            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Invalid address"]) as Error
-            completion?(.failure(error))
-            return }
-        genericGet(scheme: scheme, host: host, port: port, path: "/auth/accounts/\(addr)", delegate: self, completion: completion)
-    }
-
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }
+
+    
+    //ICS0 - endermint APIs, such as query blocks, transactions and validatorset
+    
+    public func getNodeInfo(completion: ((RestResult<NodeInfo>) -> Void)?) {
+        genericGet(scheme: scheme, host: host, port: port, path: "/node_info", delegate: self, completion: completion)
+    }
+    
+    
+    //ICS1 - Key management APIs
+    
+    public func getSeed(completion: ((RestResult<String>) -> Void)?) {
+        genericGet(scheme: scheme, host: host, port: port, path: "/keys/seed", delegate: self, completion: completion)
+    }
+    
+    public func getKeys(completion: ((RestResult<[Key]>) -> Void)?) {
+        genericGet(scheme: scheme, host: host, port: port, path: "/keys", delegate: self, completion: completion)
+    }
+    
+    public func getKey(by name: String, completion: ((RestResult<Key>) -> Void)?) {
+        genericGet(scheme: scheme, host: host, port: port, path: "/keys/\(name)", delegate: self, completion: completion)
+    }
+    
+    public func createKey(keyData: KeyPostData, completion:((RestResult<Key>) -> Void)?) {
+        genericBodyData(data: keyData, scheme: scheme, host: host, port: port, path: "/keys", delegate: self, reqMethod: "POST", completion: completion)
+    }
+
+    public func recoverKey(keyData: KeyPostData, completion:((RestResult<Key>) -> Void)?) {
+        genericBodyData(data: keyData, scheme: scheme, host: host, port: port, path: "/keys/\(keyData.name)/recover", delegate: self, reqMethod: "POST", completion: completion)
+    }
+    
+    public func deleteKey(keyData: KeyPostData, completion:((RestResult<String>) -> Void)?) {
+        genericBodyData(data: keyData, scheme: scheme, host: host, port: port, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "DELETE", completion: completion)
+    }
+
+    public func changeKeyPassword(keyData: KeyPasswordData, completion:((RestResult<String>) -> Void)?) {
+        genericBodyData(data: keyData, scheme: scheme, host: host, port: port, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "PUT", completion: completion)
+    }
+    
+    public func getAccount(address: String, completion: ((RestResult<Account>) -> Void)?) {
+        genericGet(scheme: scheme, host: host, port: port, path: "/auth/accounts/\(address)", delegate: self, completion: completion)
+    }
+
 }
