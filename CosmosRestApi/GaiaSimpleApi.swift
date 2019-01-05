@@ -45,18 +45,14 @@ import Foundation
 
 public class GaiaSimpleAPI: RestNetworking {    
     
-    public let scheme: String
-    public let host: String
-    public let port: Int
-    
+    let connectData: ConnectData
+
     public init(scheme: String = "http", host: String = "localhost", port: Int = 26657) {
-        self.scheme = scheme
-        self.host   = host
-        self.port   = port
+        connectData = ConnectData(scheme: scheme, host: host, port: port)
     }
     
     public func getAbciInfo(completion: ((RestResult<AbciInfo>) -> Void)?) {
-        genericGet(scheme: scheme, host: host, port: port, path: "/abci_info", completion: completion)
+        genericGet(connData: connectData, path: "/abci_info", completion: completion)
     }
     
 }

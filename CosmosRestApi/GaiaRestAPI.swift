@@ -25,12 +25,12 @@ import Foundation
  ICS0 - endermint APIs, such as query blocks, transactions and validatorset
  
  * GET /node_info - The properties of the connected node
- GET /syncing - Syncing state of node
- GET /blocks/latest - Get the latest block
- GET /blocks/{height} - Get a block at a certain height
- GET /validatorsets/latest - Get the latest validator set
- GET /validatorsets/{height} - Get a validator set a certain height
- GET /txs/{hash} - Get a Tx by hash
+ * GET /syncing - Syncing state of node
+ * GET /blocks/latest - Get the latest block
+ * GET /blocks/{height} - Get a block at a certain height
+ * GET /validatorsets/latest - Get the latest validator set
+ * GET /validatorsets/{height} - Get a validator set a certain height
+ * GET /txs/{hash} - Get a Tx by hash
  GET /txs - Search transactions
  POST - /txs - broadcast Tx
  
@@ -125,14 +125,10 @@ import Foundation
 
 public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
-    let scheme: String
-    let host: String
-    let port: Int
-    
+    let connectData: ConnectData
+
     public init(scheme: String = "https", host: String = "localhost", port: Int = 1317) {
-        self.scheme = scheme
-        self.host   = host
-        self.port   = port
+        connectData = ConnectData(scheme: scheme, host: host, port: port)
         super.init()
     }
     
@@ -144,42 +140,66 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     //ICS0 - endermint APIs, such as query blocks, transactions and validatorset
     
     public func getNodeInfo(completion: ((RestResult<NodeInfo>) -> Void)?) {
-        genericGet(scheme: scheme, host: host, port: port, path: "/node_info", delegate: self, completion: completion)
+        genericGet(connData: connectData, path: "/node_info", delegate: self, completion: completion)
     }
     
+    public func getSyncingInfo(completion: ((RestResult<String>) -> Void)?) {
+        genericGet(connData: connectData, path: "/syncing", delegate: self, completion: completion)
+    }
+
+    public func getLatestBlock(completion: ((RestResult<BlockRoot>) -> Void)?) {
+        genericGet(connData: connectData, path: "/blocks/latest", delegate: self, completion: completion)
+    }
+
+    public func getBlock(at height: Int, completion: ((RestResult<BlockRoot>) -> Void)?) {
+        genericGet(connData: connectData, path: "/blocks/\(height)", delegate: self, completion: completion)
+    }
+    
+    public func getValidators(at height: Int, completion: ((RestResult<Validators>) -> Void)?) {
+        genericGet(connData: connectData, path: "/validatorsets/\(height)", delegate: self, completion: completion)
+    }
+    
+    public func getLatestValidators(completion: ((RestResult<Validators>) -> Void)?) {
+        genericGet(connData: connectData, path: "/validatorsets/latest", delegate: self, completion: completion)
+    }
+
+    public func getTransaction(by hash: String, completion: ((RestResult<Transaction>) -> Void)?) {
+        genericGet(connData: connectData, path: "/txs/\(hash)", delegate: self, completion: completion)
+    }
+
     
     //ICS1 - Key management APIs
     
     public func getSeed(completion: ((RestResult<String>) -> Void)?) {
-        genericGet(scheme: scheme, host: host, port: port, path: "/keys/seed", delegate: self, completion: completion)
+        genericGet(connData: connectData, path: "/keys/seed", delegate: self, completion: completion)
     }
     
     public func getKeys(completion: ((RestResult<[Key]>) -> Void)?) {
-        genericGet(scheme: scheme, host: host, port: port, path: "/keys", delegate: self, completion: completion)
+        genericGet(connData: connectData, path: "/keys", delegate: self, completion: completion)
     }
     
     public func getKey(by name: String, completion: ((RestResult<Key>) -> Void)?) {
-        genericGet(scheme: scheme, host: host, port: port, path: "/keys/\(name)", delegate: self, completion: completion)
+        genericGet(connData: connectData, path: "/keys/\(name)", delegate: self, completion: completion)
     }
     
     public func createKey(keyData: KeyPostData, completion:((RestResult<Key>) -> Void)?) {
-        genericBodyData(data: keyData, scheme: scheme, host: host, port: port, path: "/keys", delegate: self, reqMethod: "POST", completion: completion)
+        genericBodyData(data: keyData, connData: connectData, path: "/keys", delegate: self, reqMethod: "POST", completion: completion)
     }
 
     public func recoverKey(keyData: KeyPostData, completion:((RestResult<Key>) -> Void)?) {
-        genericBodyData(data: keyData, scheme: scheme, host: host, port: port, path: "/keys/\(keyData.name)/recover", delegate: self, reqMethod: "POST", completion: completion)
+        genericBodyData(data: keyData, connData: connectData, path: "/keys/\(keyData.name)/recover", delegate: self, reqMethod: "POST", completion: completion)
     }
     
     public func deleteKey(keyData: KeyPostData, completion:((RestResult<String>) -> Void)?) {
-        genericBodyData(data: keyData, scheme: scheme, host: host, port: port, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "DELETE", completion: completion)
+        genericBodyData(data: keyData, connData: connectData, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "DELETE", completion: completion)
     }
 
     public func changeKeyPassword(keyData: KeyPasswordData, completion:((RestResult<String>) -> Void)?) {
-        genericBodyData(data: keyData, scheme: scheme, host: host, port: port, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "PUT", completion: completion)
+        genericBodyData(data: keyData, connData: connectData, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "PUT", completion: completion)
     }
     
     public func getAccount(address: String, completion: ((RestResult<Account>) -> Void)?) {
-        genericGet(scheme: scheme, host: host, port: port, path: "/auth/accounts/\(address)", delegate: self, completion: completion)
+        genericGet(connData: connectData, path: "/auth/accounts/\(address)", delegate: self, completion: completion)
     }
 
 }
