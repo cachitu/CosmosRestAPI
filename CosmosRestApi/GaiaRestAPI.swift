@@ -52,7 +52,7 @@ import Foundation
  POST /tx/sign - Sign a Tx
  POST /tx/broadcast - Send a signed Tx
  GET /bank/balances/{address} - Get the account balances
- POST /bank/accounts/{address}/transfers - Send coins (build -> sign -> send)
+ * POST /bank/accounts/{address}/transfers - Send coins (build -> sign -> send)
  
  
  ICS21 - Stake module APIs
@@ -200,6 +200,13 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     public func getAccount(address: String, completion: ((RestResult<Account>) -> Void)?) {
         genericGet(connData: connectData, path: "/auth/accounts/\(address)", delegate: self, completion: completion)
+    }
+    
+    
+    // IVCS20
+    
+    public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<TransferResponse>) -> Void)?) {
+        genericBodyData(data: transferData, connData: connectData, path: "/bank/accounts/\(address)/transfers", delegate: self, reqMethod: "POST", completion: completion)
     }
 
 }

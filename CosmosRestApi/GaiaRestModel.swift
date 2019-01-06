@@ -482,15 +482,15 @@ public struct AccountValue: Codable {
     
     public let address: String?
     public let coins: [Coin]?
-    public let public_key: PublicKey?
-    public let account_number: String?
+    public let publicKey: PublicKey?
+    public let accountNumber: String?
     public let sequence: String?
 
     enum CodingKeys : String, CodingKey {
         case address
         case coins
-        case public_key
-        case account_number
+        case publicKey = "public_key"
+        case accountNumber = "account_number"
         case sequence
     }
 }
@@ -539,3 +539,86 @@ public struct Response: Codable {
     }
 }
 
+//ICS20 - Bank TransferPostData
+
+public struct TransferPostData: Codable {
+    
+    public var baseReq: TransferBaseReq?
+    public var amount: [TxFeeAmount]?
+    
+    public init(name: String, pass: String, chain: String, amount: String, denom: String, accNum: String, sequence: String) {
+        self.amount = [TxFeeAmount(denom: denom, amount: amount)]
+        self.baseReq = TransferBaseReq(name: name, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence)
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case baseReq = "base_req"
+        case amount
+    }
+}
+
+public struct TransferBaseReq: Codable {
+    
+    public let name: String?
+    public let password: String?
+    public let chainId: String?
+    public let accountNumber: String?
+    public let sequence: String?
+    public let gas: String? = "200000"
+    public let gasAdjustment: String? = "1.2"
+    public let generateOnly: Bool = false
+    public let simulate: Bool = false
+
+    enum CodingKeys : String, CodingKey {
+        case name
+        case password
+        case chainId = "chain_id"
+        case accountNumber = "account_number"
+        case sequence
+        case gas
+        case gasAdjustment = "gas_adjustment"
+        case generateOnly = "generate_only"
+        case simulate
+    }
+}
+
+public struct TransferResponse: Codable {
+    
+    public let checkTx: TransferCheckTx?
+    public let deliverTx: TransferDeliverTx?
+    public let hash: String?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case checkTx = "check_tx"
+        case deliverTx =  "deliver_tx"
+        case hash
+        case height
+    }
+}
+
+public struct TransferCheckTx: Codable {
+    
+    public let gasWanted: String?
+    public let gasUsed: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case gasWanted
+        case gasUsed
+    }
+}
+
+public struct TransferDeliverTx: Codable {
+    
+    public let gasWanted: String?
+    public let gasUsed: String?
+    public let log: String?
+    public let tags: [TrResultTag]?
+
+    enum CodingKeys : String, CodingKey {
+        case gasWanted
+        case gasUsed
+        case log
+        case tags
+    }
+}
