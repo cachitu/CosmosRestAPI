@@ -722,10 +722,10 @@ public struct Redelegation: Codable {
     public let delegatorAddr: String?
     public let validatorSrcAddr: String?
     public let validatorDstAddr: String?
-    public let minTime: Int?
-    public let creationHeight: Int?
-    public let initialBalance: String?
-    public let balance: String?
+    public let creationHeight: String?
+    public let minTime: String?
+    public let initialBalance: TxFeeAmount?
+    public let balance: TxFeeAmount?
     public let sharesSrc: String?
     public let sharesDst: String?
 
@@ -733,8 +733,8 @@ public struct Redelegation: Codable {
         case delegatorAddr = "delegator_addr"
         case validatorSrcAddr = "validator_src_addr"
         case validatorDstAddr = "validator_dst_addr"
-        case minTime = "min_time"
         case creationHeight = "creation_height"
+        case minTime = "min_time"
         case initialBalance = "initial_balance"
         case balance
         case sharesSrc = "shares_src"
