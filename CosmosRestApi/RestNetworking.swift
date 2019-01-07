@@ -67,10 +67,11 @@ extension RestNetworking {
                             let decoded = try decoder.decode([T].self, from: jsonData)
                             completion?(.success(decoded))
                         } catch {
-                            completion?(.failure(error))
+                            let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : "Resp 200 but no data.Assuming OK"]) as Error
+                            completion?(.failure(derror))
                         }
                     } else {
-                        let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"]) as Error
+                        let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"]) as Error
                         completion?(.failure(error))
                     }
                     
@@ -127,10 +128,11 @@ extension RestNetworking {
                             let decoded = try decoder.decode(T.self, from: jsonData)
                             completion?(.success(decoded))
                         } catch {
-                            completion?(.failure(error))
+                            let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : "Resp 200 but no data.Assuming OK"]) as Error
+                            completion?(.failure(derror))
                         }
                     } else {
-                        let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"]) as Error
+                        let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"]) as Error
                         completion?(.failure(error))
                     }
                     
@@ -196,11 +198,12 @@ extension RestNetworking {
                         let decoded = try decoder.decode(TResp.self, from: jsonData)
                         completion?(.success(decoded))
                     } catch {
-                        completion?(.failure(error))
+                        let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey :"Resp 200 but no data.Assuming OK"]) as Error
+                        completion?(.failure(derror))
                     }
                 } else {
-                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"]) as Error
-                    completion?(.failure(error))
+                    let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"]) as Error
+                    completion?(.failure(derror))
                 }
             } else {
                 let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Data was not retrieved from request"]) as Error

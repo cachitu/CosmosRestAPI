@@ -57,14 +57,14 @@ import Foundation
  
  ICS21 - Stake module APIs
  
- GET /stake/delegators/{delegatorAddr}/delegations - Get all delegations from a delegator
- POST /stake/delegators/{delegatorAddr}/delegations - Submit delegation
- GET /stake/delegators/{delegatorAddr}/delegations/{validatorAddr} - Query the current delegation between a delegator and a validator
- GET /stake/delegators/{delegatorAddr}/unbonding_delegations - Get all unbonding delegations from a delegator
- POST /stake/delegators/{delegatorAddr}/unbonding_delegations - Submit an unbonding delegation
- GET /stake/delegators/{delegatorAddr}/unbonding_delegations/{validatorAddr} - Query all unbonding delegations between a delegator and a validator
- GET /stake/delegators/{delegatorAddr}/redelegations - Get all redelegations from a delegator
- POST /stake/delegators/{delegatorAddr}/redelegations - Submit a redelegation
+ * GET /stake/delegators/{delegatorAddr}/delegations - Get all delegations from a delegator
+ * POST /stake/delegators/{delegatorAddr}/delegations - Submit delegation
+ * GET /stake/delegators/{delegatorAddr}/delegations/{validatorAddr} - Query the current delegation between a delegator and a validator
+ * GET /stake/delegators/{delegatorAddr}/unbonding_delegations - Get all unbonding delegations from a delegator
+ * POST /stake/delegators/{delegatorAddr}/unbonding_delegations - Submit an unbonding delegation
+ * GET /stake/delegators/{delegatorAddr}/unbonding_delegations/{validatorAddr} - Query all unbonding delegations between a delegator and a validator
+ * GET /stake/delegators/{delegatorAddr}/redelegations - Get all redelegations from a delegator
+ * POST /stake/delegators/{delegatorAddr}/redelegations - Submit a redelegation
  GET /stake/delegators/{delegatorAddr}/validators - Query all validators that a delegator is bonded to
  GET /stake/delegators/{delegatorAddr}/validators/{validatorAddr} - Query a validator that a delegator is bonded to
  GET /stake/delegators/{delegatorAddr}/txs - Get all staking txs (i.e msgs) from a delegator
@@ -203,10 +203,45 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
     
     
-    // IVCS20
+    // ICS20
     
     public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<TransferResponse>) -> Void)?) {
         genericBodyData(data: transferData, connData: connectData, path: "/bank/accounts/\(address)/transfers", delegate: self, reqMethod: "POST", completion: completion)
+    }
+    
+    
+    // ICS21 - Stake module APIs
+
+    public func getDelegations(for address: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, completion: completion)
+    }
+    
+    public func delegation(from address: String, transferData: DelegationPostData, completion:((RestResult<TransferResponse>) -> Void)?) {
+        genericBodyData(data: transferData, connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", completion: completion)
+    }
+
+    public func getDelegation(for address: String, validator: String, completion: ((RestResult<Delegation>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/delegations/\(validator)", delegate: self, completion: completion)
+    }
+    
+    public func getUnbondingDelegations(for address: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations", delegate: self, completion: completion)
+    }
+
+    public func unbonding(from address: String, transferData: UnbondingDelegationPostData, completion:((RestResult<TransferResponse>) -> Void)?) {
+        genericBodyData(data: transferData, connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations", delegate: self, reqMethod: "POST", completion: completion)
+    }
+    
+    public func getUnbondingDelegation(for address: String, validator: String, completion: ((RestResult<UnbondingDelegation>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations/\(validator)", delegate: self, completion: completion)
+    }
+
+    public func getRedelegations(for address: String, completion: ((RestResult<[Redelegation]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, completion: completion)
+    }
+
+    public func redelegation(from address: String, transferData: RedelegationPostData, completion:((RestResult<TransferResponse>) -> Void)?) {
+        genericBodyData(data: transferData, connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", completion: completion)
     }
 
 }

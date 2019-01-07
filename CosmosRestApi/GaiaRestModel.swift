@@ -564,8 +564,8 @@ public struct TransferBaseReq: Codable {
     public let chainId: String?
     public let accountNumber: String?
     public let sequence: String?
-    public let gas: String? = "200000"
-    public let gasAdjustment: String? = "1.2"
+    public let gas: String? = "simulate"
+    public let gasAdjustment: String? = "1.0"
     public let generateOnly: Bool = false
     public let simulate: Bool = false
 
@@ -597,6 +597,19 @@ public struct TransferResponse: Codable {
     }
 }
 
+public struct TransferError: Codable {
+    
+    public let codespace: String?
+    public let code: Int?
+    public let message: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case codespace
+        case code
+        case message
+    }
+}
+
 public struct TransferCheckTx: Codable {
     
     public let gasWanted: String?
@@ -620,5 +633,136 @@ public struct TransferDeliverTx: Codable {
         case gasUsed
         case log
         case tags
+    }
+}
+
+
+//ICS21 - Stake module APIs
+
+public struct Delegation: Codable {
+    
+    public let delegatorAddr: String?
+    public let validatorAddr: String?
+    public let shares: String?
+    public let height: Int?
+    
+    enum CodingKeys : String, CodingKey {
+        case delegatorAddr = "delegator_addr"
+        case validatorAddr = "validator_addr"
+        case shares
+        case height
+    }
+}
+
+public struct DelegationPostData: Codable {
+    
+    public var baseReq: TransferBaseReq?
+    public var delegation: TxFeeAmount?
+    public var validatorAddr: String?
+    public var delegatorAddr: String?
+
+    public init(validator: String, delegator: String, name: String, pass: String, chain: String, amount: String, denom: String, accNum: String, sequence: String) {
+        self.validatorAddr = validator
+        self.delegatorAddr = delegator
+        self.delegation  = TxFeeAmount(denom: denom, amount: amount)
+        self.baseReq = TransferBaseReq(name: name, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence)
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case baseReq = "base_req"
+        case delegation
+        case validatorAddr = "validator_addr"
+        case delegatorAddr = "delegator_addr"
+    }
+}
+
+public struct UnbondingDelegation: Codable {
+    
+    public let delegatorAddr: String?
+    public let validatorAddr: String?
+    public let creationHeight: String?
+    public let balance: TxFeeAmount?
+    public let initialBalance: TxFeeAmount?
+    public let minTime: String?
+
+    enum CodingKeys : String, CodingKey {
+        case delegatorAddr = "delegator_addr"
+        case validatorAddr = "validator_addr"
+        case creationHeight = "creation_height"
+        case balance
+        case initialBalance = "initial_balance"
+        case minTime = "min_time"
+    }
+}
+
+public struct UnbondingDelegationPostData: Codable {
+    
+    public var baseReq: TransferBaseReq?
+    public var shares: String?
+    public var validatorAddr: String?
+    public var delegatorAddr: String?
+    
+    public init(validator: String, delegator: String, name: String, pass: String, chain: String, amount: String, accNum: String, sequence: String) {
+        self.validatorAddr = validator
+        self.delegatorAddr = delegator
+        self.shares  = amount
+        self.baseReq = TransferBaseReq(name: name, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence)
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case baseReq = "base_req"
+        case shares
+        case validatorAddr = "validator_addr"
+        case delegatorAddr = "delegator_addr"
+    }
+}
+
+public struct Redelegation: Codable {
+    
+    public let delegatorAddr: String?
+    public let validatorSrcAddr: String?
+    public let validatorDstAddr: String?
+    public let minTime: Int?
+    public let creationHeight: Int?
+    public let initialBalance: String?
+    public let balance: String?
+    public let sharesSrc: String?
+    public let sharesDst: String?
+
+    enum CodingKeys : String, CodingKey {
+        case delegatorAddr = "delegator_addr"
+        case validatorSrcAddr = "validator_src_addr"
+        case validatorDstAddr = "validator_dst_addr"
+        case minTime = "min_time"
+        case creationHeight = "creation_height"
+        case initialBalance = "initial_balance"
+        case balance
+        case sharesSrc = "shares_src"
+        case sharesDst = "shares_dst"
+    }
+}
+
+public struct RedelegationPostData: Codable {
+    
+    public var baseReq: TransferBaseReq?
+    public var shares: String?
+    public var delegatorAddr: String?
+    public var validatorSrcAddr: String?
+    public var validatorDstAddr: String?
+    
+    public init(sourceValidator: String, destValidator: String, delegator: String, name: String, pass: String, chain: String, amount: String, accNum: String, sequence: String) {
+        self.validatorSrcAddr = sourceValidator
+        self.validatorDstAddr = destValidator
+        self.delegatorAddr = delegator
+        self.shares  = amount
+        self.baseReq = TransferBaseReq(name: name, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence)
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case baseReq = "base_req"
+        case shares
+        case delegatorAddr = "delegator_addr"
+        case validatorSrcAddr = "validator_src_addr"
+        case validatorDstAddr = "validator_dst_addr"
     }
 }
