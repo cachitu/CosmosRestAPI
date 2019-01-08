@@ -766,3 +766,62 @@ public struct RedelegationPostData: Codable {
         case validatorDstAddr = "validator_dst_addr"
     }
 }
+
+public struct DelegatorValidator: Codable {
+    
+    public let operator_address: String?
+    public let consensus_pubkey: String?
+    public let jailed: Bool?
+    public let status: Int?
+    public let tokens: String?
+    public let delegator_shares: String?
+    public let description: ValidatorDesc?
+    public let bond_height: String?
+    public let unbonding_height: String?
+    public let unbonding_time: String?
+    public let commission: ValidatorComission?
+
+    enum CodingKeys : String, CodingKey {
+        case operator_address = "operator_address"
+        case consensus_pubkey = "consensus_pubkey"
+        case jailed
+        case status
+        case tokens
+        case delegator_shares = "delegator_shares"
+        case description
+        case bond_height = "bond_height"
+        case unbonding_height = "unbonding_height"
+        case unbonding_time = "unbonding_time"
+        case commission
+    }
+}
+
+public struct ValidatorDesc: Codable {
+    
+    public let moniker: String?
+    public let identity: String?
+    public let website: String?
+    public let details: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case moniker
+        case identity
+        case website
+        case details
+    }
+}
+
+public struct ValidatorComission: Codable {
+    
+    public let rate: String?
+    public let max_rate: String?
+    public let max_change_rate: String?
+    public let update_time: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case rate
+        case max_rate = "max_rate"
+        case max_change_rate = "max_change_rate"
+        case update_time = "update_time"
+    }
+}

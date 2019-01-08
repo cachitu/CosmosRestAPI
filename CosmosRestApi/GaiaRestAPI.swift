@@ -139,47 +139,47 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     //ICS0 - endermint APIs, such as query blocks, transactions and validatorset
     
-    public func getNodeInfo(completion: ((RestResult<NodeInfo>) -> Void)?) {
-        genericGet(connData: connectData, path: "/node_info", delegate: self, completion: completion)
+    public func getNodeInfo(completion: ((RestResult<[NodeInfo]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/node_info", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getSyncingInfo(completion: ((RestResult<String>) -> Void)?) {
-        genericGet(connData: connectData, path: "/syncing", delegate: self, completion: completion)
+    public func getSyncingInfo(completion: ((RestResult<[String]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/syncing", delegate: self, singleItemResponse: true, completion: completion)
     }
 
-    public func getLatestBlock(completion: ((RestResult<BlockRoot>) -> Void)?) {
-        genericGet(connData: connectData, path: "/blocks/latest", delegate: self, completion: completion)
+    public func getLatestBlock(completion: ((RestResult<[BlockRoot]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/blocks/latest", delegate: self, singleItemResponse: true, completion: completion)
     }
 
-    public func getBlock(at height: Int, completion: ((RestResult<BlockRoot>) -> Void)?) {
-        genericGet(connData: connectData, path: "/blocks/\(height)", delegate: self, completion: completion)
+    public func getBlock(at height: Int, completion: ((RestResult<[BlockRoot]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/blocks/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getValidators(at height: Int, completion: ((RestResult<Validators>) -> Void)?) {
-        genericGet(connData: connectData, path: "/validatorsets/\(height)", delegate: self, completion: completion)
+    public func getValidators(at height: Int, completion: ((RestResult<[Validators]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/validatorsets/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getLatestValidators(completion: ((RestResult<Validators>) -> Void)?) {
-        genericGet(connData: connectData, path: "/validatorsets/latest", delegate: self, completion: completion)
+    public func getLatestValidators(completion: ((RestResult<[Validators]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/validatorsets/latest", delegate: self, singleItemResponse: true, completion: completion)
     }
 
-    public func getTransaction(by hash: String, completion: ((RestResult<Transaction>) -> Void)?) {
-        genericGet(connData: connectData, path: "/txs/\(hash)", delegate: self, completion: completion)
+    public func getTransaction(by hash: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/txs/\(hash)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
     
     //ICS1 - Key management APIs
     
-    public func getSeed(completion: ((RestResult<String>) -> Void)?) {
-        genericGet(connData: connectData, path: "/keys/seed", delegate: self, completion: completion)
+    public func getSeed(completion: ((RestResult<[String]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/keys/seed", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func getKeys(completion: ((RestResult<[Key]>) -> Void)?) {
         genericGet(connData: connectData, path: "/keys", delegate: self, completion: completion)
     }
     
-    public func getKey(by name: String, completion: ((RestResult<Key>) -> Void)?) {
-        genericGet(connData: connectData, path: "/keys/\(name)", delegate: self, completion: completion)
+    public func getKey(by name: String, completion: ((RestResult<[Key]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/keys/\(name)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func createKey(keyData: KeyPostData, completion:((RestResult<Key>) -> Void)?) {
@@ -198,8 +198,8 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericBodyData(data: keyData, connData: connectData, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "PUT", completion: completion)
     }
     
-    public func getAccount(address: String, completion: ((RestResult<Account>) -> Void)?) {
-        genericGet(connData: connectData, path: "/auth/accounts/\(address)", delegate: self, completion: completion)
+    public func getAccount(address: String, completion: ((RestResult<[Account]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     
@@ -220,8 +220,8 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericBodyData(data: transferData, connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", completion: completion)
     }
 
-    public func getDelegation(for address: String, validator: String, completion: ((RestResult<Delegation>) -> Void)?) {
-        genericGet(connData: connectData, path: "/stake/delegators/\(address)/delegations/\(validator)", delegate: self, completion: completion)
+    public func getDelegation(for address: String, validator: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func getUnbondingDelegations(for address: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
@@ -232,8 +232,8 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericBodyData(data: transferData, connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations", delegate: self, reqMethod: "POST", completion: completion)
     }
     
-    public func getUnbondingDelegation(for address: String, validator: String, completion: ((RestResult<UnbondingDelegation>) -> Void)?) {
-        genericGet(connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations/\(validator)", delegate: self, completion: completion)
+    public func getUnbondingDelegation(for address: String, validator: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
     public func getRedelegations(for address: String, completion: ((RestResult<[Redelegation]>) -> Void)?) {
@@ -242,6 +242,14 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
 
     public func redelegation(from address: String, transferData: RedelegationPostData, completion:((RestResult<TransferResponse>) -> Void)?) {
         genericBodyData(data: transferData, connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", completion: completion)
+    }
+
+    public func getDelegatorValidators(for address: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/validators", delegate: self, singleItemResponse: false, completion: completion)
+    }
+    
+    public func getDelegatorValidator(for address: String,  validator: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/stake/delegators/\(address)/validators/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
 }

@@ -51,8 +51,8 @@ public class GaiaSimpleAPI: RestNetworking {
         connectData = ConnectData(scheme: scheme, host: host, port: port)
     }
     
-    public func getAbciInfo(completion: ((RestResult<AbciInfo>) -> Void)?) {
-        genericGet(connData: connectData, path: "/abci_info", completion: completion)
+    public func getAbciInfo(completion: ((RestResult<[AbciInfo]>) -> Void)?) {
+        genericGet(connData: connectData, path: "/abci_info", singleItemResponse: true, completion: completion)
     }
     
 }
