@@ -51,7 +51,7 @@ import Foundation
  
  POST /tx/sign - Sign a Tx
  POST /tx/broadcast - Send a signed Tx
- GET /bank/balances/{address} - Get the account balances
+ * GET /bank/balances/{address} - Get the account balances
  * POST /bank/accounts/{address}/transfers - Send coins (build -> sign -> send)
  
  
@@ -67,14 +67,14 @@ import Foundation
  * POST /stake/delegators/{delegatorAddr}/redelegations - Submit a redelegation
  * GET /stake/delegators/{delegatorAddr}/validators - Query all validators that a delegator is bonded to
  * GET /stake/delegators/{delegatorAddr}/validators/{validatorAddr} - Query a validator that a delegator is bonded to
- GET /stake/delegators/{delegatorAddr}/txs - Get all staking txs (i.e msgs) from a delegator
- GET /stake/validators - Get all validator candidates
- GET /stake/validators/{validatorAddr} - Query the information from a single validator
- GET /stake/validators/{validatorAddr}/delegations - Get all delegations from a validator
- GET /stake/validators/{validatorAddr}/unbonding_delegations - Get all unbonding delegations from a validator
- GET /stake/validators/{validatorAddr}/redelegations - Get all outgoing redelegations from a validator
- GET /stake/pool - Get the current state of the staking pool
- GET /stake/parameters - Get the current staking parameter values
+ * GET /stake/delegators/{delegatorAddr}/txs - Get all staking txs (i.e msgs) from a delegator
+ * GET /stake/validators - Get all validator candidates
+ * GET /stake/validators/{validatorAddr} - Query the information from a single validator
+ * GET /stake/validators/{validatorAddr}/delegations - Get all delegations from a validator
+ * GET /stake/validators/{validatorAddr}/unbonding_delegations - Get all unbonding delegations from a validator
+ * GET /stake/validators/{validatorAddr}/redelegations - Get all outgoing redelegations from a validator
+ * GET /stake/pool - Get the current state of the staking pool
+ * GET /stake/parameters - Get the current staking parameter values
  
  
  ICS22 - Governance module APIs
@@ -155,12 +155,12 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/blocks/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getValidators(at height: Int, completion: ((RestResult<[Validators]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/validatorsets/\(height)", delegate: self, singleItemResponse: true, completion: completion)
-    }
-    
     public func getLatestValidators(completion: ((RestResult<[Validators]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/validatorsets/latest", delegate: self, singleItemResponse: true, completion: completion)
+    }
+    
+    public func getValidators(at height: Int, completion: ((RestResult<[Validators]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/validatorsets/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
     public func getTransaction(by hash: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
@@ -208,7 +208,11 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/bank/accounts/\(address)/transfers", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
-    
+
+    public func getBalance(address: String, completion: ((RestResult<[TxFeeAmount]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/bank/balances/\(address)", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
     
     // ICS21 - Stake module APIs
 
@@ -252,4 +256,303 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/validators/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
+    public func getStakingTxs(for address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/txs", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
+    public func getStakeValidators(completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators", delegate: self, singleItemResponse: false, completion: completion)
+    }
+    
+    public func getStakeValidator(for valAddress: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getStakeValidatorDelegations(for valAddress: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/delegations", delegate: self, singleItemResponse: false, completion: completion)
+    }
+    
+    public func getStakeValidatorUnbondingDelegations(for valAddress: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/unbonding_delegations", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
+    public func getStakeValidatorRedelegations(for valAddress: String, completion: ((RestResult<[Redelegation]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/redelegations", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
+    public func getStakePool(completion: ((RestResult<[StakePool]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/pool", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getStakeParameters(completion: ((RestResult<[StakeParameters]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/parameters", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    
+    
+    public static func selfTesting() {
+        
+        let restApi = GaiaRestAPI()
+        
+        let chainID = "kytzu-001"
+        let key1name = "validator"
+        let addr1 = "cosmos1r627wlvrhkk637d4zarv2jpkuwuwurj9mnyskt"
+        let addr2 = "cosmos1f7lf8w6kw6pwutpknyawvhvtkmkneg4932jdpv"
+        let val1  = "cosmosvaloper1r627wlvrhkk637d4zarv2jpkuwuwurj978s96c"
+        let val2  = "cosmosvaloper1f7lf8w6kw6pwutpknyawvhvtkmkneg4957xcdl"
+        let acc1Pass = "test1234"
+        let acc2Pass = "test1234"
+        let validHash = "0DAE0C1FC7368BEAC8E7BA4CDE8ECF4209303072F0484A7632473631F060BC49"
+        let recoverSeed = "survey man plate calm myth giggle ahead park creek marble arrest verb indicate brother donor know hedgehog armed total mechanic job caught alert breeze"
+        
+        let dispatchGroup = DispatchGroup()
+        
+        print("... Starting ...")
+        
+        dispatchGroup.enter()
+        restApi.getNodeInfo { result in
+            print("\n... Get Node info ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.network {
+                    print(" -> [OK] - ", field)
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+         }
+
+        dispatchGroup.enter()
+        restApi.getSyncingInfo { result in
+            print("\n... Get Sync info ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first {
+                    print(" -> [OK] - ", item)
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.enter()
+        restApi.getLatestBlock { result in
+            print("\n... Get Lates block ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.blockMeta?.blockId?.hash {
+                    print(" -> [OK] - ", field)
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.enter()
+        restApi.getBlock(at: 1) { result in
+            print("\n... Get block at 1 ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.blockMeta?.blockId?.hash {
+                    print(" -> [OK] - ", field)
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.enter()
+        restApi.getLatestValidators() { result in
+            print("\n... Get latest validators ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.validators?.count {
+                    print(" -> [OK] - ", field)
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+         }
+
+        dispatchGroup.enter()
+        restApi.getValidators(at: 1000) { result in
+            print("\n... Get validators at 1000 ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.validators?.count {
+                    print(" -> [OK] - ", field)
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+       }
+
+        dispatchGroup.enter()
+        restApi.getTransaction(by: validHash) { result in
+            print("\n... Get tx by hash:  \(validHash) ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.hash {
+                    print(" -> [OK] - ", field)
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+       }
+
+        dispatchGroup.enter()
+        restApi.getKeys { result in
+            print("\n... Get all keys on this node ...")
+            switch result {
+            case .success(let data):
+                print(" -> [OK] - ", data.count)
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.enter()
+        let kdata = KeyPostData(name: "testCreate", pass: "test1234", seed: recoverSeed)
+        restApi.createKey(keyData: kdata) { result in
+            print("\n... Create a test key ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.address {
+                    print(" -> [OK] - ", field)
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            
+            restApi.deleteKey(keyData: kdata, completion: { result in
+                print("\n... Delete acc <testCreate> ...")
+                switch result {
+                case .success(let data):
+                    if let item = data.first {
+                        print(" -> [OK] - ", item)
+                    }
+                case .failure(let error):
+                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                }
+                dispatchGroup.leave()
+             })
+        }
+        
+        dispatchGroup.enter()
+        restApi.getSeed { result in
+            print("\n... Get seed ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first {
+                    print(" -> [OK] - ", item)
+                    
+                    let kdata = KeyPostData(name: "testRecover", pass: "test1234", seed: recoverSeed)
+                    restApi.recoverKey(keyData: kdata, completion: { result in
+                        print("\n... Recover testRecover with seed [\(recoverSeed)] ...")
+                        switch result {
+                        case .success(let data):
+                            if let item = data.first, let field = item.address {
+                                print(" -> [OK] - ", field)
+                            }
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        }
+                        
+                        restApi.deleteKey(keyData: kdata, completion: { result in
+                            print("\n... Delete acc <testRecover> ...")
+                            switch result {
+                            case .success(let data):
+                                if let item = data.first {
+                                    print(" -> [OK] - ", item)
+                                }
+                            case .failure(let error):
+                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            }
+                            dispatchGroup.leave()
+                        })
+                    })
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+        }
+        
+        dispatchGroup.enter()
+        let data = KeyPasswordData(name: key1name, oldPass: acc1Pass, newPass: "newpass123")
+        restApi.changeKeyPassword(keyData: data) { result in
+            print("\n... Change pass for [\(key1name)] ...")
+            switch result {
+            case .success(let data):
+                print(" -> [OK] - ", data.count)
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            
+            let data1 = KeyPasswordData(name: key1name, oldPass: "newpass123", newPass: acc1Pass)
+            restApi.changeKeyPassword(keyData: data1) { result in
+                print("\n... Change pass back for [\(key1name)] ...")
+                switch result {
+                case .success(let data):
+                    print(" -> [OK] - ", data.count)
+                case .failure(let error):
+                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                }
+                dispatchGroup.leave()
+            }
+        }
+        
+        dispatchGroup.enter()
+        restApi.getAccount(address: addr1) { result in
+            print("\n... Get account for \(addr1) ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.type {
+                    print(" -> [OK] - ", field)
+                    
+                    dispatchGroup.enter()
+                    let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
+                    restApi.bankTransfer(to: addr2, transferData: data) { result in
+                        print("\n... Transfer 1 photino ...")
+                        switch result {
+                        case .success(let data):
+                            print(" -> [OK] - ", data.first?.hash ?? "")
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        }
+                        dispatchGroup.leave()
+
+                    }
+
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+        
+        dispatchGroup.enter()
+        restApi.getBalance(address: addr1) { result in
+            print("\n... Get balance of \(addr1) ...")
+            switch result {
+            case .success(let data):
+                print(" -> [OK] - ", data.first?.amount ?? "")
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+        
+        
+        dispatchGroup.notify(queue: DispatchQueue.main) {
+            print("\n... Test Completed ...")
+        }
+    }
 }

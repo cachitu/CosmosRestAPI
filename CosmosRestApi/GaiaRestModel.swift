@@ -825,3 +825,27 @@ public struct ValidatorComission: Codable {
         case update_time = "update_time"
     }
 }
+
+public struct StakePool: Codable {
+    
+    public let looseTokens: String?
+    public let bondedTokens: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case looseTokens = "loose_tokens"
+        case bondedTokens = "bonded_tokens"
+    }
+}
+
+public struct StakeParameters: Codable {
+    
+    public let unbonding_time: String?
+    public let max_validators: String?
+    public let bond_denom: String?
+
+    enum CodingKeys : String, CodingKey {
+        case unbonding_time = "unbonding_time"
+        case max_validators = "max_validators"
+        case bond_denom = "bond_denom"
+    }
+}

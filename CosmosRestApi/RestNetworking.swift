@@ -17,7 +17,7 @@ public struct ConnectData {
 
 public enum RestResult<Value> {
     case success(Value)
-    case failure(Error)
+    case failure(NSError)
 }
 
 public struct EmptyBody: Codable {}
@@ -55,7 +55,7 @@ extension RestNetworking {
         urlComponents.path = path
         
         guard let url = urlComponents.url else {
-            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not create URL from components"]) as Error
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not create URL from components"])
             completion?(.failure(error))
             return
         }
@@ -74,7 +74,7 @@ extension RestNetworking {
                 let jsonData = try encoder.encode(bodyData)
                 request.httpBody = jsonData
             } catch {
-                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not encode data"]) as Error
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not encode data"])
                 completion?(.failure(error))
             }
         }
@@ -85,7 +85,7 @@ extension RestNetworking {
         let task = session.dataTask(with: request) { (responseData, response, responseError) in
             DispatchQueue.main.async {
                 
-                if let error = responseError {
+                if let error = responseError as NSError? {
                     completion?(.failure(error))
                 } else if let jsonData = responseData {
                     
@@ -110,16 +110,16 @@ extension RestNetworking {
                                 completion?(.success(decoded))
                             }
                         } catch {
-                            let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : "Resp 200 but no data.Assuming OK"]) as Error
+                            let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : "Resp 200 but no data.Assuming OK"])
                             completion?(.failure(derror))
                         }
                     } else {
-                        let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"]) as Error
+                        let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"])
                         completion?(.failure(error))
                     }
                     
                 } else {
-                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Data was not retrieved from request"]) as Error
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Data was not retrieved from request"])
                     completion?(.failure(error))
                 }
             }        }
