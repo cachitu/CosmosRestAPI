@@ -52,7 +52,7 @@ public class GaiaSimpleAPI: RestNetworking {
     }
     
     public func getAbciInfo(completion: ((RestResult<[AbciInfo]>) -> Void)?) {
-        genericGet(connData: connectData, path: "/abci_info", singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/abci_info", singleItemResponse: true, completion: completion)
     }
     
 }

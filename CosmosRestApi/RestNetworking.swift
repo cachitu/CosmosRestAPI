@@ -20,16 +20,33 @@ public enum RestResult<Value> {
     case failure(Error)
 }
 
+public struct EmptyBody: Codable {}
 
 public protocol RestNetworking {
     
-    func genericGet<T: Codable>(connData: ConnectData, path: String, delegate: URLSessionDelegate?, singleItemResponse: Bool, completion: ((RestResult<[T]>) -> Void)?)
-    func genericBodyData<T: Codable, TResp: Codable>(data: T, connData: ConnectData, path: String, delegate: URLSessionDelegate?, reqMethod: String, completion:((RestResult<TResp>) -> Void)?)
+    func genericRequest<Body: Codable, Resp: Codable>(
+        bodyData: Body,
+        connData: ConnectData,
+        path: String,
+        delegate: URLSessionDelegate?,
+        reqMethod: String,
+        singleItemResponse: Bool,
+        completion: ((RestResult<[Resp]>) -> Void)?
+    )
 }
 
 extension RestNetworking {
  
-    public func genericGet<T: Codable>(connData: ConnectData, path: String, delegate: URLSessionDelegate? = nil, singleItemResponse: Bool = false, completion: ((RestResult<[T]>) -> Void)?) {
+    //Default protocol implementation
+    public func genericRequest<Body: Codable, Resp: Codable>(
+        bodyData: Body,
+        connData: ConnectData,
+        path: String,
+        delegate: URLSessionDelegate? = nil,
+        reqMethod: String = "GET",
+        singleItemResponse: Bool = false,
+        completion: ((RestResult<[Resp]>) -> Void)?)
+    {
         
         var urlComponents = URLComponents()
         urlComponents.scheme = connData.scheme
@@ -44,7 +61,24 @@ extension RestNetworking {
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = reqMethod
+        
+        if !(Body.self is EmptyBody.Type) {
+            
+            var headers = request.allHTTPHeaderFields ?? [:]
+            headers["Content-Type"] = "application/json"
+            request.allHTTPHeaderFields = headers
+            
+            let encoder = JSONEncoder()
+            do {
+                let jsonData = try encoder.encode(bodyData)
+                request.httpBody = jsonData
+            } catch {
+                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not encode data"]) as Error
+                completion?(.failure(error))
+            }
+        }
+        
         
         let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
         
@@ -59,8 +93,8 @@ extension RestNetworking {
                     let httpResponse = response as! HTTPURLResponse
                     if httpResponse.statusCode == 200 {
                         
-                        if T.self is String.Type, let data = rsData as? T {
-                             completion?(.success([data]))
+                        if Resp.self is String.Type, let data = rsData as? Resp {
+                            completion?(.success([data]))
                             return
                         }
                         
@@ -69,10 +103,10 @@ extension RestNetworking {
                         
                         do {
                             if singleItemResponse {
-                                let decoded = try decoder.decode(T.self, from: jsonData)
+                                let decoded = try decoder.decode(Resp.self, from: jsonData)
                                 completion?(.success([decoded]))
                             } else {
-                                let decoded = try decoder.decode([T].self, from: jsonData)
+                                let decoded = try decoder.decode([Resp].self, from: jsonData)
                                 completion?(.success(decoded))
                             }
                         } catch {
@@ -92,75 +126,5 @@ extension RestNetworking {
         
         task.resume()
     }
-
     
-    public func genericBodyData<T: Codable, TResp: Codable>(data: T, connData: ConnectData, path: String, delegate: URLSessionDelegate? = nil, reqMethod: String, completion:((RestResult<TResp>) -> Void)?) {
-        
-        var urlComponents = URLComponents()
-        urlComponents.scheme = connData.scheme
-        urlComponents.host = connData.host
-        urlComponents.port = connData.port
-        urlComponents.path = path
-        
-        guard let url = urlComponents.url else {
-            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not create URL from components"]) as Error
-            completion?(.failure(error))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = reqMethod
-        
-        var headers = request.allHTTPHeaderFields ?? [:]
-        headers["Content-Type"] = "application/json"
-        request.allHTTPHeaderFields = headers
-        
-        let encoder = JSONEncoder()
-        do {
-            let jsonData = try encoder.encode(data)
-            request.httpBody = jsonData
-        } catch {
-            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not encode data"]) as Error
-            completion?(.failure(error))
-        }
-        
-        let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
-
-        let task = session.dataTask(with: request) { (responseData, response, responseError) in
-            if let error = responseError {
-                completion?(.failure(error))
-            } else if let jsonData = responseData {
-                
-                let rsData = String(data: jsonData, encoding: String.Encoding.utf8)
-                let httpResponse = response as! HTTPURLResponse
-                if httpResponse.statusCode == 200 {
-
-                    if TResp.self is String.Type, let data = rsData as? TResp {
-                        completion?(.success(data))
-                        return
-                    }
-
-                    let decoder = JSONDecoder()
-                    decoder.dateDecodingStrategy = .iso8601
-                    
-                    do {
-                        let decoded = try decoder.decode(TResp.self, from: jsonData)
-                        completion?(.success(decoded))
-                    } catch {
-                        let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey :"Resp 200 but no data.Assuming OK"]) as Error
-                        completion?(.failure(derror))
-                    }
-                } else {
-                    let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"]) as Error
-                    completion?(.failure(derror))
-                }
-            } else {
-                let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Data was not retrieved from request"]) as Error
-                completion?(.failure(error))
-            }
-        }
-        
-        task.resume()
-    }
-
 }
