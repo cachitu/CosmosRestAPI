@@ -849,3 +849,57 @@ public struct StakeParameters: Codable {
         case bond_denom = "bond_denom"
     }
 }
+
+//ICS22 - Gov
+
+
+//ICS23 - Slashing
+
+public struct SigningInfo: Codable {
+    
+    public let startHeight: String?
+    public let indexOffset: String?
+    public let jailedUntil: String?
+    public let missedBlocksCounter: String?
+
+    enum CodingKeys : String, CodingKey {
+        case startHeight = "start_height"
+        case indexOffset = "index_offset"
+        case jailedUntil = "jailed_until"
+        case missedBlocksCounter = "missed_blocks_counter"
+    }
+}
+
+public struct SlashingParameters: Codable {
+    
+    public let maxEvidenceAge: String?
+    public let signedBlocksWindow: String?
+    public let minSignedPerWindow: String?
+    public let doubleSignUnbondDuration: String?
+    public let downtimeUnbondDuration: String?
+    public let slashFractionDoubleSign: String?
+    public let slashFractionDowntime: String?
+
+    enum CodingKeys : String, CodingKey {
+        case maxEvidenceAge = "max-evidence-age"
+        case signedBlocksWindow = "signed-blocks-window"
+        case minSignedPerWindow = "min-signed-per-window"
+        case doubleSignUnbondDuration = "double-sign-unbond-duration"
+        case downtimeUnbondDuration = "missed_blocks_counter"
+        case slashFractionDoubleSign = "slash-fraction-double-sign"
+        case slashFractionDowntime = "slash-fraction-downtime"
+    }
+}
+
+public struct UnjailPostData: Codable {
+    
+    public var baseReq: TransferBaseReq?
+    
+    public init(name: String, pass: String, chain: String, accNum: String, sequence: String) {
+        self.baseReq = TransferBaseReq(name: name, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence)
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case baseReq = "base_req"
+    }
+}

@@ -14,13 +14,13 @@ import Foundation
  Sample url: https://localhost:1317/keys
  
  gaiacli rest-server \
-            --chain-id=genki-4002 \
-            --laddr=tcp://localhost:1317 \
-            --node tcp://localhost:26657 \
-            --trust-node=true \
-            --ssl-hosts localhost \
-            --ssl-certfile=/Users/kytzu/.ssh/server.crt \
-            --ssl-keyfile=/Users/kytzu/.ssh/server.key \
+ --chain-id=genki-4002 \
+ --laddr=tcp://localhost:1317 \
+ --node tcp://localhost:26657 \
+ --trust-node=true \
+ --ssl-hosts localhost \
+ --ssl-certfile=/Users/kytzu/.ssh/server.crt \
+ --ssl-keyfile=/Users/kytzu/.ssh/server.key \
  
  ICS0 - endermint APIs, such as query blocks, transactions and validatorset
  
@@ -114,8 +114,8 @@ import Foundation
  POST /distribution/validators/{validatorAddr}/rewards - Withdraw the validator's rewards
  GET  /distribution/parameters - Fee distribution parameters
  GET  /distribution/pool - Fee distribution pool
-
-
+ 
+ 
  Query app version
  
  GET /version - Version of Gaia-lite
@@ -126,7 +126,7 @@ import Foundation
 public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     let connectData: ConnectData
-
+    
     public init(scheme: String = "https", host: String = "localhost", port: Int = 1317) {
         connectData = ConnectData(scheme: scheme, host: host, port: port)
         super.init()
@@ -135,7 +135,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }
-
+    
     
     //ICS0 - endermint APIs, such as query blocks, transactions and validatorset
     
@@ -146,11 +146,11 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func getSyncingInfo(completion: ((RestResult<[String]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/syncing", delegate: self, singleItemResponse: true, completion: completion)
     }
-
+    
     public func getLatestBlock(completion: ((RestResult<[BlockRoot]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/blocks/latest", delegate: self, singleItemResponse: true, completion: completion)
     }
-
+    
     public func getBlock(at height: Int, completion: ((RestResult<[BlockRoot]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/blocks/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -162,11 +162,11 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func getValidators(at height: Int, completion: ((RestResult<[Validators]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/validatorsets/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
-
+    
     public func getTransaction(by hash: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs/\(hash)", delegate: self, singleItemResponse: true, completion: completion)
     }
-
+    
     
     //ICS1 - Key management APIs
     
@@ -185,7 +185,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func createKey(keyData: KeyPostData, completion:((RestResult<[Key]>) -> Void)?) {
         genericRequest(bodyData: keyData, connData: connectData, path: "/keys", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
-
+    
     public func recoverKey(keyData: KeyPostData, completion:((RestResult<[Key]>) -> Void)?) {
         genericRequest(bodyData: keyData, connData: connectData, path: "/keys/\(keyData.name)/recover", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
@@ -193,7 +193,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func deleteKey(keyData: KeyPostData, completion:((RestResult<[String]>) -> Void)?) {
         genericRequest(bodyData: keyData, connData: connectData, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "DELETE", singleItemResponse: true, completion: completion)
     }
-
+    
     public func changeKeyPassword(keyData: KeyPasswordData, completion:((RestResult<[String]>) -> Void)?) {
         genericRequest(bodyData: keyData, connData: connectData, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "PUT", singleItemResponse: true, completion: completion)
     }
@@ -208,14 +208,14 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/bank/accounts/\(address)/transfers", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
-
+    
     public func getBalance(address: String, completion: ((RestResult<[TxFeeAmount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/bank/balances/\(address)", delegate: self, singleItemResponse: false, completion: completion)
     }
-
+    
     
     // ICS21 - Stake module APIs
-
+    
     public func getDelegations(for address: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, completion: completion)
     }
@@ -223,7 +223,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func delegation(from address: String, transferData: DelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
-
+    
     public func getDelegation(for address: String, validator: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -231,7 +231,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func getUnbondingDelegations(for address: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations", delegate: self, completion: completion)
     }
-
+    
     public func unbonding(from address: String, transferData: UnbondingDelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
@@ -239,15 +239,15 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func getUnbondingDelegation(for address: String, validator: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
-
+    
     public func getRedelegations(for address: String, completion: ((RestResult<[Redelegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, completion: completion)
     }
-
+    
     public func redelegation(from address: String, transferData: RedelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
-
+    
     public func getDelegatorValidators(for address: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/validators", delegate: self, singleItemResponse: false, completion: completion)
     }
@@ -255,11 +255,11 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func getDelegatorValidator(for address: String,  validator: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/validators/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
-
+    
     public func getStakingTxs(for address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/txs", delegate: self, singleItemResponse: false, completion: completion)
     }
-
+    
     public func getStakeValidators(completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators", delegate: self, singleItemResponse: false, completion: completion)
     }
@@ -267,7 +267,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func getStakeValidator(for valAddress: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)", delegate: self, singleItemResponse: true, completion: completion)
     }
-
+    
     public func getStakeValidatorDelegations(for valAddress: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/delegations", delegate: self, singleItemResponse: false, completion: completion)
     }
@@ -275,38 +275,58 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func getStakeValidatorUnbondingDelegations(for valAddress: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/unbonding_delegations", delegate: self, singleItemResponse: false, completion: completion)
     }
-
+    
     public func getStakeValidatorRedelegations(for valAddress: String, completion: ((RestResult<[Redelegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/redelegations", delegate: self, singleItemResponse: false, completion: completion)
     }
-
+    
     public func getStakePool(completion: ((RestResult<[StakePool]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/pool", delegate: self, singleItemResponse: true, completion: completion)
     }
-
+    
     public func getStakeParameters(completion: ((RestResult<[StakeParameters]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/parameters", delegate: self, singleItemResponse: true, completion: completion)
     }
+    
+    
+    //ICS22 - Governance
+    
+    
+    //ICS23 - Slashing - /slashing/validators/{validatorAddr}/unjail
 
     
+    public func getSlashingSigningInfo(of valPubKey: String, completion: ((RestResult<[SigningInfo]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/slashing/validators/\(valPubKey)/signing_info", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func unjail(validator valAddr: String, transferData: UnjailPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/slashing/validators/\(valAddr)/unjail", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func getSlashingParameters(completion: ((RestResult<[SlashingParameters]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/slashing/parameters", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     
-    public static func selfTesting() {
+    public static func selfTesting(
+        chainID: String = "kytzu-001",
+        key1name: String = "validator",
+        addr1: String = "cosmos1r627wlvrhkk637d4zarv2jpkuwuwurj9mnyskt",
+        addr2: String = "cosmos1f7lf8w6kw6pwutpknyawvhvtkmkneg4932jdpv",
+        val1: String  = "cosmosvaloper1r627wlvrhkk637d4zarv2jpkuwuwurj978s96c",
+        val2: String  = "cosmosvaloper1f7lf8w6kw6pwutpknyawvhvtkmkneg4957xcdl",
+        val2PubKey: String  = "cosmosvalconspub1zcjduepqfs7a0uysc9n07f64aups5vl5j82lsz53znevtrwn0hh2cg74g70se77crv",
+        acc1Pass: String = "test1234",
+        acc2Pass: String = "test1234",
+        validHash: String = "0DAE0C1FC7368BEAC8E7BA4CDE8ECF4209303072F0484A7632473631F060BC49",
+        recoverSeed: String = "survey man plate calm myth giggle ahead park creek marble arrest verb indicate brother donor know hedgehog armed total mechanic job caught alert breeze"
+        )
+    {
         
         let restApi = GaiaRestAPI()
-        
-        let chainID = "kytzu-001"
-        let key1name = "validator"
-        let addr1 = "cosmos1r627wlvrhkk637d4zarv2jpkuwuwurj9mnyskt"
-        let addr2 = "cosmos1f7lf8w6kw6pwutpknyawvhvtkmkneg4932jdpv"
-        let val1  = "cosmosvaloper1r627wlvrhkk637d4zarv2jpkuwuwurj978s96c"
-        let val2  = "cosmosvaloper1f7lf8w6kw6pwutpknyawvhvtkmkneg4957xcdl"
-        let acc1Pass = "test1234"
-        let acc2Pass = "test1234"
-        let validHash = "0DAE0C1FC7368BEAC8E7BA4CDE8ECF4209303072F0484A7632473631F060BC49"
-        let recoverSeed = "survey man plate calm myth giggle ahead park creek marble arrest verb indicate brother donor know hedgehog armed total mechanic job caught alert breeze"
-        
         let dispatchGroup = DispatchGroup()
         
+
         print("... Starting ...")
         
         dispatchGroup.enter()
@@ -321,7 +341,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
             dispatchGroup.leave()
-         }
+        }
 
         dispatchGroup.enter()
         restApi.getSyncingInfo { result in
@@ -336,6 +356,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
             }
             dispatchGroup.leave()
         }
+
 
         dispatchGroup.enter()
         restApi.getLatestBlock { result in
@@ -377,7 +398,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
             dispatchGroup.leave()
-         }
+        }
 
         dispatchGroup.enter()
         restApi.getValidators(at: 1000) { result in
@@ -391,7 +412,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
             dispatchGroup.leave()
-       }
+        }
 
         dispatchGroup.enter()
         restApi.getTransaction(by: validHash) { result in
@@ -405,7 +426,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
             dispatchGroup.leave()
-       }
+        }
 
         dispatchGroup.enter()
         restApi.getKeys { result in
@@ -431,7 +452,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
             case .failure(let error):
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
-            
+
             restApi.deleteKey(keyData: kdata, completion: { result in
                 print("\n... Delete acc <testCreate> ...")
                 switch result {
@@ -443,9 +464,9 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                     print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                 }
                 dispatchGroup.leave()
-             })
+            })
         }
-        
+
         dispatchGroup.enter()
         restApi.getSeed { result in
             print("\n... Get seed ...")
@@ -453,7 +474,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
             case .success(let data):
                 if let item = data.first {
                     print(" -> [OK] - ", item)
-                    
+
                     let kdata = KeyPostData(name: "testRecover", pass: "test1234", seed: recoverSeed)
                     restApi.recoverKey(keyData: kdata, completion: { result in
                         print("\n... Recover testRecover with seed [\(recoverSeed)] ...")
@@ -465,7 +486,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                         case .failure(let error):
                             print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         }
-                        
+
                         restApi.deleteKey(keyData: kdata, completion: { result in
                             print("\n... Delete acc <testRecover> ...")
                             switch result {
@@ -484,7 +505,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
         }
-        
+
         dispatchGroup.enter()
         let data = KeyPasswordData(name: key1name, oldPass: acc1Pass, newPass: "newpass123")
         restApi.changeKeyPassword(keyData: data) { result in
@@ -495,7 +516,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
             case .failure(let error):
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
-            
+
             let data1 = KeyPasswordData(name: key1name, oldPass: "newpass123", newPass: acc1Pass)
             restApi.changeKeyPassword(keyData: data1) { result in
                 print("\n... Change pass back for [\(key1name)] ...")
@@ -508,7 +529,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                 dispatchGroup.leave()
             }
         }
-        
+
         dispatchGroup.enter()
         restApi.getAccount(address: addr1) { result in
             print("\n... Get account for \(addr1) ...")
@@ -516,7 +537,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
             case .success(let data):
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
-                    
+
                     dispatchGroup.enter()
                     let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
                     restApi.bankTransfer(to: addr2, transferData: data) { result in
@@ -534,10 +555,10 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                 }
             case .failure(let error):
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                dispatchGroup.leave()
             }
-            dispatchGroup.leave()
         }
-        
+
         dispatchGroup.enter()
         restApi.getBalance(address: addr1) { result in
             print("\n... Get balance of \(addr1) ...")
@@ -548,6 +569,61 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
             dispatchGroup.leave()
+        }
+
+        dispatchGroup.enter()
+        restApi.getSlashingSigningInfo(of: val2PubKey) { result in
+            print("\n... Get Slashing signing info \(val2PubKey) ...")
+            switch result {
+            case .success(let data):
+                print(" -> [OK] - ", data.first?.missedBlocksCounter ?? "")
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.enter()
+        restApi.getSlashingParameters { result in
+            print("\n... Get Slashing parameters ...")
+            switch result {
+            case .success(let data):
+                print(" -> [OK] - ", data.first?.maxEvidenceAge ?? "")
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.enter()
+        restApi.getAccount(address: addr1) { result in
+            print("\n... Get account for \(addr1) - scope unjail ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let field = item.type {
+                    print(" -> [OK] - ", field)
+                    
+                    let baseReq = UnjailPostData(name: key1name, pass: acc1Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
+                    restApi.unjail(validator: val1, transferData: baseReq) { result in
+                        print("\n... Unjail \(val1) ...")
+                        switch result {
+                        case .success(let data):
+                            print(" -> [OK] - ", data.first?.hash ?? "")
+                        case .failure(let error):
+                            if error.code == 500 {
+                                print(" -> [OK] - Not jailed")
+                            } else {
+                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            }
+                         }
+                        dispatchGroup.leave()
+                    }
+
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                dispatchGroup.leave()
+            }
         }
         
         
