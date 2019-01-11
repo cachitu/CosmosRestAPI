@@ -43,7 +43,7 @@ import Foundation
  
  */
 
-public class GaiaSimpleAPI: RestNetworking {    
+public class GaiaTendermintAPI: RestNetworking {    
     
     let connectData: ConnectData
 

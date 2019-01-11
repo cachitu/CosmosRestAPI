@@ -8,6 +8,9 @@
 
 import Foundation
 
+// All objects here are used to decode the Rest API json responses. They don't have their own logic, just raw data as it comes in response.
+// This should be maintained with newer versions, as the keys might change.
+
 
 //ICS0 - endermint APIs, such as query blocks, transactions and validatorset
 
@@ -343,13 +346,13 @@ public struct TxValueMsg: Codable {
 
 public struct TxMsgVal: Codable {
     
-    public let delegator_addr: String?
-    public let validator_addr: String?
+    public let delegatorAddr: String?
+    public let validatorAddr: String?
     public let delegation: TxMsgValDelegation?
     
     enum CodingKeys : String, CodingKey {
-        case delegator_addr = "delegator_addr"
-        case validator_addr = "validator_addr"
+        case delegatorAddr = "delegator_addr"
+        case validatorAddr = "validator_addr"
         case delegation
     }
 }
@@ -417,14 +420,14 @@ public struct Key: Codable {
     public let name: String?
     public let type: String?
     public let address: String?
-    public let pub_key: String?
+    public let pubKey: String?
     public var seed: String?
     
     enum CodingKeys : String, CodingKey {
         case name
         case type
         case address
-        case pub_key
+        case pubKey = "pub_key"
         case seed
     }
 }
@@ -774,11 +777,11 @@ public struct DelegatorValidator: Codable {
     public let jailed: Bool?
     public let status: Int?
     public let tokens: String?
-    public let delegator_shares: String?
+    public let delegatorShares: String?
     public let description: ValidatorDesc?
-    public let bond_height: String?
-    public let unbonding_height: String?
-    public let unbonding_time: String?
+    public let bondHeight: String?
+    public let unbondingHeight: String?
+    public let unbondingTime: String?
     public let commission: ValidatorComission?
 
     enum CodingKeys : String, CodingKey {
@@ -787,11 +790,11 @@ public struct DelegatorValidator: Codable {
         case jailed
         case status
         case tokens
-        case delegator_shares = "delegator_shares"
+        case delegatorShares = "delegator_shares"
         case description
-        case bond_height = "bond_height"
-        case unbonding_height = "unbonding_height"
-        case unbonding_time = "unbonding_time"
+        case bondHeight = "bond_height"
+        case unbondingHeight = "unbonding_height"
+        case unbondingTime = "unbonding_time"
         case commission
     }
 }
@@ -814,15 +817,15 @@ public struct ValidatorDesc: Codable {
 public struct ValidatorComission: Codable {
     
     public let rate: String?
-    public let max_rate: String?
-    public let max_change_rate: String?
-    public let update_time: String?
+    public let maxRate: String?
+    public let maxChangeRate: String?
+    public let updateTime: String?
     
     enum CodingKeys : String, CodingKey {
         case rate
-        case max_rate = "max_rate"
-        case max_change_rate = "max_change_rate"
-        case update_time = "update_time"
+        case maxRate = "max_rate"
+        case maxChangeRate = "max_change_rate"
+        case updateTime = "update_time"
     }
 }
 
@@ -839,14 +842,14 @@ public struct StakePool: Codable {
 
 public struct StakeParameters: Codable {
     
-    public let unbonding_time: String?
-    public let max_validators: String?
-    public let bond_denom: String?
+    public let unbondingTime: String?
+    public let maxValidators: String?
+    public let bondDenom: String?
 
     enum CodingKeys : String, CodingKey {
-        case unbonding_time = "unbonding_time"
-        case max_validators = "max_validators"
-        case bond_denom = "bond_denom"
+        case unbondingTime = "unbonding_time"
+        case maxValidators = "max_validators"
+        case bondDenom = "bond_denom"
     }
 }
 
@@ -857,6 +860,14 @@ public enum ProposalType: String, Codable {
     case parameter_change
     case software_upgrade
 }
+
+public enum ProposalVoteOption: String, Codable {
+    case yes
+    case no
+    case no_with_veto
+    case abstain
+}
+
 
 public struct Proposal: Codable {
     
@@ -938,6 +949,105 @@ public struct ProposalPostData: Codable {
         case description
         case proposalType = "proposal_type"
         case proposer
+    }
+}
+
+public struct ProposalDepositPostData: Codable {
+    
+    public let baseReq: TransferBaseReq?
+    public let amount: [TxFeeAmount]?
+    public var depositor: String?
+    
+    public init(keyName: String, pass: String, chain: String, deposit: String, denom: String, accNum: String, sequence: String, depositor: String) {
+        self.amount = [TxFeeAmount(denom: denom, amount: deposit)]
+        self.baseReq = TransferBaseReq(name: keyName, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence)
+        self.depositor = depositor
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case baseReq = "base_req"
+        case amount
+        case depositor
+    }
+}
+
+public struct ProposalVotePostData: Codable {
+    
+    public let baseReq: TransferBaseReq?
+    public let voter: String?
+    public var option: String?
+    
+    public init(keyName: String, pass: String, chain: String, accNum: String, sequence: String, voter: String, option: ProposalVoteOption) {
+        self.baseReq = TransferBaseReq(name: keyName, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence)
+        self.voter = voter
+        self.option = option.rawValue
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case baseReq = "base_req"
+        case voter
+        case option
+    }
+}
+
+public struct ProposalDeposit: Codable {
+    
+    public let depositor: String?
+    public var proposalId: String?
+    public let amount: [TxFeeAmount]?
+    
+    enum CodingKeys : String, CodingKey {
+        case depositor
+        case proposalId = "proposal_id"
+        case amount
+     }
+}
+
+public struct ProposalVote: Codable {
+    
+    public let voter: String?
+    public var proposalId: String?
+    public let option: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case voter
+        case proposalId = "proposal_id"
+        case option
+    }
+}
+
+public struct GovDepositParameters: Codable {
+    
+    public let minDeposit: [TxFeeAmount]?
+    public var maxDepositPeriod: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case minDeposit = "min_deposit"
+        case maxDepositPeriod = "max_deposit_period"
+    }
+}
+
+public struct GovTallyingParameters: Codable {
+    
+    public let quorum: String?
+    public var threshold: String?
+    public let veto: String?
+    public let governancePenalty: String?
+
+    enum CodingKeys : String, CodingKey {
+        case quorum
+        case threshold
+        case veto
+        case governancePenalty = "governance_penalty"
+    }
+}
+
+public struct GovVotingParameters: Codable {
+    
+    public let voting_period: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case voting_period = "voting_period"
     }
 }
 

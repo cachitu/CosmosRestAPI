@@ -81,17 +81,17 @@ import Foundation
  
  * POST /gov/proposals - Submit a proposal
  * GET /gov/proposals - Query proposals
- GET /gov/proposals/{proposalId} - Query a proposal
- GET /gov/proposals/{proposalId}/deposits - Query deposits
- POST /gov/proposals/{proposalId}/deposits - Deposit tokens to a proposal
- GET /gov/proposals/{proposalId}/deposits/{depositor} - Query deposit
- GET /gov/proposals/{proposalId}/votes - Query voters
- POST /gov/proposals/{proposalId}/votes - Vote a proposal
- GET /gov/proposals/{proposalId}/votes/{voter} - Query vote
- GET /gov/proposals/{proposalId}/tally - Get a proposal's tally result at the current time
- GET /gov/parameters/deposit - Query governance deposit parameters
- GET /gov/parameters/tallying - Query governance tally parameters
- GET /gov/parameters/voting - Query governance voting parameters
+ * GET /gov/proposals/{proposalId} - Query a proposal
+ * GET /gov/proposals/{proposalId}/deposits - Query deposits
+ * POST /gov/proposals/{proposalId}/deposits - Deposit tokens to a proposal
+ * GET /gov/proposals/{proposalId}/deposits/{depositor} - Query deposit
+ * GET /gov/proposals/{proposalId}/votes - Query voters
+ * POST /gov/proposals/{proposalId}/votes - Vote a proposal
+ * GET /gov/proposals/{proposalId}/votes/{voter} - Query vote
+ * GET /gov/proposals/{proposalId}/tally - Get a proposal's tally result at the current time
+ * GET /gov/parameters/deposit - Query governance deposit parameters
+ * GET /gov/parameters/tallying - Query governance tally parameters
+ * GET /gov/parameters/voting - Query governance voting parameters
  
  
  ICS23 - Slashing module APIs
@@ -118,12 +118,14 @@ import Foundation
  
  Query app version
  
- GET /version - Version of Gaia-lite
- GET /node_version - Version of the connected node
+ * GET /version - Version of Gaia-lite
+ * GET /node_version - Version of the connected node
  
  */
 
 public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
+    
+    static let latestTestedVersion = "0.29.1-0-g6bff7082"
     
     let connectData: ConnectData
     
@@ -170,7 +172,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     //ICS1 - Key management APIs
     
-    public func getSeed(completion: ((RestResult<[String]>) -> Void)?) {
+    public func createSeed(completion: ((RestResult<[String]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/keys/seed", delegate: self, singleItemResponse: true, completion: completion)
     }
     
@@ -299,9 +301,52 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: false, completion: completion)
     }
 
+    public func getPorposal(forId id: String, completion: ((RestResult<[Proposal]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)", delegate: self, singleItemResponse: true, completion: completion)
+    }
     
-    //ICS23 - Slashing - /slashing/validators/{validatorAddr}/unjail
+    public func getPorposalDeposits(forId id: String, completion: ((RestResult<[ProposalDeposit]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/deposits", delegate: self, singleItemResponse: false, completion: completion)
+    }
 
+    public func getPorposalDeposit(forId id: String, by depositor: String, completion: ((RestResult<[ProposalDeposit]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/deposits/\(depositor)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getPorposalVotes(forId id: String, completion: ((RestResult<[ProposalVote]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
+    public func getPorposalTally(forId id: String, completion: ((RestResult<[ProposalTallyResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/tally", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getPorposalVote(forId id: String, by voter: String, completion: ((RestResult<[ProposalVote]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes/\(voter)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func depositToProposal(id: String, transferData: ProposalDepositPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/deposits", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func voteProposal(id: String, transferData: ProposalVotePostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func getGovDepositParameters(completion: ((RestResult<[GovDepositParameters]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/parameters/deposit", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getGovTallyingParameters(completion: ((RestResult<[GovTallyingParameters]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/parameters/tallying", delegate: self, singleItemResponse: true, completion: completion)
+    }
+    
+    public func getGovVotingParameters(completion: ((RestResult<[GovVotingParameters]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/parameters/voting", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+
+    //ICS23 - Slashing
     
     public func getSlashingSigningInfo(of valPubKey: String, completion: ((RestResult<[SigningInfo]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/slashing/validators/\(valPubKey)/signing_info", delegate: self, singleItemResponse: true, completion: completion)
@@ -315,371 +360,19 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/slashing/parameters", delegate: self, singleItemResponse: true, completion: completion)
     }
 
+    //ICS24 - Fee distribution module APIs
     
-    public static func selfTesting(
-        chainID: String = "kytzu-001",
-        key1name: String = "validator",
-        addr1: String = "cosmos1r627wlvrhkk637d4zarv2jpkuwuwurj9mnyskt",
-        addr2: String = "cosmos1f7lf8w6kw6pwutpknyawvhvtkmkneg4932jdpv",
-        val1: String  = "cosmosvaloper1r627wlvrhkk637d4zarv2jpkuwuwurj978s96c",
-        val2: String  = "cosmosvaloper1f7lf8w6kw6pwutpknyawvhvtkmkneg4957xcdl",
-        val2PubKey: String  = "cosmosvalconspub1zcjduepqfs7a0uysc9n07f64aups5vl5j82lsz53znevtrwn0hh2cg74g70se77crv",
-        acc1Pass: String = "test1234",
-        acc2Pass: String = "test1234",
-        validHash: String = "0DAE0C1FC7368BEAC8E7BA4CDE8ECF4209303072F0484A7632473631F060BC49",
-        recoverSeed: String = "survey man plate calm myth giggle ahead park creek marble arrest verb indicate brother donor know hedgehog armed total mechanic job caught alert breeze"
-        )
-    {
-        
-        let restApi = GaiaRestAPI()
-        let dispatchGroup = DispatchGroup()
-        
-
-        print("... Starting ...")
-        
-        dispatchGroup.enter()
-        restApi.getNodeInfo { result in
-            print("\n... Get Node info ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.network {
-                    print(" -> [OK] - ", field)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        restApi.getSyncingInfo { result in
-            print("\n... Get Sync info ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first {
-                    print(" -> [OK] - ", item)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-
-        dispatchGroup.enter()
-        restApi.getLatestBlock { result in
-            print("\n... Get Lates block ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.blockMeta?.blockId?.hash {
-                    print(" -> [OK] - ", field)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        restApi.getBlock(at: 1) { result in
-            print("\n... Get block at 1 ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.blockMeta?.blockId?.hash {
-                    print(" -> [OK] - ", field)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        restApi.getLatestValidators() { result in
-            print("\n... Get latest validators ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.validators?.count {
-                    print(" -> [OK] - ", field)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        restApi.getValidators(at: 1000) { result in
-            print("\n... Get validators at 1000 ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.validators?.count {
-                    print(" -> [OK] - ", field)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        restApi.getTransaction(by: validHash) { result in
-            print("\n... Get tx by hash:  \(validHash) ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.hash {
-                    print(" -> [OK] - ", field)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        restApi.getKeys { result in
-            print("\n... Get all keys on this node ...")
-            switch result {
-            case .success(let data):
-                print(" -> [OK] - ", data.count)
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        let kdata = KeyPostData(name: "testCreate", pass: "test1234", seed: recoverSeed)
-        restApi.createKey(keyData: kdata) { result in
-            print("\n... Create a test key ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.address {
-                    print(" -> [OK] - ", field)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-
-            restApi.deleteKey(keyData: kdata, completion: { result in
-                print("\n... Delete acc <testCreate> ...")
-                switch result {
-                case .success(let data):
-                    if let item = data.first {
-                        print(" -> [OK] - ", item)
-                    }
-                case .failure(let error):
-                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                }
-                dispatchGroup.leave()
-            })
-        }
-
-        dispatchGroup.enter()
-        restApi.getSeed { result in
-            print("\n... Get seed ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first {
-                    print(" -> [OK] - ", item)
-
-                    let kdata = KeyPostData(name: "testRecover", pass: "test1234", seed: recoverSeed)
-                    restApi.recoverKey(keyData: kdata, completion: { result in
-                        print("\n... Recover testRecover with seed [\(recoverSeed)] ...")
-                        switch result {
-                        case .success(let data):
-                            if let item = data.first, let field = item.address {
-                                print(" -> [OK] - ", field)
-                            }
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        }
-
-                        restApi.deleteKey(keyData: kdata, completion: { result in
-                            print("\n... Delete acc <testRecover> ...")
-                            switch result {
-                            case .success(let data):
-                                if let item = data.first {
-                                    print(" -> [OK] - ", item)
-                                }
-                            case .failure(let error):
-                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            }
-                            dispatchGroup.leave()
-                        })
-                    })
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-        }
-
-//        dispatchGroup.enter()
-//        let data = KeyPasswordData(name: key1name, oldPass: acc1Pass, newPass: "newpass123")
-//        restApi.changeKeyPassword(keyData: data) { result in
-//            print("\n... Change pass for [\(key1name)] ...")
-//            switch result {
-//            case .success(let data):
-//                print(" -> [OK] - ", data.count)
-//            case .failure(let error):
-//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//            }
-//
-//            let data1 = KeyPasswordData(name: key1name, oldPass: "newpass123", newPass: acc1Pass)
-//            restApi.changeKeyPassword(keyData: data1) { result in
-//                print("\n... Change pass back for [\(key1name)] ...")
-//                switch result {
-//                case .success(let data):
-//                    print(" -> [OK] - ", data.count)
-//                case .failure(let error):
-//                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                }
-//                dispatchGroup.leave()
-//            }
-//        }
-
-//        dispatchGroup.enter()
-//        restApi.getAccount(address: addr1) { result in
-//            print("\n... Get account for \(addr1) - context transfer ...")
-//            switch result {
-//            case .success(let data):
-//                if let item = data.first, let field = item.type {
-//                    print(" -> [OK] - ", field)
-//
-//                     let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
-//                    restApi.bankTransfer(to: addr2, transferData: data) { result in
-//                        print("\n... Transfer 1 photino ...")
-//                        switch result {
-//                        case .success(let data):
-//                            print(" -> [OK] - ", data.first?.hash ?? "")
-//                        case .failure(let error):
-//                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                        }
-//                        dispatchGroup.leave()
-//
-//                    }
-//
-//                }
-//            case .failure(let error):
-//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                dispatchGroup.leave()
-//            }
-//        }
-
-        dispatchGroup.enter()
-        restApi.getBalance(address: addr1) { result in
-            print("\n... Get balance of \(addr1) ...")
-            switch result {
-            case .success(let data):
-                print(" -> [OK] - ", data.first?.amount ?? "")
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        //ICS 22
-        
-        dispatchGroup.enter()
-        restApi.getPorposals() { result in
-            print("\n... Get Proposals ...")
-            switch result {
-            case .success(let data):
-                print(" -> [OK] - ", data.first?.value?.title ?? "")
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-//        dispatchGroup.enter()
-//        restApi.getAccount(address: addr1) { result in
-//            print("\n... Get account for \(addr1) - context proposal ...")
-//            switch result {
-//            case .success(let data):
-//                if let item = data.first, let field = item.type {
-//                    print(" -> [OK] - ", field)
-//
-//                    let data = ProposalPostData(keyName: key1name, pass: acc1Pass, chain: chainID, deposit: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", title: "Third", description: "Upgrade the net", proposalType: ProposalType.software_upgrade, proposer: addr1)
-//                    restApi.submitProposal(transferData: data) { result in
-//                        print("\n... Submit proposal ...")
-//                        switch result {
-//                        case .success(let data):
-//                            print(" -> [OK] - ", data.first?.hash ?? "")
-//                        case .failure(let error):
-//                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                        }
-//                        dispatchGroup.leave()
-//
-//                    }
-//                }
-//            case .failure(let error):
-//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                dispatchGroup.leave()
-//            }
-//        }
-
-        
-        //ICS 23
-        
-        dispatchGroup.enter()
-        restApi.getSlashingSigningInfo(of: val2PubKey) { result in
-            print("\n... Get Slashing signing info \(val2PubKey) ...")
-            switch result {
-            case .success(let data):
-                print(" -> [OK] - ", data.first?.missedBlocksCounter ?? "")
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-        dispatchGroup.enter()
-        restApi.getSlashingParameters { result in
-            print("\n... Get Slashing parameters ...")
-            switch result {
-            case .success(let data):
-                print(" -> [OK] - ", data.first?.maxEvidenceAge ?? "")
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-
-//        dispatchGroup.enter()
-//        restApi.getAccount(address: addr1) { result in
-//            print("\n... Get account for \(addr1) - scope unjail ...")
-//            switch result {
-//            case .success(let data):
-//                if let item = data.first, let field = item.type {
-//                    print(" -> [OK] - ", field)
-//
-//                    let baseReq = UnjailPostData(name: key1name, pass: acc1Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
-//                    restApi.unjail(validator: val1, transferData: baseReq) { result in
-//                        print("\n... Unjail \(val1) ...")
-//                        switch result {
-//                        case .success(let data):
-//                            print(" -> [OK] - ", data.first?.hash ?? "")
-//                        case .failure(let error):
-//                            if error.code == 500 {
-//                                print(" -> [OK] - Not jailed")
-//                            } else {
-//                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                            }
-//                         }
-//                        dispatchGroup.leave()
-//                    }
-//
-//                }
-//            case .failure(let error):
-//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                dispatchGroup.leave()
-//            }
-//        }
-        
-        
-        dispatchGroup.notify(queue: DispatchQueue.main) {
-            print("\n... Test Completed ...")
-        }
+    // Wait for implementation on server
+    
+    
+    //Version
+    
+    public func getGaiaVersion(completion: ((RestResult<[String]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/version", delegate: self, singleItemResponse: true, completion: completion)
     }
+
+    public func getNodeVersion(completion: ((RestResult<[String]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node_version", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
 }
