@@ -10,11 +10,13 @@
 		88300D8221DCA73E007B9C43 /* CosmosRestApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 88300D8021DCA73E007B9C43 /* CosmosRestApi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88300D8C21DCA76C007B9C43 /* RestNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8821DCA76B007B9C43 /* RestNetworking.swift */; };
 		88300D8D21DCA76C007B9C43 /* GaiaRestAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8921DCA76C007B9C43 /* GaiaRestAPI.swift */; };
-		88300D8E21DCA76C007B9C43 /* GaiaRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8A21DCA76C007B9C43 /* GaiaRestModel.swift */; };
+		88300D8E21DCA76C007B9C43 /* GaiaRestAPIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8A21DCA76C007B9C43 /* GaiaRestAPIModel.swift */; };
 		88300D8F21DCA76C007B9C43 /* PersistCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8B21DCA76C007B9C43 /* PersistCodable.swift */; };
-		88300DBB21DCA90A007B9C43 /* GaiaTendermintApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300DBA21DCA90A007B9C43 /* GaiaTendermintApi.swift */; };
-		88300DC221DD0317007B9C43 /* GaiaTendermintModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300DC121DD0317007B9C43 /* GaiaTendermintModel.swift */; };
+		88300DBB21DCA90A007B9C43 /* GaiaTendermintAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300DBA21DCA90A007B9C43 /* GaiaTendermintAPI.swift */; };
+		88300DC221DD0317007B9C43 /* GaiaTendermintAPIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300DC121DD0317007B9C43 /* GaiaTendermintAPIModel.swift */; };
 		88677FE421E8F4CD0022A09E /* GaiaRestTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */; };
+		88677FE921E8F62E0022A09E /* GaiaRestInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */; };
+		88677FED21E903520022A09E /* GaiaRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FEC21E903520022A09E /* GaiaRestModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,11 +25,13 @@
 		88300D8121DCA73E007B9C43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		88300D8821DCA76B007B9C43 /* RestNetworking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestNetworking.swift; sourceTree = "<group>"; };
 		88300D8921DCA76C007B9C43 /* GaiaRestAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GaiaRestAPI.swift; sourceTree = "<group>"; };
-		88300D8A21DCA76C007B9C43 /* GaiaRestModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GaiaRestModel.swift; sourceTree = "<group>"; };
+		88300D8A21DCA76C007B9C43 /* GaiaRestAPIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GaiaRestAPIModel.swift; sourceTree = "<group>"; };
 		88300D8B21DCA76C007B9C43 /* PersistCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersistCodable.swift; sourceTree = "<group>"; };
-		88300DBA21DCA90A007B9C43 /* GaiaTendermintApi.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GaiaTendermintApi.swift; sourceTree = "<group>"; };
-		88300DC121DD0317007B9C43 /* GaiaTendermintModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaiaTendermintModel.swift; sourceTree = "<group>"; };
-		88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestTester.swift; path = ../../CosmosRestAPI/CosmosRestApi/GaiaRestTester.swift; sourceTree = "<group>"; };
+		88300DBA21DCA90A007B9C43 /* GaiaTendermintAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GaiaTendermintAPI.swift; sourceTree = "<group>"; };
+		88300DC121DD0317007B9C43 /* GaiaTendermintAPIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaiaTendermintAPIModel.swift; sourceTree = "<group>"; };
+		88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaiaRestTester.swift; sourceTree = "<group>"; };
+		88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestInterfaces.swift; path = "../../../CosmosRestAPI/CosmosRestApi/Gaia Lite Rest API/GaiaRestInterfaces.swift"; sourceTree = "<group>"; };
+		88677FEC21E903520022A09E /* GaiaRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestModel.swift; path = "../../../CosmosRestAPI/CosmosRestApi/Gaia Lite Rest API/GaiaRestModel.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,17 +64,43 @@
 		88300D7F21DCA73E007B9C43 /* CosmosRestApi */ = {
 			isa = PBXGroup;
 			children = (
-				88300D8921DCA76C007B9C43 /* GaiaRestAPI.swift */,
-				88300D8A21DCA76C007B9C43 /* GaiaRestModel.swift */,
-				88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */,
-				88300DBA21DCA90A007B9C43 /* GaiaTendermintApi.swift */,
-				88300DC121DD0317007B9C43 /* GaiaTendermintModel.swift */,
-				88300D8B21DCA76C007B9C43 /* PersistCodable.swift */,
-				88300D8821DCA76B007B9C43 /* RestNetworking.swift */,
 				88300D8021DCA73E007B9C43 /* CosmosRestApi.h */,
 				88300D8121DCA73E007B9C43 /* Info.plist */,
+				88677FE521E8F5BC0022A09E /* Gaia Lite Rest API */,
+				88677FE621E8F5D80022A09E /* Gaia Tendermint API */,
+				88677FE721E8F5F10022A09E /* Utils */,
 			);
 			path = CosmosRestApi;
+			sourceTree = "<group>";
+		};
+		88677FE521E8F5BC0022A09E /* Gaia Lite Rest API */ = {
+			isa = PBXGroup;
+			children = (
+				88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */,
+				88677FEC21E903520022A09E /* GaiaRestModel.swift */,
+				88300D8921DCA76C007B9C43 /* GaiaRestAPI.swift */,
+				88300D8A21DCA76C007B9C43 /* GaiaRestAPIModel.swift */,
+				88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */,
+			);
+			path = "Gaia Lite Rest API";
+			sourceTree = "<group>";
+		};
+		88677FE621E8F5D80022A09E /* Gaia Tendermint API */ = {
+			isa = PBXGroup;
+			children = (
+				88300DBA21DCA90A007B9C43 /* GaiaTendermintAPI.swift */,
+				88300DC121DD0317007B9C43 /* GaiaTendermintAPIModel.swift */,
+			);
+			path = "Gaia Tendermint API";
+			sourceTree = "<group>";
+		};
+		88677FE721E8F5F10022A09E /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				88300D8B21DCA76C007B9C43 /* PersistCodable.swift */,
+				88300D8821DCA76B007B9C43 /* RestNetworking.swift */,
+			);
+			path = Utils;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -152,13 +182,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88300D8E21DCA76C007B9C43 /* GaiaRestModel.swift in Sources */,
-				88300DBB21DCA90A007B9C43 /* GaiaTendermintApi.swift in Sources */,
+				88300D8E21DCA76C007B9C43 /* GaiaRestAPIModel.swift in Sources */,
+				88300DBB21DCA90A007B9C43 /* GaiaTendermintAPI.swift in Sources */,
 				88300D8D21DCA76C007B9C43 /* GaiaRestAPI.swift in Sources */,
-				88300DC221DD0317007B9C43 /* GaiaTendermintModel.swift in Sources */,
+				88300DC221DD0317007B9C43 /* GaiaTendermintAPIModel.swift in Sources */,
 				88677FE421E8F4CD0022A09E /* GaiaRestTester.swift in Sources */,
 				88300D8C21DCA76C007B9C43 /* RestNetworking.swift in Sources */,
+				88677FED21E903520022A09E /* GaiaRestModel.swift in Sources */,
 				88300D8F21DCA76C007B9C43 /* PersistCodable.swift in Sources */,
+				88677FE921E8F62E0022A09E /* GaiaRestInterfaces.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
