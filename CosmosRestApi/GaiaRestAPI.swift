@@ -79,8 +79,8 @@ import Foundation
  
  ICS22 - Governance module APIs
  
- POST /gov/proposals - Submit a proposal
- GET /gov/proposals - Query proposals
+ * POST /gov/proposals - Submit a proposal
+ * GET /gov/proposals - Query proposals
  GET /gov/proposals/{proposalId} - Query a proposal
  GET /gov/proposals/{proposalId}/deposits - Query deposits
  POST /gov/proposals/{proposalId}/deposits - Deposit tokens to a proposal
@@ -96,12 +96,12 @@ import Foundation
  
  ICS23 - Slashing module APIs
  
- GET /slashing/validators/{validatorPubKey}/signing_info - Get sign info of given validator
- POST /slashing/validators/{validatorAddr}/unjail - Unjail a jailed validator
- GET /slashing/parameters - Get the current slashing parameters
+ * GET /slashing/validators/{validatorPubKey}/signing_info - Get sign info of given validator
+ * POST /slashing/validators/{validatorAddr}/unjail - Unjail a jailed validator
+ * GET /slashing/parameters - Get the current slashing parameters
  
  
- ICS24 - Fee distribution module APIs
+ ICS24 - Fee distribution module APIs (not yet available on server)
  
  GET  /distribution/delegators/{delegatorAddr}/rewards - Get the total rewards balance from all delegations
  POST /distribution/delegators/{delegatorAddr}/rewards - Withdraw all the delegator's delegation rewards
@@ -291,6 +291,14 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     //ICS22 - Governance
     
+    public func submitProposal(transferData: ProposalPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func getPorposals(completion: ((RestResult<[Proposal]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
     
     //ICS23 - Slashing - /slashing/validators/{validatorAddr}/unjail
 
@@ -506,58 +514,57 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
             }
         }
 
-        dispatchGroup.enter()
-        let data = KeyPasswordData(name: key1name, oldPass: acc1Pass, newPass: "newpass123")
-        restApi.changeKeyPassword(keyData: data) { result in
-            print("\n... Change pass for [\(key1name)] ...")
-            switch result {
-            case .success(let data):
-                print(" -> [OK] - ", data.count)
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
+//        dispatchGroup.enter()
+//        let data = KeyPasswordData(name: key1name, oldPass: acc1Pass, newPass: "newpass123")
+//        restApi.changeKeyPassword(keyData: data) { result in
+//            print("\n... Change pass for [\(key1name)] ...")
+//            switch result {
+//            case .success(let data):
+//                print(" -> [OK] - ", data.count)
+//            case .failure(let error):
+//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+//            }
+//
+//            let data1 = KeyPasswordData(name: key1name, oldPass: "newpass123", newPass: acc1Pass)
+//            restApi.changeKeyPassword(keyData: data1) { result in
+//                print("\n... Change pass back for [\(key1name)] ...")
+//                switch result {
+//                case .success(let data):
+//                    print(" -> [OK] - ", data.count)
+//                case .failure(let error):
+//                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+//                }
+//                dispatchGroup.leave()
+//            }
+//        }
 
-            let data1 = KeyPasswordData(name: key1name, oldPass: "newpass123", newPass: acc1Pass)
-            restApi.changeKeyPassword(keyData: data1) { result in
-                print("\n... Change pass back for [\(key1name)] ...")
-                switch result {
-                case .success(let data):
-                    print(" -> [OK] - ", data.count)
-                case .failure(let error):
-                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                }
-                dispatchGroup.leave()
-            }
-        }
-
-        dispatchGroup.enter()
-        restApi.getAccount(address: addr1) { result in
-            print("\n... Get account for \(addr1) ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.type {
-                    print(" -> [OK] - ", field)
-
-                    dispatchGroup.enter()
-                    let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
-                    restApi.bankTransfer(to: addr2, transferData: data) { result in
-                        print("\n... Transfer 1 photino ...")
-                        switch result {
-                        case .success(let data):
-                            print(" -> [OK] - ", data.first?.hash ?? "")
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        }
-                        dispatchGroup.leave()
-
-                    }
-
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                dispatchGroup.leave()
-            }
-        }
+//        dispatchGroup.enter()
+//        restApi.getAccount(address: addr1) { result in
+//            print("\n... Get account for \(addr1) - context transfer ...")
+//            switch result {
+//            case .success(let data):
+//                if let item = data.first, let field = item.type {
+//                    print(" -> [OK] - ", field)
+//
+//                     let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
+//                    restApi.bankTransfer(to: addr2, transferData: data) { result in
+//                        print("\n... Transfer 1 photino ...")
+//                        switch result {
+//                        case .success(let data):
+//                            print(" -> [OK] - ", data.first?.hash ?? "")
+//                        case .failure(let error):
+//                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+//                        }
+//                        dispatchGroup.leave()
+//
+//                    }
+//
+//                }
+//            case .failure(let error):
+//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+//                dispatchGroup.leave()
+//            }
+//        }
 
         dispatchGroup.enter()
         restApi.getBalance(address: addr1) { result in
@@ -571,6 +578,50 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
             dispatchGroup.leave()
         }
 
+        //ICS 22
+        
+        dispatchGroup.enter()
+        restApi.getPorposals() { result in
+            print("\n... Get Proposals ...")
+            switch result {
+            case .success(let data):
+                print(" -> [OK] - ", data.first?.value?.title ?? "")
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+            }
+            dispatchGroup.leave()
+        }
+
+//        dispatchGroup.enter()
+//        restApi.getAccount(address: addr1) { result in
+//            print("\n... Get account for \(addr1) - context proposal ...")
+//            switch result {
+//            case .success(let data):
+//                if let item = data.first, let field = item.type {
+//                    print(" -> [OK] - ", field)
+//
+//                    let data = ProposalPostData(keyName: key1name, pass: acc1Pass, chain: chainID, deposit: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", title: "Third", description: "Upgrade the net", proposalType: ProposalType.software_upgrade, proposer: addr1)
+//                    restApi.submitProposal(transferData: data) { result in
+//                        print("\n... Submit proposal ...")
+//                        switch result {
+//                        case .success(let data):
+//                            print(" -> [OK] - ", data.first?.hash ?? "")
+//                        case .failure(let error):
+//                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+//                        }
+//                        dispatchGroup.leave()
+//
+//                    }
+//                }
+//            case .failure(let error):
+//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+//                dispatchGroup.leave()
+//            }
+//        }
+
+        
+        //ICS 23
+        
         dispatchGroup.enter()
         restApi.getSlashingSigningInfo(of: val2PubKey) { result in
             print("\n... Get Slashing signing info \(val2PubKey) ...")
@@ -595,36 +646,36 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
             dispatchGroup.leave()
         }
 
-        dispatchGroup.enter()
-        restApi.getAccount(address: addr1) { result in
-            print("\n... Get account for \(addr1) - scope unjail ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.type {
-                    print(" -> [OK] - ", field)
-                    
-                    let baseReq = UnjailPostData(name: key1name, pass: acc1Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
-                    restApi.unjail(validator: val1, transferData: baseReq) { result in
-                        print("\n... Unjail \(val1) ...")
-                        switch result {
-                        case .success(let data):
-                            print(" -> [OK] - ", data.first?.hash ?? "")
-                        case .failure(let error):
-                            if error.code == 500 {
-                                print(" -> [OK] - Not jailed")
-                            } else {
-                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            }
-                         }
-                        dispatchGroup.leave()
-                    }
-
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                dispatchGroup.leave()
-            }
-        }
+//        dispatchGroup.enter()
+//        restApi.getAccount(address: addr1) { result in
+//            print("\n... Get account for \(addr1) - scope unjail ...")
+//            switch result {
+//            case .success(let data):
+//                if let item = data.first, let field = item.type {
+//                    print(" -> [OK] - ", field)
+//
+//                    let baseReq = UnjailPostData(name: key1name, pass: acc1Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
+//                    restApi.unjail(validator: val1, transferData: baseReq) { result in
+//                        print("\n... Unjail \(val1) ...")
+//                        switch result {
+//                        case .success(let data):
+//                            print(" -> [OK] - ", data.first?.hash ?? "")
+//                        case .failure(let error):
+//                            if error.code == 500 {
+//                                print(" -> [OK] - Not jailed")
+//                            } else {
+//                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+//                            }
+//                         }
+//                        dispatchGroup.leave()
+//                    }
+//
+//                }
+//            case .failure(let error):
+//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+//                dispatchGroup.leave()
+//            }
+//        }
         
         
         dispatchGroup.notify(queue: DispatchQueue.main) {

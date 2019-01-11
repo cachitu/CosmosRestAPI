@@ -852,6 +852,95 @@ public struct StakeParameters: Codable {
 
 //ICS22 - Gov
 
+public enum ProposalType: String, Codable {
+    case text
+    case parameter_change
+    case software_upgrade
+}
+
+public struct Proposal: Codable {
+    
+    public let type: String?
+    public let value: ProposalValue?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct ProposalValue: Codable {
+    
+    public let proposalId: String?
+    public let title: String?
+    public let description: String?
+    public let proposalType: String?
+    public let proposalStatus: String?
+    public let tallyResult: ProposalTallyResult?
+    public let submitTime: String?
+    public let depositEndTime: String?
+    public let totalDeposit: [TxFeeAmount]?
+    public let votingStartTime: String?
+    public let votingEndTime: String?
+
+    enum CodingKeys : String, CodingKey {
+        case proposalId = "proposal_id"
+        case title
+        case description
+        case proposalType = "proposal_type"
+        case proposalStatus = "proposal_status"
+        case tallyResult = "tally_result"
+        case submitTime = "submit_time"
+        case depositEndTime = "deposit_end_time"
+        case totalDeposit = "total_deposit"
+        case votingStartTime = "voting_start_time"
+        case votingEndTime = "voting_end_time"
+   }
+}
+
+public struct ProposalTallyResult: Codable {
+    
+    public let yes: String?
+    public let abstain: String?
+    public let no: String?
+    public let noWithVeto: String?
+
+    enum CodingKeys : String, CodingKey {
+        case yes
+        case abstain
+        case no
+        case noWithVeto = "no_with_veto"
+    }
+}
+
+public struct ProposalPostData: Codable {
+    
+    public let baseReq: TransferBaseReq?
+    public let initialDeposit: [TxFeeAmount]?
+    public var title: String?
+    public var description: String?
+    public var proposalType: ProposalType?
+    public var proposer: String?
+
+    public init(keyName: String, pass: String, chain: String, deposit: String, denom: String, accNum: String, sequence: String, title: String, description: String?, proposalType: ProposalType, proposer: String) {
+        self.initialDeposit = [TxFeeAmount(denom: denom, amount: deposit)]
+        self.baseReq = TransferBaseReq(name: keyName, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence)
+        self.title = title
+        self.description = description
+        self.proposalType = proposalType
+        self.proposer = proposer
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case baseReq = "base_req"
+        case initialDeposit = "initial_deposit"
+        case title
+        case description
+        case proposalType = "proposal_type"
+        case proposer
+    }
+}
+
 
 //ICS23 - Slashing
 
