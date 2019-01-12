@@ -14,7 +14,7 @@ import Foundation
 public protocol GaiaKeysManagementCapable {
     
     var node: GaiaNode { get set }
-    func retrieveAllKeys(completion: @escaping (_ data: [GaiaKeyDisplayable]?, _ errMsg: String?)->())
+    func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKeyDisplayable]?, _ errMsg: String?)->())
 }
 
 public protocol GaiaKeyDisplayable {
@@ -25,8 +25,8 @@ public protocol GaiaKeyDisplayable {
 
 extension GaiaKeysManagementCapable {
     
-    public func retrieveAllKeys(completion: @escaping (_ data: [GaiaKeyDisplayable]?, _ errMsg: String?)->()) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.port)
+    public func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKeyDisplayable]?, _ errMsg: String?)->()) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
         restApi.getKeys { result in
             switch result {
@@ -41,5 +41,3 @@ extension GaiaKeysManagementCapable {
         }
     }
 }
-
-
