@@ -17,6 +17,7 @@
 		88677FE421E8F4CD0022A09E /* GaiaRestTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */; };
 		88677FE921E8F62E0022A09E /* GaiaRestInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */; };
 		88677FED21E903520022A09E /* GaiaRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FEC21E903520022A09E /* GaiaRestModel.swift */; };
+		8869755F21E9CC8700044EB8 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8869755E21E9CC8700044EB8 /* KeychainWrapper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaiaRestTester.swift; sourceTree = "<group>"; };
 		88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestInterfaces.swift; path = "../../../CosmosRestAPI/CosmosRestApi/Gaia Lite Rest API/GaiaRestInterfaces.swift"; sourceTree = "<group>"; };
 		88677FEC21E903520022A09E /* GaiaRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestModel.swift; path = "../../../CosmosRestAPI/CosmosRestApi/Gaia Lite Rest API/GaiaRestModel.swift"; sourceTree = "<group>"; };
+		8869755E21E9CC8700044EB8 /* KeychainWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 		88677FE721E8F5F10022A09E /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				8869755E21E9CC8700044EB8 /* KeychainWrapper.swift */,
 				88300D8B21DCA76C007B9C43 /* PersistCodable.swift */,
 				88300D8821DCA76B007B9C43 /* RestNetworking.swift */,
 			);
@@ -191,6 +194,7 @@
 				88677FED21E903520022A09E /* GaiaRestModel.swift in Sources */,
 				88300D8F21DCA76C007B9C43 /* PersistCodable.swift in Sources */,
 				88677FE921E8F62E0022A09E /* GaiaRestInterfaces.swift in Sources */,
+				8869755F21E9CC8700044EB8 /* KeychainWrapper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -249,7 +253,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -307,7 +311,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
