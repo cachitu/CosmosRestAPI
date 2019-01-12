@@ -8,14 +8,14 @@
 
 import Foundation
 
-public class GaiaNode {
-    
-    public enum NodeState: String {
-        case active
-        case pending
-        case unavailable
-        case unknown
-    }
+public enum NodeState: String, Codable {
+    case active
+    case pending
+    case unavailable
+    case unknown
+}
+
+public class GaiaNode: Codable {
     
     public var state: NodeState = .unknown
     public var name: String
