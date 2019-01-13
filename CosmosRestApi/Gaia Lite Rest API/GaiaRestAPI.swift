@@ -146,7 +146,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
     
     public func getSyncingInfo(completion: ((RestResult<[String]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/syncing", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/syncing", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
     }
     
     public func getLatestBlock(completion: ((RestResult<[BlockRoot]>) -> Void)?) {

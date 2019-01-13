@@ -14,24 +14,18 @@ import Foundation
 public protocol GaiaKeysManagementCapable {
     
     var node: GaiaNode { get set }
-    func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKeyDisplayable]?, _ errMsg: String?)->())
-}
-
-public protocol GaiaKeyDisplayable {
-    
-    var name: String { get }
-    var address: String { get }
+    func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
 }
 
 extension GaiaKeysManagementCapable {
     
-    public func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKeyDisplayable]?, _ errMsg: String?)->()) {
+    public func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->()) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
         restApi.getKeys { result in
             switch result {
             case .success(let data):
-                var gaiaKeys: [GaiaKeyDisplayable] = []
+                var gaiaKeys: [GaiaKey] = []
                 for key in data {
                     gaiaKeys.append(GaiaKey(data: key))
                 }

@@ -31,8 +31,8 @@ public protocol RestNetworking {
         delegate: URLSessionDelegate?,
         reqMethod: String,
         singleItemResponse: Bool,
-        completion: ((RestResult<[Resp]>) -> Void)?
-    )
+        timeout: Double,
+        completion: ((RestResult<[Resp]>) -> Void)?)
 }
 
 extension RestNetworking {
@@ -45,6 +45,7 @@ extension RestNetworking {
         delegate: URLSessionDelegate? = nil,
         reqMethod: String = "GET",
         singleItemResponse: Bool = false,
+        timeout: Double = 20,
         completion: ((RestResult<[Resp]>) -> Void)?)
     {
         
@@ -79,8 +80,11 @@ extension RestNetworking {
             }
         }
         
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest  = timeout
+        configuration.timeoutIntervalForResource = timeout
         
-        let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
+        let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
         
         let task = session.dataTask(with: request) { (responseData, response, responseError) in
             DispatchQueue.main.async {
