@@ -84,6 +84,9 @@ public class GaiaKey: CustomStringConvertible {
         self.type = data.type ?? "-"
         self.address = data.address ?? "-"
         self.pubKey = data.pubKey ?? "-"
+        if let validSeed = data.seed {
+            saveSeedToKeychain(seed: validSeed)
+        }
     }
     
     public func unlockKey(node: GaiaNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
@@ -97,6 +100,18 @@ public class GaiaKey: CustomStringConvertible {
         }
     }
     
+    public func deleteKey(node: GaiaNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        let kdata = KeyPostData(name: self.name, pass: password, seed: nil)
+
+        restApi.deleteKey(keyData: kdata, completion: { result in
+            switch result {
+            case .success(_): DispatchQueue.main.async { completion(true, nil) }
+            case .failure(let error): DispatchQueue.main.async { completion(false, error.localizedDescription) }
+            }
+         })
+    }
+
     public func savePassToKeychain(pass: String) {
         KeychainWrapper.setString(value: pass, forKey: "GaiaKey-address-\(address)")
     }
@@ -107,6 +122,18 @@ public class GaiaKey: CustomStringConvertible {
 
     public func forgetPassFromKeychain() -> Bool {
         return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-address-\(address)")
+    }
+
+    public func saveSeedToKeychain(seed: String) {
+        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-seed-\(address)")
+    }
+    
+    public func getSeedFromKeychain() -> String? {
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-seed-\(address)")
+    }
+    
+    public func forgetSeedFromKeychain() -> Bool {
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-seed-\(address)")
     }
 
     public var description: String {
