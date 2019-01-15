@@ -79,12 +79,12 @@ public class GaiaKey: CustomStringConvertible {
         return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(address)") != nil
     }
     
-    init(data: Key) {
+    init(data: Key, seed: String? = nil) {
         self.name = data.name ?? "-"
         self.type = data.type ?? "-"
         self.address = data.address ?? "-"
         self.pubKey = data.pubKey ?? "-"
-        if let validSeed = data.seed {
+        if let validSeed = seed {
             saveSeedToKeychain(seed: validSeed)
         }
     }
@@ -106,7 +106,10 @@ public class GaiaKey: CustomStringConvertible {
 
         restApi.deleteKey(keyData: kdata, completion: { result in
             switch result {
-            case .success(_): DispatchQueue.main.async { completion(true, nil) }
+            case .success(_):
+                let _ = self.forgetPassFromKeychain()
+                let _ = self.forgetSeedFromKeychain()
+                DispatchQueue.main.async { completion(true, nil) }
             case .failure(let error): DispatchQueue.main.async { completion(false, error.localizedDescription) }
             }
          })
