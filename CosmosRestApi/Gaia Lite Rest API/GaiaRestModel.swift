@@ -144,3 +144,36 @@ public class GaiaKey: CustomStringConvertible {
     }
     
 }
+
+
+public class GaiaAccount: CustomStringConvertible {
+    
+    public let address: String
+    public let pubKey: String
+    public let amount: Double
+    public let denom: String
+    public let feeAmount: Double?
+    public let feeDenom: String?
+    public let assets: [Coin]
+    
+    init(account: Account, seed: String? = nil) {
+        self.address = account.value?.address ?? "="
+        self.pubKey = account.value?.publicKey?.value ?? "-"
+        let amountString = account.value?.coins?.first?.amount ?? "0"
+        self.amount = Double(amountString) ?? 0.0
+        self.denom = account.value?.coins?.first?.denom ?? ""
+        if account.value?.coins?.count ?? 0 > 1 {
+            let feeAmountString = account.value?.coins?.last?.amount ?? "0"
+            self.feeAmount = Double(feeAmountString) ?? 0.0
+            self.feeDenom = account.value?.coins?.last?.denom ?? ""
+        } else {
+            self.feeAmount = 0.0
+            self.feeDenom = nil
+        }
+         assets = account.value?.coins ?? []
+    }
+    
+    public var description: String {
+        return "\(address): \(amount) \(denom)"
+    }
+}

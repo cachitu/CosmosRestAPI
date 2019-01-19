@@ -13,23 +13,24 @@ import Foundation
 
 public protocol GaiaKeysManagementCapable {
     
-    var node: GaiaNode { get set }
+    var node: GaiaNode? { get set }
     func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
     func createKey(node: GaiaNode, name: String, pass: String, seed: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
-    func getAccount(node: GaiaNode, key: GaiaKey)
+    func getAccount(node: GaiaNode, key: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaKeysManagementCapable {
     
-    public func getAccount(node: GaiaNode, key: GaiaKey) {
+    public func getAccount(node: GaiaNode, key: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: key.address) { result in
-            print("\n... Get account for \(key.address) - context transfer ...")
             switch result {
             case .success(let data):
-                if let item = data.first, let field = item.type {
-                    print(" -> [OK] - ", field)
-                    
+                if let item = data.first {
+                    let gaiaAcc = GaiaAccount(account: item)
+                    DispatchQueue.main.async {
+                        completion?(gaiaAcc, nil)
+                    }
 //                    let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
 //                    restApi.bankTransfer(to: addr2, transferData: data) { result in
 //                        print("\n... Transfer 1 photino ...")
@@ -39,14 +40,20 @@ extension GaiaKeysManagementCapable {
 //                        case .failure(let error):
 //                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
 //                        }
-//                    }
+                    //                    }
                     
+                } else {
+                    DispatchQueue.main.async {
+                        completion?(nil, "Request OK but no data")
+                    }
                 }
             case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                DispatchQueue.main.async {
+                    let message = error.code == 204 ? nil : error.localizedDescription
+                    completion?(nil, message)
+                }
             }
         }
-
     }
     
     public func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->()) {
