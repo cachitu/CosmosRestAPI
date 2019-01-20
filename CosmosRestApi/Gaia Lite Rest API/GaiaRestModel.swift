@@ -15,6 +15,40 @@ public enum NodeState: String, Codable {
     case unknown
 }
 
+public class GaiaAddressBook: PersistCodable, CustomStringConvertible {
+    
+    public var items: [GaiaAddressBookItem]
+    
+    public init(items: [GaiaAddressBookItem]) {
+        self.items = items
+    }
+    
+    public var description: String {
+        var result: String = "Items:\n"
+        for item in items {
+            result += " -> name: \(item.name), address: \(item.address)\n"
+        }
+        return result
+    }
+
+}
+
+public class GaiaAddressBookItem: PersistCodable, Equatable {
+    
+    public static func == (lhs: GaiaAddressBookItem, rhs: GaiaAddressBookItem) -> Bool {
+        return lhs.address == rhs.address
+    }
+    
+    public var name: String
+    public var address: String
+    
+    public init(name: String, address: String) {
+        self.name = name
+        self.address = address
+    }
+}
+
+
 public class GaiaNode: Codable {
     
     public var state: NodeState = .unknown
@@ -24,6 +58,7 @@ public class GaiaNode: Codable {
     public var rcpPort: Int
     public var tendermintPort: Int
     public var network: String = ""
+    public var nodeID: String = ""
     
     public init(name: String = "Gaia Node", scheme: String = "https", host: String = "localhost", rcpPort: Int = 1317, tendrmintPort: Int = 26657) {
         self.name = name
@@ -58,6 +93,7 @@ public class GaiaNode: Codable {
             switch result {
             case .success(let data):
                 self.network = data.first?.network ?? ""
+                self.nodeID = data.first?.id ?? ""
             case .failure(_):
                 self.state = .unknown
             }
@@ -75,11 +111,13 @@ public class GaiaKey: CustomStringConvertible {
     public let type: String
     public let address: String
     public let pubKey: String
+    public let nodeId: String
     public var isUnlocked: Bool {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(address)") != nil
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)") != nil
     }
     
-    init(data: Key, seed: String? = nil) {
+    init(data: Key, seed: String? = nil, nodeId: String) {
+        self.nodeId = nodeId
         self.name = data.name ?? "-"
         self.type = data.type ?? "-"
         self.address = data.address ?? "-"
@@ -116,27 +154,27 @@ public class GaiaKey: CustomStringConvertible {
     }
 
     public func savePassToKeychain(pass: String) {
-        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-address-\(address)")
+        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-address-\(nodeId)-\(address)")
     }
     
     public func getPassFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(address)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)")
     }
 
     public func forgetPassFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-address-\(address)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)")
     }
 
     public func saveSeedToKeychain(seed: String) {
-        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-seed-\(address)")
+        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-seed-\(nodeId)-\(address)")
     }
     
     public func getSeedFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-seed-\(address)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-seed-\(nodeId)-\(address)")
     }
     
     public func forgetSeedFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-seed-\(address)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-seed-\(nodeId)-\(address)")
     }
 
     public var description: String {
@@ -155,8 +193,12 @@ public class GaiaAccount: CustomStringConvertible {
     public let feeAmount: Double?
     public let feeDenom: String?
     public let assets: [Coin]
+    public let accNumber: String
+    public let accSequence: String
     
     init(account: Account, seed: String? = nil) {
+        self.accNumber = account.value?.accountNumber ?? "0"
+        self.accSequence = account.value?.sequence ?? "0"
         self.address = account.value?.address ?? "="
         self.pubKey = account.value?.publicKey?.value ?? "-"
         let amountString = account.value?.coins?.first?.amount ?? "0"

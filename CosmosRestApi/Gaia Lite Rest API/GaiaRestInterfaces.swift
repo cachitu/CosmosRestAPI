@@ -17,6 +17,7 @@ public protocol GaiaKeysManagementCapable {
     func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
     func createKey(node: GaiaNode, name: String, pass: String, seed: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
     func getAccount(node: GaiaNode, key: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?)
+    func sendAssets(node: GaiaNode, key: GaiaKey, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaKeysManagementCapable {
@@ -31,17 +32,6 @@ extension GaiaKeysManagementCapable {
                     DispatchQueue.main.async {
                         completion?(gaiaAcc, nil)
                     }
-//                    let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
-//                    restApi.bankTransfer(to: addr2, transferData: data) { result in
-//                        print("\n... Transfer 1 photino ...")
-//                        switch result {
-//                        case .success(let data):
-//                            print(" -> [OK] - ", data.first?.hash ?? "")
-//                        case .failure(let error):
-//                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                        }
-                    //                    }
-                    
                 } else {
                     DispatchQueue.main.async {
                         completion?(nil, "Request OK but no data")
@@ -56,6 +46,45 @@ extension GaiaKeysManagementCapable {
         }
     }
     
+    public func sendAssets(node: GaiaNode, key: GaiaKey, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getAccount(address: key.address) { result in
+            switch result {
+            case .success(let data):
+                if let item = data.first {
+                    let gaiaAcc = GaiaAccount(account: item)
+                    let data = TransferPostData(name: key.name,
+                                                pass: key.getPassFromKeychain() ?? "",
+                                                chain: node.network,
+                                                amount: amount,
+                                                denom: denom,
+                                                accNum: gaiaAcc.accNumber,
+                                                sequence:gaiaAcc.accSequence)
+                    restApi.bankTransfer(to: toAddress, transferData: data) { result in
+                        print("\n... Transfer \(amount) \(denom) ...")
+                        switch result {
+                        case .success(let data):
+                            print(" -> [OK] - ", data.first?.hash ?? "")
+                            DispatchQueue.main.async { completion?(data.first, nil) }
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            completion?(nil, error.localizedDescription)
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion?(nil, "Request OK but no data")
+                    }
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    completion?(nil, error.localizedDescription)
+                }
+            }
+        }
+
+    }
+    
     public func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->()) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
@@ -64,7 +93,7 @@ extension GaiaKeysManagementCapable {
             case .success(let data):
                 var gaiaKeys: [GaiaKey] = []
                 for key in data {
-                    gaiaKeys.append(GaiaKey(data: key))
+                    gaiaKeys.append(GaiaKey(data: key, nodeId: node.nodeID))
                 }
                 completion(gaiaKeys, nil)
             case .failure(let error): completion(nil, error.localizedDescription)
@@ -79,7 +108,7 @@ extension GaiaKeysManagementCapable {
                 if let error = errMessage {
                     completion(nil, error)
                 } else if let validKey = rawkey {
-                    let gaiaKey = GaiaKey(data: validKey, seed: validSeed)
+                    let gaiaKey = GaiaKey(data: validKey, seed: validSeed, nodeId: node.nodeID)
                     gaiaKey.savePassToKeychain(pass: pass)
                     completion(gaiaKey, nil)
                 }
@@ -89,7 +118,8 @@ extension GaiaKeysManagementCapable {
                 if let error = errMessage {
                     completion(nil, error)
                 } else if let validKey = rawkey {
-                    let gaiaKey = GaiaKey(data: validKey, seed: seed)
+                    let gaiaKey = GaiaKey(data: validKey, seed: seed, nodeId: node.nodeID)
+                    gaiaKey.savePassToKeychain(pass: pass)
                     completion(gaiaKey, nil)
                 }
             }
@@ -98,17 +128,14 @@ extension GaiaKeysManagementCapable {
     
     func createSeed(restApi: GaiaRestAPI, name: String, pass: String, completion: @escaping (_ data: Key?, _ seed: String?, _ errMsg: String?)->()) {
         restApi.createSeed { result in
-            print("\n... Get seed ...")
             switch result {
             case .success(let data):
                 if let seed = data.first {
-                    print(" -> [OK] - ", seed)
                     self.createGaiaKey(restApi: restApi, name: name, pass: pass, seed: seed, completion: completion)
                 } else {
                     completion(nil, nil, "Failed to generate a seed")
                 }
             case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                 completion(nil, nil, error.localizedDescription)
             }
         }
@@ -117,15 +144,12 @@ extension GaiaKeysManagementCapable {
     func createGaiaKey(restApi: GaiaRestAPI, name: String, pass: String, seed: String, completion: @escaping (_ data: Key?, _ seed: String?, _ errMsg: String?)->()) {
         let kdata = KeyPostData(name: name, pass: pass, seed: seed)
         restApi.recoverKey(keyData: kdata, completion: { result in
-            print("\n... Recover testRecover with seed [\(seed)] ...")
             switch result {
             case .success(let data):
-                if let item = data.first, let field = item.address {
-                    print(" -> [OK] - ", field)
+                if let item = data.first {
                     completion(item, seed, nil)
                 }
             case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                 completion(nil, nil, error.localizedDescription)
             }
         })
