@@ -54,7 +54,7 @@ extension RestNetworking {
         urlComponents.host = connData.host
         urlComponents.port = connData.port
         urlComponents.path = path
-        
+
         guard let url = urlComponents.url else {
             let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not create URL from components"])
             completion?(.failure(error))

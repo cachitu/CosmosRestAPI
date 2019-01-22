@@ -113,7 +113,7 @@ public class GaiaKey: CustomStringConvertible {
     public let pubKey: String
     public let nodeId: String
     public var isUnlocked: Bool {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)") != nil
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)-\(name)") != nil
     }
     
     init(data: Key, seed: String? = nil, nodeId: String) {
@@ -154,27 +154,27 @@ public class GaiaKey: CustomStringConvertible {
     }
 
     public func savePassToKeychain(pass: String) {
-        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-address-\(nodeId)-\(address)")
+        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
     }
     
     public func getPassFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
     }
 
     public func forgetPassFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
     }
 
     public func saveSeedToKeychain(seed: String) {
-        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-seed-\(nodeId)-\(address)")
+        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-seed-\(nodeId)-\(address)-\(name)")
     }
     
     public func getSeedFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-seed-\(nodeId)-\(address)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-seed-\(nodeId)-\(address)-\(name)")
     }
     
     public func forgetSeedFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-seed-\(nodeId)-\(address)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-seed-\(nodeId)-\(address)-\(name)")
     }
 
     public var description: String {
