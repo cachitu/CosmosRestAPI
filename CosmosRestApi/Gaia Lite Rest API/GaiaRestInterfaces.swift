@@ -95,7 +95,7 @@ extension GaiaKeysManagementCapable {
                 for key in data {
                     gaiaKeys.append(GaiaKey(data: key, nodeId: node.nodeID))
                 }
-                completion(gaiaKeys, nil)
+                DispatchQueue.main.async { completion(gaiaKeys, nil) }
             case .failure(let error): completion(nil, error.localizedDescription)
              }
         }
@@ -106,21 +106,21 @@ extension GaiaKeysManagementCapable {
         if let validSeed = seed {
             self.createGaiaKey(restApi: restApi, name: name, pass: pass, seed: validSeed) { rawkey, seed, errMessage in
                 if let error = errMessage {
-                    completion(nil, error)
+                    DispatchQueue.main.async { completion(nil, error) }
                 } else if let validKey = rawkey {
                     let gaiaKey = GaiaKey(data: validKey, seed: validSeed, nodeId: node.nodeID)
                     gaiaKey.savePassToKeychain(pass: pass)
-                    completion(gaiaKey, nil)
+                    DispatchQueue.main.async { completion(gaiaKey, nil) }
                 }
            }
         } else {
             createSeed(restApi: restApi, name: name, pass: pass) { rawkey, seed, errMessage in
                 if let error = errMessage {
-                    completion(nil, error)
+                    DispatchQueue.main.async {completion(nil, error) }
                 } else if let validKey = rawkey {
                     let gaiaKey = GaiaKey(data: validKey, seed: seed, nodeId: node.nodeID)
                     gaiaKey.savePassToKeychain(pass: pass)
-                    completion(gaiaKey, nil)
+                    DispatchQueue.main.async { completion(gaiaKey, nil) }
                 }
             }
         }
@@ -133,10 +133,10 @@ extension GaiaKeysManagementCapable {
                 if let seed = data.first {
                     self.createGaiaKey(restApi: restApi, name: name, pass: pass, seed: seed, completion: completion)
                 } else {
-                    completion(nil, nil, "Failed to generate a seed")
+                    DispatchQueue.main.async { completion(nil, nil, "Failed to generate a seed") }
                 }
             case .failure(let error):
-                completion(nil, nil, error.localizedDescription)
+                DispatchQueue.main.async { completion(nil, nil, error.localizedDescription) }
             }
         }
     }
@@ -147,11 +147,63 @@ extension GaiaKeysManagementCapable {
             switch result {
             case .success(let data):
                 if let item = data.first {
-                    completion(item, seed, nil)
+                    DispatchQueue.main.async { completion(item, seed, nil) }
                 }
             case .failure(let error):
-                completion(nil, nil, error.localizedDescription)
+                DispatchQueue.main.async { completion(nil, nil, error.localizedDescription) }
             }
         })
+    }
+}
+
+public protocol GaiaValidatorsCapable {
+    
+    var node: GaiaNode? { get set }
+    func retrieveAllValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
+}
+
+extension GaiaValidatorsCapable {
+    
+    public func retrieveAllValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        
+        restApi.getStakeValidators { result in
+            switch result {
+            case .success(let data):
+                var gaiaValidators: [GaiaValidator] = []
+                for validator in data {
+                    gaiaValidators.append(GaiaValidator(validator: validator))
+                }
+                DispatchQueue.main.async { completion(gaiaValidators, nil) }
+            case .failure(let error): completion(nil, error.localizedDescription)
+                DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+}
+
+public protocol GaiaGovernaceCapable {
+    
+    var node: GaiaNode? { get set }
+    func retrieveAllPropsals(node: GaiaNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->())
+}
+
+extension GaiaGovernaceCapable {
+    
+    public func retrieveAllPropsals(node: GaiaNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->()) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        
+        restApi.getPorposals { result in
+            switch result {
+            case .success(let data):
+                var gaiaPropsals: [GaiaProposal] = []
+                for proposal in data {
+                    gaiaPropsals.append(GaiaProposal(proposal: proposal))
+                }
+                DispatchQueue.main.async { completion(gaiaPropsals, nil) }
+            case .failure(let error): completion(nil, error.localizedDescription)
+            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
     }
 }

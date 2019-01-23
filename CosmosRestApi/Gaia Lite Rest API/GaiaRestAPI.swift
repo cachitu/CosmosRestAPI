@@ -142,7 +142,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     //ICS0 - endermint APIs, such as query blocks, transactions and validatorset
     
     public func getNodeInfo(completion: ((RestResult<[NodeInfo]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node_info", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node_info", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
     }
     
     public func getSyncingInfo(completion: ((RestResult<[String]>) -> Void)?) {

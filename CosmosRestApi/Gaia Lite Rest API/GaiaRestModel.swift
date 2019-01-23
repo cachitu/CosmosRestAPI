@@ -153,6 +153,22 @@ public class GaiaKey: CustomStringConvertible {
          })
     }
 
+    public func getDelegations(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getDelegations(for: self.address) { result in
+            switch result {
+            case .success(let delegations):
+                var gaiaDelegations: [GaiaDelegation] = []
+                for delegation in delegations {
+                    let gaiaDelegation = GaiaDelegation(validator: delegation.validatorAddr ?? "cosmosval...", shares: delegation.shares ?? "0")
+                    gaiaDelegations.append(gaiaDelegation)
+                }
+                DispatchQueue.main.async { completion(gaiaDelegations, nil) }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
     public func savePassToKeychain(pass: String) {
         KeychainWrapper.setString(value: pass, forKey: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
     }
@@ -183,6 +199,16 @@ public class GaiaKey: CustomStringConvertible {
     
 }
 
+public class GaiaDelegation {
+    
+    public let validatorAddr: String
+    public let shares: String
+    
+    public init(validator: String, shares: String) {
+        self.validatorAddr = validator
+        self.shares = shares
+    }
+}
 
 public class GaiaAccount: CustomStringConvertible {
     
@@ -217,5 +243,45 @@ public class GaiaAccount: CustomStringConvertible {
     
     public var description: String {
         return "\(address): \(amount) \(denom)"
+    }
+}
+
+public class GaiaValidator {
+    
+    public let validator: String
+    public let tokens: String
+    public let shares: String
+    public let moniker: String
+    public let rate: String
+    public let jailed: Bool
+    public let votingPower: Double
+    
+    public init(validator: DelegatorValidator) {
+        self.validator = validator.operator_address ?? "-"
+        self.tokens = validator.tokens ?? "0"
+        self.shares = validator.delegatorShares ?? "0"
+        self.moniker = validator.description?.moniker ?? "-"
+        self.rate = validator.commission?.rate ?? "0"
+        self.jailed = validator.jailed ?? false
+        self.votingPower = Double(self.shares) ?? 0.0
+    }
+}
+
+public class GaiaProposal {
+    
+    public let title: String
+    public let description: String
+    public let type: String
+    public let status: String
+    public let yes: String
+    public let no: String
+    
+    public init(proposal: Proposal) {
+        self.title = proposal.value?.title ?? "-"
+        self.description = proposal.value?.description ?? "-"
+        self.type = proposal.value?.proposalType ?? ""
+        self.status = proposal.value?.proposalStatus ?? ""
+        self.yes = proposal.value?.tallyResult?.yes ?? "0"
+        self.no = proposal.value?.tallyResult?.no ?? "0"
     }
 }
