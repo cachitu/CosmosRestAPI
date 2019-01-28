@@ -125,7 +125,7 @@ import Foundation
 
 public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
-    static let latestTestedVersion = "0.29.1-0-g6bff7082"
+    static let minVersion = "0.30.0-3-gb8843fcd"
     
     let connectData: ConnectData
     
@@ -219,75 +219,75 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     // ICS21 - Stake module APIs
     
     public func getDelegations(for address: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, completion: completion)
     }
     
     public func delegation(from address: String, transferData: DelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
-        genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
     public func getDelegation(for address: String, validator: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func getUnbondingDelegations(for address: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations", delegate: self, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations", delegate: self, completion: completion)
     }
     
     public func unbonding(from address: String, transferData: UnbondingDelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
-        genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
     public func getUnbondingDelegation(for address: String, validator: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/unbonding_delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func getRedelegations(for address: String, completion: ((RestResult<[Redelegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/redelegations", delegate: self, completion: completion)
     }
     
     public func redelegation(from address: String, transferData: RedelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
-        genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
     public func getDelegatorValidators(for address: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/validators", delegate: self, singleItemResponse: false, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/validators", delegate: self, singleItemResponse: false, completion: completion)
     }
     
     public func getDelegatorValidator(for address: String,  validator: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/validators/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/validators/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func getStakingTxs(for address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/txs", delegate: self, singleItemResponse: false, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/txs", delegate: self, singleItemResponse: false, completion: completion)
     }
     
     public func getStakeValidators(completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators", delegate: self, singleItemResponse: false, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators", delegate: self, singleItemResponse: false, completion: completion)
     }
     
     public func getStakeValidator(for valAddress: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func getStakeValidatorDelegations(for valAddress: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/delegations", delegate: self, singleItemResponse: false, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)/delegations", delegate: self, singleItemResponse: false, completion: completion)
     }
     
     public func getStakeValidatorUnbondingDelegations(for valAddress: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/unbonding_delegations", delegate: self, singleItemResponse: false, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)/unbonding_delegations", delegate: self, singleItemResponse: false, completion: completion)
     }
     
     public func getStakeValidatorRedelegations(for valAddress: String, completion: ((RestResult<[Redelegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/redelegations", delegate: self, singleItemResponse: false, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)/redelegations", delegate: self, singleItemResponse: false, completion: completion)
     }
     
     public func getStakePool(completion: ((RestResult<[StakePool]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/pool", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/pool", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func getStakeParameters(completion: ((RestResult<[StakeParameters]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/parameters", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/parameters", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     

@@ -567,10 +567,11 @@ public struct TransferBaseReq: Codable {
     public let chainId: String?
     public let accountNumber: String?
     public let sequence: String?
-    public let gas: String? = "simulate"
-    public let gasAdjustment: String? = "1.0"
+    public let gas: String? = "auto"
+    public let gasAdjustment: String? = "1.1"
     public let generateOnly: Bool = false
     public let simulate: Bool = false
+    public let fees: [TxFeeAmount]? = [TxFeeAmount(denom: "photinos", amount: "1")]
 
     enum CodingKeys : String, CodingKey {
         case name
@@ -582,6 +583,7 @@ public struct TransferBaseReq: Codable {
         case gasAdjustment = "gas_adjustment"
         case generateOnly = "generate_only"
         case simulate
+        case fees
     }
 }
 
