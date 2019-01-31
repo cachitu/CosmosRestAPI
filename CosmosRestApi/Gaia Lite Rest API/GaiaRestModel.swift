@@ -265,6 +265,41 @@ public class GaiaValidator {
         self.jailed = validator.jailed ?? false
         self.votingPower = Double(self.shares) ?? 0.0
     }
+    
+    public func unjail(node: GaiaNode, key: GaiaKey, completion: ((_ data: String?, _ errMsg: String?) -> ())?) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getAccount(address: key.address) { result in
+            switch result {
+            case .success(let data):
+                if let item = data.first {
+                    let gaiaAcc = GaiaAccount(account: item)
+                    let baseReq = UnjailPostData(name: key.name,
+                                                 pass: key.getPassFromKeychain() ?? "",
+                                                 chain: node.network,
+                                                 accNum: gaiaAcc.accNumber,
+                                                 sequence: gaiaAcc.accSequence)
+                    
+                    restApi.unjail(validator: self.validator, transferData: baseReq) { result in
+                        switch result {
+                        case .success(_):
+                            DispatchQueue.main.async { completion?("OK", nil) }
+                        case .failure(let error):
+                            completion?(nil, error.localizedDescription)
+                        }
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion?(nil, "Request OK but no data")
+                    }
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    completion?(nil, error.localizedDescription)
+                }
+            }
+        }
+        
+    }
 }
 
 public class GaiaProposal {
