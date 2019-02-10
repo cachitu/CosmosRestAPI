@@ -125,7 +125,7 @@ import Foundation
 
 public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
-    static let minVersion = "0.30.0-3-gb8843fcd"
+    static let minVersion = "0.31.1-1-gaf935066"
     
     let connectData: ConnectData
     
@@ -204,7 +204,10 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    
+    public func getVestedAccount(address: String, completion: ((RestResult<[VestedAccount]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     // ICS20
     
     public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {

@@ -70,16 +70,16 @@ public class GaiaNode: Codable {
     
     public func getStatus(completion: (() -> ())?) {
         let restApi = GaiaRestAPI(scheme: scheme, host: host, port: rcpPort)
-        restApi.getSyncingInfo { result in
+        restApi.getSyncingInfo { [weak self] result in
             switch result {
             case .success(let data):
                 if let item = data.first, item == "true" {
-                    self.state = .pending
+                    self?.state = .pending
                 } else {
-                    self.state = .active
+                    self?.state = .active
                 }
             case .failure(_):
-                self.state = .unknown
+                self?.state = .unknown
             }
             DispatchQueue.main.async {
                 completion?()
@@ -89,16 +89,31 @@ public class GaiaNode: Codable {
     
     public func getNodeInfo(completion: (() -> ())?) {
         let restApi = GaiaRestAPI(scheme: scheme, host: host, port: rcpPort)
-        restApi.getNodeInfo { result in
+        restApi.getNodeInfo { [weak self] result in
             switch result {
             case .success(let data):
-                self.network = data.first?.network ?? ""
-                self.nodeID = data.first?.id ?? ""
+                self?.network = data.first?.network ?? ""
+                self?.nodeID = data.first?.id ?? ""
             case .failure(_):
-                self.state = .unknown
+                self?.state = .unknown
             }
             DispatchQueue.main.async {
                 completion?()
+            }
+        }
+    }
+
+    public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
+        let restApi = GaiaRestAPI(scheme: scheme, host: host, port: rcpPort)
+        restApi.getStakeParameters() { result in
+            var denom: String? = nil
+            switch result {
+            case .success(let data):
+                denom = data.first?.bondDenom
+            case .failure(_): break
+            }
+            DispatchQueue.main.async {
+                completion?(denom)
             }
         }
     }
@@ -222,23 +237,23 @@ public class GaiaAccount: CustomStringConvertible {
     public let accNumber: String
     public let accSequence: String
     
-    init(account: Account, seed: String? = nil) {
-        self.accNumber = account.value?.accountNumber ?? "0"
-        self.accSequence = account.value?.sequence ?? "0"
-        self.address = account.value?.address ?? "="
-        self.pubKey = account.value?.publicKey?.value ?? "-"
-        let amountString = account.value?.coins?.first?.amount ?? "0"
+    init(accountValue: AccountValue?, seed: String? = nil) {
+        self.accNumber = accountValue?.accountNumber ?? "0"
+        self.accSequence = accountValue?.sequence ?? "0"
+        self.address = accountValue?.address ?? "="
+        self.pubKey = accountValue?.publicKey?.value ?? "-"
+        let amountString = accountValue?.coins?.first?.amount ?? "0"
         self.amount = Double(amountString) ?? 0.0
-        self.denom = account.value?.coins?.first?.denom ?? ""
-        if account.value?.coins?.count ?? 0 > 1 {
-            let feeAmountString = account.value?.coins?.last?.amount ?? "0"
+        self.denom = accountValue?.coins?.first?.denom ?? ""
+        if accountValue?.coins?.count ?? 0 > 1 {
+            let feeAmountString = accountValue?.coins?.last?.amount ?? "0"
             self.feeAmount = Double(feeAmountString) ?? 0.0
-            self.feeDenom = account.value?.coins?.last?.denom ?? ""
+            self.feeDenom = accountValue?.coins?.last?.denom ?? ""
         } else {
             self.feeAmount = 0.0
             self.feeDenom = nil
         }
-         assets = account.value?.coins ?? []
+         assets = accountValue?.coins ?? []
     }
     
     public var description: String {
@@ -272,19 +287,48 @@ public class GaiaValidator {
             switch result {
             case .success(let data):
                 if let item = data.first {
-                    let gaiaAcc = GaiaAccount(account: item)
-                    let baseReq = UnjailPostData(name: key.name,
-                                                 pass: key.getPassFromKeychain() ?? "",
-                                                 chain: node.network,
-                                                 accNum: gaiaAcc.accNumber,
-                                                 sequence: gaiaAcc.accSequence)
-                    
-                    restApi.unjail(validator: self.validator, transferData: baseReq) { result in
-                        switch result {
-                        case .success(_):
-                            DispatchQueue.main.async { completion?("OK", nil) }
-                        case .failure(let error):
-                            completion?(nil, error.localizedDescription)
+                    if item.type == "auth/DelayedVestingAccount" {
+                        restApi.getVestedAccount(address: key.address) { result in
+                            switch result {
+                            case .success(let data):
+                                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
+                                    let gaiaAcc = GaiaAccount(accountValue: item)
+                                    let baseReq = UnjailPostData(name: key.name,
+                                                                 pass: key.getPassFromKeychain() ?? "",
+                                                                 chain: node.network,
+                                                                 accNum: gaiaAcc.accNumber,
+                                                                 sequence: gaiaAcc.accSequence)
+                                    
+                                    restApi.unjail(validator: self.validator, transferData: baseReq) { result in
+                                        switch result {
+                                        case .success(_):
+                                            DispatchQueue.main.async { completion?("OK", nil) }
+                                        case .failure(let error):
+                                            completion?(nil, error.localizedDescription)
+                                        }
+                                    }
+                                }
+                            case .failure(let error):
+                                DispatchQueue.main.async {
+                                    completion?(nil, error.localizedDescription)
+                                }
+                            }
+                        }
+                    } else {
+                        let gaiaAcc = GaiaAccount(accountValue: item.value)
+                        let baseReq = UnjailPostData(name: key.name,
+                                                     pass: key.getPassFromKeychain() ?? "",
+                                                     chain: node.network,
+                                                     accNum: gaiaAcc.accNumber,
+                                                     sequence: gaiaAcc.accSequence)
+                        
+                        restApi.unjail(validator: self.validator, transferData: baseReq) { result in
+                            switch result {
+                            case .success(_):
+                                DispatchQueue.main.async { completion?("OK", nil) }
+                            case .failure(let error):
+                                completion?(nil, error.localizedDescription)
+                            }
                         }
                     }
                 } else {
@@ -298,7 +342,6 @@ public class GaiaValidator {
                 }
             }
         }
-        
     }
 }
 

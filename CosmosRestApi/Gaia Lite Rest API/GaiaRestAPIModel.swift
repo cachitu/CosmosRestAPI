@@ -421,14 +421,14 @@ public struct Key: Codable {
     public let type: String?
     public let address: String?
     public let pubKey: String?
-    public var seed: String?
+    public var menmonic: String?
     
     enum CodingKeys : String, CodingKey {
         case name
         case type
         case address
         case pubKey = "pub_key"
-        case seed
+        case menmonic
     }
 }
 
@@ -436,18 +436,18 @@ public struct KeyPostData: Codable {
     
     public let name: String
     public let password: String?
-    public let seed: String?
+    public let mnemonic: String?
     
     public init(name: String, pass: String?, seed: String?) {
         self.name = name
         self.password  = pass
-        self.seed = seed
+        self.mnemonic = seed
     }
     
     enum CodingKeys : String, CodingKey {
         case name
         case password
-        case seed
+        case mnemonic
     }
 }
 
@@ -481,6 +481,45 @@ public struct Account: Codable {
     }
 }
 
+public struct VestedAccount: Codable {
+    
+    public let type: String?
+    public let value: BaseVestedAccountRoot?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct BaseVestedAccountRoot: Codable {
+    
+    public let baseVestingAccount: BaseVestingAccount?
+    
+    enum CodingKeys : String, CodingKey {
+        case baseVestingAccount = "BaseVestingAccount"
+    }
+}
+
+public struct BaseVestingAccount: Codable {
+    
+    public let baseAccount: AccountValue?
+    
+    enum CodingKeys : String, CodingKey {
+        case baseAccount = "BaseAccount"
+    }
+}
+
+public struct VestedAccountValue: Codable {
+    
+    public let type: String?
+    public let value: AccountValue?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
 public struct AccountValue: Codable {
     
     public let address: String?
@@ -564,6 +603,7 @@ public struct TransferBaseReq: Codable {
     
     public let name: String?
     public let password: String?
+    public let memo: String? = "Sent from Kytzu's iOS app"
     public let chainId: String?
     public let accountNumber: String?
     public let sequence: String?
@@ -571,11 +611,12 @@ public struct TransferBaseReq: Codable {
     public let gasAdjustment: String? = "1.1"
     public let generateOnly: Bool = false
     public let simulate: Bool = false
-    public let fees: [TxFeeAmount]? = [TxFeeAmount(denom: "photinos", amount: "1")]
+    public let fees: [TxFeeAmount]? = nil//[TxFeeAmount(denom: "photino", amount: "1")]
 
     enum CodingKeys : String, CodingKey {
-        case name
+        case name = "from"
         case password
+        case memo
         case chainId = "chain_id"
         case accountNumber = "account_number"
         case sequence
@@ -845,12 +886,14 @@ public struct StakePool: Codable {
 public struct StakeParameters: Codable {
     
     public let unbondingTime: String?
-    public let maxValidators: String?
+    public let maxValidators: Int?
+    public let maxEntries: Int?
     public let bondDenom: String?
 
     enum CodingKeys : String, CodingKey {
         case unbondingTime = "unbonding_time"
         case maxValidators = "max_validators"
+        case maxEntries = "max_entries"
         case bondDenom = "bond_denom"
     }
 }
