@@ -88,7 +88,7 @@ extension RestNetworking {
         
         let task = session.dataTask(with: request) { (responseData, response, responseError) in
             DispatchQueue.main.async {
-                
+                print(Resp.self)
                 if let error = responseError as NSError? {
                     completion?(.failure(error))
                 } else if let jsonData = responseData {

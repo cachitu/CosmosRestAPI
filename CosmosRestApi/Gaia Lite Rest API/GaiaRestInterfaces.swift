@@ -27,11 +27,11 @@ extension GaiaKeysManagementCapable {
         restApi.getAccount(address: key.address) { result in
             switch result {
             case .success(let data):
-                if let item = data.first {
-                    if item.type == "auth/DelayedVestingAccount" {
+                if let item = data.first, let type = item.type {
+                    if type.contains("VestingAccount") {
                         self.getVestedAccount(node: node, key: key, completion: completion)
                     } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value)
+                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
                         DispatchQueue.main.async {
                             completion?(gaiaAcc, nil)
                         }
@@ -56,7 +56,7 @@ extension GaiaKeysManagementCapable {
             switch result {
             case .success(let data):
                 if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                    let gaiaAcc = GaiaAccount(accountValue: item)
+                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
                     DispatchQueue.main.async {
                         completion?(gaiaAcc, nil)
                     }
@@ -79,13 +79,13 @@ extension GaiaKeysManagementCapable {
         restApi.getAccount(address: key.address) { result in
             switch result {
             case .success(let data):
-                if let item = data.first {
-                    if item.type == "auth/DelayedVestingAccount" {
+                if let item = data.first, let type = item.type {
+                    if type.contains("VestingAccount") {
                         restApi.getVestedAccount(address: key.address) { result in
                             switch result {
                             case .success(let data):
                                 if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item)
+                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
                                     let data = TransferPostData(name: key.name,
                                                                 pass: key.getPassFromKeychain() ?? "",
                                                                 chain: node.network,
@@ -117,7 +117,7 @@ extension GaiaKeysManagementCapable {
                             }
                         }
                     } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value)
+                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
                         let data = TransferPostData(name: key.name,
                                                     pass: key.getPassFromKeychain() ?? "",
                                                     chain: node.network,
@@ -155,13 +155,13 @@ extension GaiaKeysManagementCapable {
         restApi.getAccount(address: key.address) { result in
             switch result {
             case .success(let data):
-                if let item = data.first {
-                    if item.type == "auth/DelayedVestingAccount" {
+                if let item = data.first, let type = item.type {
+                    if type.contains("VestingAccount") {
                         restApi.getVestedAccount(address: key.address) { result in
                             switch result {
                             case .success(let data):
                                 if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item)
+                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
                                     let data = RedelegationPostData(
                                         sourceValidator: fromValidator,
                                         destValidator: toValidator,
@@ -195,7 +195,7 @@ extension GaiaKeysManagementCapable {
                             }
                         }
                     } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value)
+                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
                         let data = RedelegationPostData(
                             sourceValidator: fromValidator,
                             destValidator: toValidator,
@@ -235,13 +235,13 @@ extension GaiaKeysManagementCapable {
         restApi.getAccount(address: key.address) { result in
             switch result {
             case .success(let data):
-                if let item = data.first {
-                    if item.type == "auth/DelayedVestingAccount" {
+                if let item = data.first, let type = item.type {
+                    if type.contains("VestingAccount") {
                         restApi.getVestedAccount(address: key.address) { result in
                             switch result {
                             case .success(let data):
                                 if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item)
+                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
                                     let data = DelegationPostData(
                                         validator: toValidator,
                                         delegator: key.address,
@@ -275,7 +275,7 @@ extension GaiaKeysManagementCapable {
                             }
                         }
                     } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value)
+                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
                         let data = DelegationPostData(
                             validator: toValidator,
                             delegator: key.address,
@@ -315,13 +315,13 @@ extension GaiaKeysManagementCapable {
         restApi.getAccount(address: key.address) { result in
             switch result {
             case .success(let data):
-                if let item = data.first {
-                    if item.type == "auth/DelayedVestingAccount" {
+                if let item = data.first, let type = item.type {
+                    if type.contains("VestingAccount") {
                         restApi.getVestedAccount(address: key.address) { result in
                             switch result {
                             case .success(let data):
                                 if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item)
+                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
                                     let data = UnbondingDelegationPostData(
                                         validator: fromValidator,
                                         delegator: key.address,
@@ -354,7 +354,7 @@ extension GaiaKeysManagementCapable {
                             }
                         }
                     } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value)
+                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
                         let data = UnbondingDelegationPostData(
                             validator: fromValidator,
                             delegator: key.address,

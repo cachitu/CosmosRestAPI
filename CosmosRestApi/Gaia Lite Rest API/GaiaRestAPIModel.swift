@@ -611,7 +611,7 @@ public struct TransferBaseReq: Codable {
     public let gasAdjustment: String? = "1.1"
     public let generateOnly: Bool = false
     public let simulate: Bool = false
-    public let fees: [TxFeeAmount]? = nil//[TxFeeAmount(denom: "photino", amount: "1")]
+    public let fees: [TxFeeAmount]? = nil// = [TxFeeAmount(denom: "photinos", amount: "1000000")]
 
     enum CodingKeys : String, CodingKey {
         case name = "from"
@@ -634,12 +634,20 @@ public struct TransferResponse: Codable {
     public let deliverTx: TransferDeliverTx?
     public let hash: String?
     public let height: String?
-    
+    public let gasWanted: Double?
+    public let gasUsed: Double?
+    public let log: String?
+    public let tags: [TrResultTag]?
+
     enum CodingKeys : String, CodingKey {
         case checkTx = "check_tx"
         case deliverTx =  "deliver_tx"
-        case hash
+        case hash = "txhash"
         case height
+        case gasWanted = "gas_used"
+        case gasUsed = "gas_wanted"
+        case log
+        case tags
     }
 }
 
@@ -658,25 +666,41 @@ public struct TransferError: Codable {
 
 public struct TransferCheckTx: Codable {
     
-    public let gasWanted: String?
-    public let gasUsed: String?
+    public let gasWanted: Double?
+    public let gasUsed: Double?
+    public let code: Double?
+    public let data: String?
+    public let info: String?
+    public let log: String?
+    public let tags: [TrResultTag]?
     
     enum CodingKeys : String, CodingKey {
-        case gasWanted
-        case gasUsed
+        case gasWanted = "gas_used"
+        case gasUsed = "gas_wanted"
+        case code
+        case data
+        case info
+        case log
+        case tags
     }
 }
 
 public struct TransferDeliverTx: Codable {
     
-    public let gasWanted: String?
-    public let gasUsed: String?
+    public let gasWanted: Double?
+    public let gasUsed: Double?
+    public let code: Double?
+    public let data: String?
+    public let info: String?
     public let log: String?
     public let tags: [TrResultTag]?
 
     enum CodingKeys : String, CodingKey {
-        case gasWanted
-        case gasUsed
+        case gasWanted = "gas_used"
+        case gasUsed = "gas_wanted"
+        case code
+        case data
+        case info
         case log
         case tags
     }

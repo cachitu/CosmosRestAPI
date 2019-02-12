@@ -59,6 +59,7 @@ public class GaiaNode: Codable {
     public var tendermintPort: Int
     public var network: String = ""
     public var nodeID: String = ""
+    public var stakeDenom: String = "stake"
     
     public init(name: String = "Gaia Node", scheme: String = "https", host: String = "localhost", rcpPort: Int = 1317, tendrmintPort: Int = 26657) {
         self.name = name
@@ -105,11 +106,12 @@ public class GaiaNode: Codable {
 
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: scheme, host: host, port: rcpPort)
-        restApi.getStakeParameters() { result in
+        restApi.getStakeParameters() { [weak self] result in
             var denom: String? = nil
             switch result {
             case .success(let data):
                 denom = data.first?.bondDenom
+                self?.stakeDenom = denom ?? "stake"
             case .failure(_): break
             }
             DispatchQueue.main.async {
@@ -229,31 +231,33 @@ public class GaiaAccount: CustomStringConvertible {
     
     public let address: String
     public let pubKey: String
-    public let amount: Double
-    public let denom: String
-    public let feeAmount: Double?
-    public let feeDenom: String?
+    public var amount: Double
+    public var denom: String
+    public var feeAmount: Double?
+    public var feeDenom: String?
     public let assets: [Coin]
     public let accNumber: String
     public let accSequence: String
     
-    init(accountValue: AccountValue?, seed: String? = nil) {
+    init(accountValue: AccountValue?, seed: String? = nil, stakeDenom: String) {
         self.accNumber = accountValue?.accountNumber ?? "0"
         self.accSequence = accountValue?.sequence ?? "0"
         self.address = accountValue?.address ?? "="
         self.pubKey = accountValue?.publicKey?.value ?? "-"
-        let amountString = accountValue?.coins?.first?.amount ?? "0"
-        self.amount = Double(amountString) ?? 0.0
-        self.denom = accountValue?.coins?.first?.denom ?? ""
-        if accountValue?.coins?.count ?? 0 > 1 {
-            let feeAmountString = accountValue?.coins?.last?.amount ?? "0"
-            self.feeAmount = Double(feeAmountString) ?? 0.0
-            self.feeDenom = accountValue?.coins?.last?.denom ?? ""
-        } else {
-            self.feeAmount = 0.0
-            self.feeDenom = nil
+        self.amount = 0.0
+        self.denom = stakeDenom
+        self.feeAmount = 0.0
+        self.feeDenom = "photin"
+        for coin in accountValue?.coins ?? [] {
+            if coin.denom == stakeDenom {
+                self.amount = Double(coin.amount ?? "0.0") ?? 0.0
+                self.denom = coin.denom ?? stakeDenom
+            } else {
+                self.feeAmount = Double(coin.amount ?? "0.0") ?? 0.0
+                self.feeDenom = coin.denom ?? "photin"
+            }
         }
-         assets = accountValue?.coins ?? []
+        assets = accountValue?.coins ?? []
     }
     
     public var description: String {
@@ -286,13 +290,13 @@ public class GaiaValidator {
         restApi.getAccount(address: key.address) { result in
             switch result {
             case .success(let data):
-                if let item = data.first {
-                    if item.type == "auth/DelayedVestingAccount" {
+                if let item = data.first, let type = item.type {
+                    if type.contains("VestingAccount") {
                         restApi.getVestedAccount(address: key.address) { result in
                             switch result {
                             case .success(let data):
                                 if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item)
+                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
                                     let baseReq = UnjailPostData(name: key.name,
                                                                  pass: key.getPassFromKeychain() ?? "",
                                                                  chain: node.network,
@@ -315,7 +319,7 @@ public class GaiaValidator {
                             }
                         }
                     } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value)
+                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
                         let baseReq = UnjailPostData(name: key.name,
                                                      pass: key.getPassFromKeychain() ?? "",
                                                      chain: node.network,
