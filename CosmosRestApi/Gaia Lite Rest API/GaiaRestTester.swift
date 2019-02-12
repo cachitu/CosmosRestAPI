@@ -249,7 +249,7 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
+                    let data = TransferPostData(name: key1name, pass: acc1Pass, chain: chainID, amount: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", fees: nil)
                     restApi.bankTransfer(to: addr2, transferData: data) { result in
                         print("\n... Transfer 1 photino ...")
                         switch result {
@@ -417,7 +417,7 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let data = ProposalPostData(keyName: key1name, pass: acc1Pass, chain: chainID, deposit: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", title: "Third", description: "Upgrade the net", proposalType: ProposalType.software_upgrade, proposer: addr1)
+                    let data = ProposalPostData(keyName: key1name, pass: acc1Pass, chain: chainID, deposit: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", title: "Third", description: "Upgrade the net", proposalType: ProposalType.software_upgrade, proposer: addr1, fees: nil)
                     restApi.submitProposal(transferData: data) { result in
                         print("\n... Submit proposal ...")
                         switch result {
@@ -444,7 +444,7 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let data = ProposalDepositPostData(keyName: key2name, pass: acc2Pass, chain: chainID, deposit: "25", denom: "STAKE", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", depositor: addr2)
+                    let data = ProposalDepositPostData(keyName: key2name, pass: acc2Pass, chain: chainID, deposit: "25", denom: "STAKE", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", depositor: addr2, fees: nil)
                     restApi.depositToProposal(id: "2", transferData: data) { result in
                         print("\n... Submit deposit proposal id 1 ...")
                         switch result {
@@ -471,7 +471,7 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let data = ProposalVotePostData(keyName: key2name, pass: acc2Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", voter: addr2, option: .no)
+                    let data = ProposalVotePostData(keyName: key2name, pass: acc2Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", voter: addr2, option: .no, fees: nil)
                     restApi.voteProposal(id: "1", transferData: data) { result in
                         print("\n... Submit vote id 1 ...")
                         switch result {
@@ -525,7 +525,7 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let baseReq = UnjailPostData(name: key1name, pass: acc1Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0")
+                    let baseReq = UnjailPostData(name: key1name, pass: acc1Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", fees: nil)
                     restApi.unjail(validator: val1, transferData: baseReq) { result in
                         print("\n... Unjail \(val1) ...")
                         switch result {

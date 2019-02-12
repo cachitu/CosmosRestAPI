@@ -92,7 +92,8 @@ extension GaiaKeysManagementCapable {
                                                                 amount: amount,
                                                                 denom: denom,
                                                                 accNum: gaiaAcc.accNumber,
-                                                                sequence:gaiaAcc.accSequence)
+                                                                sequence:gaiaAcc.accSequence,
+                                                                fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                                     restApi.bankTransfer(to: toAddress, transferData: data) { result in
                                         print("\n... Transfer \(amount) \(denom) ...")
                                         switch result {
@@ -124,7 +125,8 @@ extension GaiaKeysManagementCapable {
                                                     amount: amount,
                                                     denom: denom,
                                                     accNum: gaiaAcc.accNumber,
-                                                    sequence:gaiaAcc.accSequence)
+                                                    sequence:gaiaAcc.accSequence,
+                                                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                         restApi.bankTransfer(to: toAddress, transferData: data) { result in
                             print("\n... Transfer \(amount) \(denom) ...")
                             switch result {
@@ -171,7 +173,8 @@ extension GaiaKeysManagementCapable {
                                         chain: node.network,
                                         amount: amount,
                                         accNum: gaiaAcc.accNumber,
-                                        sequence: gaiaAcc.accSequence)
+                                        sequence: gaiaAcc.accSequence,
+                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                                     restApi.redelegation(from: key.address, transferData: data) { result in
                                         switch result {
                                         case .success(let rdata):
@@ -205,7 +208,8 @@ extension GaiaKeysManagementCapable {
                             chain: node.network,
                             amount: amount,
                             accNum: gaiaAcc.accNumber,
-                            sequence: gaiaAcc.accSequence)
+                            sequence: gaiaAcc.accSequence,
+                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                         restApi.redelegation(from: key.address, transferData: data) { result in
                             switch result {
                             case .success(let rdata):
@@ -251,7 +255,8 @@ extension GaiaKeysManagementCapable {
                                         amount: amount,
                                         denom: denom,
                                         accNum: gaiaAcc.accNumber,
-                                        sequence: gaiaAcc.accSequence)
+                                        sequence: gaiaAcc.accSequence,
+                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                                     restApi.delegation(from: key.address, transferData: data) { result in
                                         switch result {
                                         case .success(let data):
@@ -285,7 +290,8 @@ extension GaiaKeysManagementCapable {
                             amount: amount,
                             denom: denom,
                             accNum: gaiaAcc.accNumber,
-                            sequence: gaiaAcc.accSequence)
+                            sequence: gaiaAcc.accSequence,
+                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                         restApi.delegation(from: key.address, transferData: data) { result in
                             switch result {
                             case .success(let data):
@@ -330,7 +336,8 @@ extension GaiaKeysManagementCapable {
                                         chain: node.network,
                                         amount: amount,
                                         accNum: gaiaAcc.accNumber,
-                                        sequence: gaiaAcc.accSequence)
+                                        sequence: gaiaAcc.accSequence,
+                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                                     restApi.unbonding(from: key.name, transferData: data) { result in
                                         switch result {
                                         case .success(let data):
@@ -363,7 +370,8 @@ extension GaiaKeysManagementCapable {
                             chain: node.network,
                             amount: amount,
                             accNum: gaiaAcc.accNumber,
-                            sequence: gaiaAcc.accSequence)
+                            sequence: gaiaAcc.accSequence,
+                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                         restApi.unbonding(from: key.name, transferData: data) { result in
                             switch result {
                             case .success(let data):

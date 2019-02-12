@@ -301,7 +301,8 @@ public class GaiaValidator {
                                                                  pass: key.getPassFromKeychain() ?? "",
                                                                  chain: node.network,
                                                                  accNum: gaiaAcc.accNumber,
-                                                                 sequence: gaiaAcc.accSequence)
+                                                                 sequence: gaiaAcc.accSequence,
+                                                                 fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                                     
                                     restApi.unjail(validator: self.validator, transferData: baseReq) { result in
                                         switch result {
@@ -324,7 +325,8 @@ public class GaiaValidator {
                                                      pass: key.getPassFromKeychain() ?? "",
                                                      chain: node.network,
                                                      accNum: gaiaAcc.accNumber,
-                                                     sequence: gaiaAcc.accSequence)
+                                                     sequence: gaiaAcc.accSequence,
+                                                     fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
                         
                         restApi.unjail(validator: self.validator, transferData: baseReq) { result in
                             switch result {
