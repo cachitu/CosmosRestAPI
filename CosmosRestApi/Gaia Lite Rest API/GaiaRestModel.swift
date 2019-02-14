@@ -359,7 +359,8 @@ public class GaiaProposal {
     public let status: String
     public let yes: String
     public let no: String
-    
+    public let proposalId: String
+
     public init(proposal: Proposal) {
         self.title = proposal.value?.title ?? "-"
         self.description = proposal.value?.description ?? "-"
@@ -367,5 +368,6 @@ public class GaiaProposal {
         self.status = proposal.value?.proposalStatus ?? ""
         self.yes = proposal.value?.tallyResult?.yes ?? "0"
         self.no = proposal.value?.tallyResult?.no ?? "0"
+        self.proposalId = proposal.value?.proposalId ?? "0"
     }
 }

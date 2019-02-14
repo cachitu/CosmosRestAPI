@@ -497,6 +497,7 @@ public protocol GaiaGovernaceCapable {
     
     var node: GaiaNode? { get set }
     func retrieveAllPropsals(node: GaiaNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->())
+    func vote(for proposal: String, option: String, node: GaiaNode, key: GaiaKey, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaGovernaceCapable {
@@ -517,4 +518,80 @@ extension GaiaGovernaceCapable {
             }
         }
     }
+    
+    public func vote(for proposal: String, option: String, node: GaiaNode, key: GaiaKey, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getAccount(address: key.address) { result in
+            print("\n... Get account for \(key.address) - context vote to proposal ...")
+            switch result {
+            case .success(let data):
+                if let item = data.first, let type = item.type {
+                    if type.contains("VestingAccount") {
+                        restApi.getVestedAccount(address: key.address) { result in
+                            switch result {
+                            case .success(let data):
+                                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
+                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
+                                    let data = ProposalVotePostData(keyName: key.name,
+                                                                    pass: key.getPassFromKeychain() ?? "",
+                                                                    chain: node.network,
+                                                                    accNum: gaiaAcc.accNumber,
+                                                                    sequence: gaiaAcc.accSequence,
+                                                                    voter: key.address,
+                                                                    option: option,
+                                                                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                    restApi.voteProposal(id: proposal, transferData: data) { result in
+                                        print("\n... Submit vote id \(proposal) ...")
+                                        switch result {
+                                        case .success(let rdata):
+                                            print(" -> [OK] - ", rdata.first ?? "")
+                                            DispatchQueue.main.async { completion?(rdata.first, nil) }
+                                        case .failure(let error):
+                                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                                            completion?(nil, error.localizedDescription)
+                                        }
+                                    }
+                                } else {
+                                    DispatchQueue.main.async {
+                                        completion?(nil, "Request OK but no data")
+                                    }
+                                }
+                            case .failure(let error):
+                                DispatchQueue.main.async {
+                                    let message = error.code == 204 ? nil : error.localizedDescription
+                                    completion?(nil, message)
+                                }
+                            }
+                        }
+                    } else {
+                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
+                        let data = ProposalVotePostData(keyName: key.name,
+                                                        pass: key.getPassFromKeychain() ?? "",
+                                                        chain: node.network,
+                                                        accNum: gaiaAcc.accNumber,
+                                                        sequence: gaiaAcc.accSequence,
+                                                        voter: key.address,
+                                                        option: option,
+                                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                        restApi.voteProposal(id: proposal, transferData: data) { result in
+                            print("\n... Submit vote id \(proposal) ...")
+                            switch result {
+                            case .success(let rdata):
+                                print(" -> [OK] - ", rdata.first ?? "")
+                                DispatchQueue.main.async { completion?(rdata.first, nil) }
+                            case .failure(let error):
+                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                                completion?(nil, error.localizedDescription)
+                            }
+                        }
+                    }
+                }
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                completion?(nil, error.localizedDescription)
+            }
+        }
+    }
+    
+
 }

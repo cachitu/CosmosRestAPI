@@ -471,7 +471,7 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let data = ProposalVotePostData(keyName: key2name, pass: acc2Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", voter: addr2, option: .no, fees: nil)
+                    let data = ProposalVotePostData(keyName: key2name, pass: acc2Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", voter: addr2, option: "no", fees: nil)
                     restApi.voteProposal(id: "1", transferData: data) { result in
                         print("\n... Submit vote id 1 ...")
                         switch result {

@@ -603,12 +603,12 @@ public struct TransferBaseReq: Codable {
     
     public let name: String?
     public let password: String?
-    public let memo: String? = "Sent from Kytzu's iOS app"
+    public let memo: String? = "KytzuIOS"
     public let chainId: String?
     public let accountNumber: String?
     public let sequence: String?
     public let gas: String? = "auto"
-    public let gasAdjustment: String? = "1.1"
+    public let gasAdjustment: String? = "1.3"
     public let generateOnly: Bool = false
     public let simulate: Bool = false
     public let fees: [TxFeeAmount]? // = [TxFeeAmount(denom: "photinos", amount: "1000000")]
@@ -969,7 +969,7 @@ public struct ProposalValue: Codable {
         case description
         case proposalType = "proposal_type"
         case proposalStatus = "proposal_status"
-        case tallyResult = "tally_result"
+        case tallyResult = "final_tally_result"
         case submitTime = "submit_time"
         case depositEndTime = "deposit_end_time"
         case totalDeposit = "total_deposit"
@@ -1046,10 +1046,10 @@ public struct ProposalVotePostData: Codable {
     public let voter: String?
     public var option: String?
     
-    public init(keyName: String, pass: String, chain: String, accNum: String, sequence: String, voter: String, option: ProposalVoteOption, fees: [TxFeeAmount]?) {
+    public init(keyName: String, pass: String, chain: String, accNum: String, sequence: String, voter: String, option: String, fees: [TxFeeAmount]?) {
         self.baseReq = TransferBaseReq(name: keyName, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
         self.voter = voter
-        self.option = option.rawValue
+        self.option = option
     }
     
     enum CodingKeys : String, CodingKey {
