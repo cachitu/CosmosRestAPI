@@ -227,7 +227,7 @@ public class GaiaDelegation {
     }
 }
 
-public class GaiaAccount: CustomStringConvertible {
+public class GaiaAccount/*: CustomStringConvertible*/ {
     
     public let address: String
     public let pubKey: String
@@ -260,9 +260,9 @@ public class GaiaAccount: CustomStringConvertible {
         assets = accountValue?.coins ?? []
     }
     
-    public var description: String {
-        return "\(address): \(amount) \(denom)"
-    }
+//    public var description: String {
+//        return "\(address): \(amount) \(denom)"
+//    }
 }
 
 public class GaiaValidator {
@@ -285,7 +285,7 @@ public class GaiaValidator {
         self.votingPower = Double(self.shares) ?? 0.0
     }
     
-    public func unjail(node: GaiaNode, key: GaiaKey, completion: ((_ data: String?, _ errMsg: String?) -> ())?) {
+    public func unjail(node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: String?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: key.address) { result in
             switch result {
@@ -302,7 +302,7 @@ public class GaiaValidator {
                                                                  chain: node.network,
                                                                  accNum: gaiaAcc.accNumber,
                                                                  sequence: gaiaAcc.accSequence,
-                                                                 fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                                                 fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                                     
                                     restApi.unjail(validator: self.validator, transferData: baseReq) { result in
                                         switch result {
@@ -326,7 +326,7 @@ public class GaiaValidator {
                                                      chain: node.network,
                                                      accNum: gaiaAcc.accNumber,
                                                      sequence: gaiaAcc.accSequence,
-                                                     fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                                     fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                         
                         restApi.unjail(validator: self.validator, transferData: baseReq) { result in
                             switch result {

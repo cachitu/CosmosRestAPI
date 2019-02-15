@@ -17,7 +17,7 @@ public protocol GaiaKeysManagementCapable {
     func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
     func createKey(node: GaiaNode, name: String, pass: String, seed: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
     func getAccount(node: GaiaNode, key: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?)
-    func sendAssets(node: GaiaNode, key: GaiaKey, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
+    func sendAssets(node: GaiaNode, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaKeysManagementCapable {
@@ -74,7 +74,7 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func sendAssets(node: GaiaNode, key: GaiaKey, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func sendAssets(node: GaiaNode, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: key.address) { result in
             switch result {
@@ -93,7 +93,7 @@ extension GaiaKeysManagementCapable {
                                                                 denom: denom,
                                                                 accNum: gaiaAcc.accNumber,
                                                                 sequence:gaiaAcc.accSequence,
-                                                                fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                                                fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                                     restApi.bankTransfer(to: toAddress, transferData: data) { result in
                                         print("\n... Transfer \(amount) \(denom) ...")
                                         switch result {
@@ -126,7 +126,7 @@ extension GaiaKeysManagementCapable {
                                                     denom: denom,
                                                     accNum: gaiaAcc.accNumber,
                                                     sequence:gaiaAcc.accSequence,
-                                                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                         restApi.bankTransfer(to: toAddress, transferData: data) { result in
                             print("\n... Transfer \(amount) \(denom) ...")
                             switch result {
@@ -152,7 +152,7 @@ extension GaiaKeysManagementCapable {
         }
     }
     
-    public func redelegateStake(node: GaiaNode, key: GaiaKey, fromValidator: String, toValidator: String, amount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func redelegateStake(node: GaiaNode, key: GaiaKey, feeAmount: String, fromValidator: String, toValidator: String, amount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: key.address) { result in
             switch result {
@@ -174,7 +174,7 @@ extension GaiaKeysManagementCapable {
                                         amount: amount,
                                         accNum: gaiaAcc.accNumber,
                                         sequence: gaiaAcc.accSequence,
-                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                                     restApi.redelegation(from: key.address, transferData: data) { result in
                                         switch result {
                                         case .success(let rdata):
@@ -209,7 +209,7 @@ extension GaiaKeysManagementCapable {
                             amount: amount,
                             accNum: gaiaAcc.accNumber,
                             sequence: gaiaAcc.accSequence,
-                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                         restApi.redelegation(from: key.address, transferData: data) { result in
                             switch result {
                             case .success(let rdata):
@@ -234,7 +234,7 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func delegateStake(node: GaiaNode, key: GaiaKey, toValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func delegateStake(node: GaiaNode, key: GaiaKey, feeAmount: String, toValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: key.address) { result in
             switch result {
@@ -256,7 +256,7 @@ extension GaiaKeysManagementCapable {
                                         denom: denom,
                                         accNum: gaiaAcc.accNumber,
                                         sequence: gaiaAcc.accSequence,
-                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                                     restApi.delegation(from: key.address, transferData: data) { result in
                                         switch result {
                                         case .success(let data):
@@ -291,7 +291,7 @@ extension GaiaKeysManagementCapable {
                             denom: denom,
                             accNum: gaiaAcc.accNumber,
                             sequence: gaiaAcc.accSequence,
-                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                         restApi.delegation(from: key.address, transferData: data) { result in
                             switch result {
                             case .success(let data):
@@ -316,7 +316,7 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func unbondStake(node: GaiaNode, key: GaiaKey, fromValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func unbondStake(node: GaiaNode, key: GaiaKey, feeAmount: String, fromValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: key.address) { result in
             switch result {
@@ -337,7 +337,7 @@ extension GaiaKeysManagementCapable {
                                         amount: amount,
                                         accNum: gaiaAcc.accNumber,
                                         sequence: gaiaAcc.accSequence,
-                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                                     restApi.unbonding(from: key.name, transferData: data) { result in
                                         switch result {
                                         case .success(let data):
@@ -371,7 +371,7 @@ extension GaiaKeysManagementCapable {
                             amount: amount,
                             accNum: gaiaAcc.accNumber,
                             sequence: gaiaAcc.accSequence,
-                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                         restApi.unbonding(from: key.name, transferData: data) { result in
                             switch result {
                             case .success(let data):
@@ -497,7 +497,7 @@ public protocol GaiaGovernaceCapable {
     
     var node: GaiaNode? { get set }
     func retrieveAllPropsals(node: GaiaNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->())
-    func vote(for proposal: String, option: String, node: GaiaNode, key: GaiaKey, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
+    func vote(for proposal: String, option: String, node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaGovernaceCapable {
@@ -519,7 +519,7 @@ extension GaiaGovernaceCapable {
         }
     }
     
-    public func vote(for proposal: String, option: String, node: GaiaNode, key: GaiaKey, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func vote(for proposal: String, option: String, node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: key.address) { result in
             print("\n... Get account for \(key.address) - context vote to proposal ...")
@@ -539,7 +539,7 @@ extension GaiaGovernaceCapable {
                                                                     sequence: gaiaAcc.accSequence,
                                                                     voter: key.address,
                                                                     option: option,
-                                                                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                                                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                                     restApi.voteProposal(id: proposal, transferData: data) { result in
                                         print("\n... Submit vote id \(proposal) ...")
                                         switch result {
@@ -572,7 +572,7 @@ extension GaiaGovernaceCapable {
                                                         sequence: gaiaAcc.accSequence,
                                                         voter: key.address,
                                                         option: option,
-                                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: "2500000")])
+                                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                         restApi.voteProposal(id: proposal, transferData: data) { result in
                             print("\n... Submit vote id \(proposal) ...")
                             switch result {
