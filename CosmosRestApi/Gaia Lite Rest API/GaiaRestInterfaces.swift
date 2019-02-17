@@ -16,382 +16,130 @@ public protocol GaiaKeysManagementCapable {
     var node: GaiaNode? { get set }
     func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
     func createKey(node: GaiaNode, name: String, pass: String, seed: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
-    func getAccount(node: GaiaNode, key: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?)
     func sendAssets(node: GaiaNode, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaKeysManagementCapable {
     
-    public func getAccount(node: GaiaNode, key: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getAccount(address: key.address) { result in
-            switch result {
-            case .success(let data):
-                if let item = data.first, let type = item.type {
-                    if type.contains("VestingAccount") {
-                        self.getVestedAccount(node: node, key: key, completion: completion)
-                    } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
-                        DispatchQueue.main.async {
-                            completion?(gaiaAcc, nil)
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
-                    }
-                }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    let message = error.code == 204 ? nil : error.localizedDescription
-                    completion?(nil, message)
-                }
-            }
-        }
-    }
-    
-    private func getVestedAccount(node: GaiaNode, key: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getVestedAccount(address: key.address) { result in
-            switch result {
-            case .success(let data):
-                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
-                    DispatchQueue.main.async {
-                        completion?(gaiaAcc, nil)
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
-                    }
-                }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    let message = error.code == 204 ? nil : error.localizedDescription
-                    completion?(nil, message)
-                }
-            }
-        }
-    }
 
     public func sendAssets(node: GaiaNode, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getAccount(address: key.address) { result in
-            switch result {
-            case .success(let data):
-                if let item = data.first, let type = item.type {
-                    if type.contains("VestingAccount") {
-                        restApi.getVestedAccount(address: key.address) { result in
-                            switch result {
-                            case .success(let data):
-                                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
-                                    let data = TransferPostData(name: key.name,
-                                                                pass: key.getPassFromKeychain() ?? "",
-                                                                chain: node.network,
-                                                                amount: amount,
-                                                                denom: denom,
-                                                                accNum: gaiaAcc.accNumber,
-                                                                sequence:gaiaAcc.accSequence,
-                                                                fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                                    restApi.bankTransfer(to: toAddress, transferData: data) { result in
-                                        print("\n... Transfer \(amount) \(denom) ...")
-                                        switch result {
-                                        case .success(let data):
-                                            print(" -> [OK] - ", data.first?.hash ?? "")
-                                            DispatchQueue.main.async { completion?(data.first, nil) }
-                                        case .failure(let error):
-                                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                            completion?(nil, error.localizedDescription)
-                                        }
-                                    }
-                                } else {
-                                    DispatchQueue.main.async {
-                                        completion?(nil, "Request OK but no data")
-                                    }
-                                }
-                            case .failure(let error):
-                                DispatchQueue.main.async {
-                                    let message = error.code == 204 ? nil : error.localizedDescription
-                                    completion?(nil, message)
-                                }
-                            }
-                        }
-                    } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
-                        let data = TransferPostData(name: key.name,
-                                                    pass: key.getPassFromKeychain() ?? "",
-                                                    chain: node.network,
-                                                    amount: amount,
-                                                    denom: denom,
-                                                    accNum: gaiaAcc.accNumber,
-                                                    sequence:gaiaAcc.accSequence,
-                                                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                        restApi.bankTransfer(to: toAddress, transferData: data) { result in
-                            print("\n... Transfer \(amount) \(denom) ...")
-                            switch result {
-                            case .success(let data):
-                                print(" -> [OK] - ", data.first?.hash ?? "")
-                                DispatchQueue.main.async { completion?(data.first, nil) }
-                            case .failure(let error):
-                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                completion?(nil, error.localizedDescription)
-                            }
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
+        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+            if let gaiaAcc = gaiaAccount  {
+                let data = TransferPostData(name: key.name,
+                                            pass: key.getPassFromKeychain() ?? "",
+                                            chain: node.network,
+                                            amount: amount,
+                                            denom: denom,
+                                            accNum: gaiaAcc.accNumber,
+                                            sequence:gaiaAcc.accSequence,
+                                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                restApi.bankTransfer(to: toAddress, transferData: data) { result in
+                    print("\n... Transfered \(amount) \(denom) ...")
+                    switch result {
+                    case .success(let data):
+                        print(" -> [OK] - ", data.first?.hash ?? "")
+                        DispatchQueue.main.async { completion?(data.first, nil) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                     }
                 }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    completion?(nil, error.localizedDescription)
-                }
+            } else {
+                DispatchQueue.main.async { completion?(nil, errMsg) }
             }
         }
     }
     
     public func redelegateStake(node: GaiaNode, key: GaiaKey, feeAmount: String, fromValidator: String, toValidator: String, amount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getAccount(address: key.address) { result in
-            switch result {
-            case .success(let data):
-                if let item = data.first, let type = item.type {
-                    if type.contains("VestingAccount") {
-                        restApi.getVestedAccount(address: key.address) { result in
-                            switch result {
-                            case .success(let data):
-                                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
-                                    let data = RedelegationPostData(
-                                        sourceValidator: fromValidator,
-                                        destValidator: toValidator,
-                                        delegator: key.address,
-                                        name: key.name,
-                                        pass: key.getPassFromKeychain() ?? "",
-                                        chain: node.network,
-                                        amount: amount,
-                                        accNum: gaiaAcc.accNumber,
-                                        sequence: gaiaAcc.accSequence,
-                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                                    restApi.redelegation(from: key.address, transferData: data) { result in
-                                        switch result {
-                                        case .success(let rdata):
-                                            print(" -> [OK] - ", rdata.first ?? "")
-                                            DispatchQueue.main.async { completion?(rdata.first, nil) }
-                                        case .failure(let error):
-                                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                            completion?(nil, error.localizedDescription)
-                                        }
-                                    }
-                                } else {
-                                    DispatchQueue.main.async {
-                                        completion?(nil, "Request OK but no data")
-                                    }
-                                }
-                            case .failure(let error):
-                                DispatchQueue.main.async {
-                                    let message = error.code == 204 ? nil : error.localizedDescription
-                                    completion?(nil, message)
-                                }
-                            }
-                        }
-                    } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
-                        let data = RedelegationPostData(
-                            sourceValidator: fromValidator,
-                            destValidator: toValidator,
-                            delegator: key.address,
-                            name: key.name,
-                            pass: key.getPassFromKeychain() ?? "",
-                            chain: node.network,
-                            amount: amount,
-                            accNum: gaiaAcc.accNumber,
-                            sequence: gaiaAcc.accSequence,
-                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                        restApi.redelegation(from: key.address, transferData: data) { result in
-                            switch result {
-                            case .success(let rdata):
-                                print(" -> [OK] - ", rdata.first ?? "")
-                                DispatchQueue.main.async { completion?(rdata.first, nil) }
-                            case .failure(let error):
-                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                completion?(nil, error.localizedDescription)
-                            }
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
+        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+            if let gaiaAcc = gaiaAccount  {
+                let data = RedelegationPostData(
+                    sourceValidator: fromValidator,
+                    destValidator: toValidator,
+                    delegator: key.address,
+                    name: key.name,
+                    pass: key.getPassFromKeychain() ?? "",
+                    chain: node.network,
+                    amount: amount,
+                    accNum: gaiaAcc.accNumber,
+                    sequence: gaiaAcc.accSequence,
+                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                restApi.redelegation(from: key.address, transferData: data) { result in
+                    switch result {
+                    case .success(let rdata):
+                        print(" -> [OK] - ", rdata.first ?? "")
+                        DispatchQueue.main.async { completion?(rdata.first, nil) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        completion?(nil, error.localizedDescription)
                     }
                 }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    completion?(nil, error.localizedDescription)
-                }
+            } else {
+                DispatchQueue.main.async { completion?(nil, errMsg) }
             }
         }
     }
 
     public func delegateStake(node: GaiaNode, key: GaiaKey, feeAmount: String, toValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getAccount(address: key.address) { result in
-            switch result {
-            case .success(let data):
-                if let item = data.first, let type = item.type {
-                    if type.contains("VestingAccount") {
-                        restApi.getVestedAccount(address: key.address) { result in
-                            switch result {
-                            case .success(let data):
-                                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
-                                    let data = DelegationPostData(
-                                        validator: toValidator,
-                                        delegator: key.address,
-                                        name: key.name,
-                                        pass: key.getPassFromKeychain() ?? "",
-                                        chain: node.network,
-                                        amount: amount,
-                                        denom: denom,
-                                        accNum: gaiaAcc.accNumber,
-                                        sequence: gaiaAcc.accSequence,
-                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                                    restApi.delegation(from: key.address, transferData: data) { result in
-                                        switch result {
-                                        case .success(let data):
-                                            print(" -> [OK] - ", data.first?.hash ?? "")
-                                            DispatchQueue.main.async { completion?(data.first, nil) }
-                                        case .failure(let error):
-                                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                            completion?(nil, error.localizedDescription)
-                                        }
-                                    }
-                                } else {
-                                    DispatchQueue.main.async {
-                                        completion?(nil, "Request OK but no data")
-                                    }
-                                }
-                            case .failure(let error):
-                                DispatchQueue.main.async {
-                                    let message = error.code == 204 ? nil : error.localizedDescription
-                                    completion?(nil, message)
-                                }
-                            }
-                        }
-                    } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
-                        let data = DelegationPostData(
-                            validator: toValidator,
-                            delegator: key.address,
-                            name: key.name,
-                            pass: key.getPassFromKeychain() ?? "",
-                            chain: node.network,
-                            amount: amount,
-                            denom: denom,
-                            accNum: gaiaAcc.accNumber,
-                            sequence: gaiaAcc.accSequence,
-                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                        restApi.delegation(from: key.address, transferData: data) { result in
-                            switch result {
-                            case .success(let data):
-                                print(" -> [OK] - ", data.first?.hash ?? "")
-                                DispatchQueue.main.async { completion?(data.first, nil) }
-                            case .failure(let error):
-                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                completion?(nil, error.localizedDescription)
-                            }
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
+        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+            if let gaiaAcc = gaiaAccount  {
+                let data = DelegationPostData(
+                    validator: toValidator,
+                    delegator: key.address,
+                    name: key.name,
+                    pass: key.getPassFromKeychain() ?? "",
+                    chain: node.network,
+                    amount: amount,
+                    denom: denom,
+                    accNum: gaiaAcc.accNumber,
+                    sequence: gaiaAcc.accSequence,
+                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                restApi.delegation(from: key.address, transferData: data) { result in
+                    switch result {
+                    case .success(let data):
+                        print(" -> [OK] - ", data.first?.hash ?? "")
+                        DispatchQueue.main.async { completion?(data.first, nil) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        completion?(nil, error.localizedDescription)
                     }
                 }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    completion?(nil, error.localizedDescription)
-                }
+
+            } else {
+                DispatchQueue.main.async { completion?(nil, errMsg) }
             }
         }
     }
 
     public func unbondStake(node: GaiaNode, key: GaiaKey, feeAmount: String, fromValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getAccount(address: key.address) { result in
-            switch result {
-            case .success(let data):
-                if let item = data.first, let type = item.type {
-                    if type.contains("VestingAccount") {
-                        restApi.getVestedAccount(address: key.address) { result in
-                            switch result {
-                            case .success(let data):
-                                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
-                                    let data = UnbondingDelegationPostData(
-                                        validator: fromValidator,
-                                        delegator: key.address,
-                                        name: key.name,
-                                        pass: key.getPassFromKeychain() ?? "",
-                                        chain: node.network,
-                                        amount: amount,
-                                        accNum: gaiaAcc.accNumber,
-                                        sequence: gaiaAcc.accSequence,
-                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                                    restApi.unbonding(from: key.name, transferData: data) { result in
-                                        switch result {
-                                        case .success(let data):
-                                            print(" -> [OK] - ", data.first?.hash ?? "")
-                                            DispatchQueue.main.async { completion?(data.first, nil) }
-                                        case .failure(let error):
-                                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                            completion?(nil, error.localizedDescription)
-                                        }
-                                    }
-                                } else {
-                                    DispatchQueue.main.async {
-                                        completion?(nil, "Request OK but no data")
-                                    }
-                                }
-                            case .failure(let error):
-                                DispatchQueue.main.async {
-                                    let message = error.code == 204 ? nil : error.localizedDescription
-                                    completion?(nil, message)
-                                }
-                            }
-                        }
-                    } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
-                        let data = UnbondingDelegationPostData(
-                            validator: fromValidator,
-                            delegator: key.address,
-                            name: key.name,
-                            pass: key.getPassFromKeychain() ?? "",
-                            chain: node.network,
-                            amount: amount,
-                            accNum: gaiaAcc.accNumber,
-                            sequence: gaiaAcc.accSequence,
-                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                        restApi.unbonding(from: key.name, transferData: data) { result in
-                            switch result {
-                            case .success(let data):
-                                print(" -> [OK] - ", data.first?.hash ?? "")
-                                DispatchQueue.main.async { completion?(data.first, nil) }
-                            case .failure(let error):
-                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                completion?(nil, error.localizedDescription)
-                            }
-                        }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
+        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+            if let gaiaAcc = gaiaAccount  {
+                let data = UnbondingDelegationPostData(
+                    validator: fromValidator,
+                    delegator: key.address,
+                    name: key.name,
+                    pass: key.getPassFromKeychain() ?? "",
+                    chain: node.network,
+                    amount: amount,
+                    accNum: gaiaAcc.accNumber,
+                    sequence: gaiaAcc.accSequence,
+                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                restApi.unbonding(from: key.name, transferData: data) { result in
+                    switch result {
+                    case .success(let data):
+                        print(" -> [OK] - ", data.first?.hash ?? "")
+                        DispatchQueue.main.async { completion?(data.first, nil) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        completion?(nil, error.localizedDescription)
                     }
                 }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    completion?(nil, error.localizedDescription)
-                }
+            } else {
+                DispatchQueue.main.async { completion?(nil, errMsg) }
             }
         }
     }
@@ -521,74 +269,29 @@ extension GaiaGovernaceCapable {
     
     public func vote(for proposal: String, option: String, node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getAccount(address: key.address) { result in
-            print("\n... Get account for \(key.address) - context vote to proposal ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let type = item.type {
-                    if type.contains("VestingAccount") {
-                        restApi.getVestedAccount(address: key.address) { result in
-                            switch result {
-                            case .success(let data):
-                                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
-                                    let data = ProposalVotePostData(keyName: key.name,
-                                                                    pass: key.getPassFromKeychain() ?? "",
-                                                                    chain: node.network,
-                                                                    accNum: gaiaAcc.accNumber,
-                                                                    sequence: gaiaAcc.accSequence,
-                                                                    voter: key.address,
-                                                                    option: option,
-                                                                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                                    restApi.voteProposal(id: proposal, transferData: data) { result in
-                                        print("\n... Submit vote id \(proposal) ...")
-                                        switch result {
-                                        case .success(let rdata):
-                                            print(" -> [OK] - ", rdata.first ?? "")
-                                            DispatchQueue.main.async { completion?(rdata.first, nil) }
-                                        case .failure(let error):
-                                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                            completion?(nil, error.localizedDescription)
-                                        }
-                                    }
-                                } else {
-                                    DispatchQueue.main.async {
-                                        completion?(nil, "Request OK but no data")
-                                    }
-                                }
-                            case .failure(let error):
-                                DispatchQueue.main.async {
-                                    let message = error.code == 204 ? nil : error.localizedDescription
-                                    completion?(nil, message)
-                                }
-                            }
-                        }
-                    } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
-                        let data = ProposalVotePostData(keyName: key.name,
-                                                        pass: key.getPassFromKeychain() ?? "",
-                                                        chain: node.network,
-                                                        accNum: gaiaAcc.accNumber,
-                                                        sequence: gaiaAcc.accSequence,
-                                                        voter: key.address,
-                                                        option: option,
-                                                        fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
-                        restApi.voteProposal(id: proposal, transferData: data) { result in
-                            print("\n... Submit vote id \(proposal) ...")
-                            switch result {
-                            case .success(let rdata):
-                                print(" -> [OK] - ", rdata.first ?? "")
-                                DispatchQueue.main.async { completion?(rdata.first, nil) }
-                            case .failure(let error):
-                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                                completion?(nil, error.localizedDescription)
-                            }
-                        }
+        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+            if let gaiaAcc = gaiaAccount  {
+                let data = ProposalVotePostData(keyName: key.name,
+                                                pass: key.getPassFromKeychain() ?? "",
+                                                chain: node.network,
+                                                accNum: gaiaAcc.accNumber,
+                                                sequence: gaiaAcc.accSequence,
+                                                voter: key.address,
+                                                option: option,
+                                                fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                restApi.voteProposal(id: proposal, transferData: data) { result in
+                    print("\n... Submit vote id \(proposal) ...")
+                    switch result {
+                    case .success(let rdata):
+                        print(" -> [OK] - ", rdata.first ?? "")
+                        DispatchQueue.main.async { completion?(rdata.first, nil) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        completion?(nil, error.localizedDescription)
                     }
                 }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                completion?(nil, error.localizedDescription)
+            } else {
+                DispatchQueue.main.async { completion?(nil, errMsg) }
             }
         }
     }

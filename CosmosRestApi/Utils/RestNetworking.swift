@@ -126,9 +126,11 @@ extension RestNetworking {
                     let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Data was not retrieved from request"])
                     completion?(.failure(error))
                 }
-            }        }
+            }
+        }
         
         task.resume()
+        session.finishTasksAndInvalidate()
     }
     
 }

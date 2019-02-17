@@ -256,7 +256,7 @@ public struct Transaction: Codable {
     public let result: TransactionResult?
 
     enum CodingKeys : String, CodingKey {
-        case hash
+        case hash = "txhash"
         case height
         case tx
         case result
@@ -630,18 +630,18 @@ public struct TransferBaseReq: Codable {
 
 public struct TransferResponse: Codable {
     
-    public let checkTx: TransferCheckTx?
-    public let deliverTx: TransferDeliverTx?
-    public let hash: String?
     public let height: String?
-    public let gasWanted: Double?
-    public let gasUsed: Double?
+    //public let checkTx: TransferCheckTx?
+    //public let deliverTx: TransferDeliverTx?
+    public let hash: String?
+    public let gasWanted: String?
+    public let gasUsed: String?
     public let log: String?
     public let tags: [TrResultTag]?
 
     enum CodingKeys : String, CodingKey {
-        case checkTx = "check_tx"
-        case deliverTx =  "deliver_tx"
+        //case checkTx = "check_tx"
+        //case deliverTx =  "deliver_tx"
         case hash = "txhash"
         case height
         case gasWanted = "gas_used"
