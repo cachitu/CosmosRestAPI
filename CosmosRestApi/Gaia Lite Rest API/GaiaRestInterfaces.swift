@@ -51,6 +51,32 @@ extension GaiaKeysManagementCapable {
         }
     }
     
+    public func withdraw(node: GaiaNode, key: GaiaKey, feeAmount: String, validator: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+            if let gaiaAcc = gaiaAccount  {
+                let data = TransferPostData(name: key.name,
+                                            pass: key.getPassFromKeychain() ?? "",
+                                            chain: node.network,
+                                            accNum: gaiaAcc.accNumber,
+                                            sequence:gaiaAcc.accSequence,
+                                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                restApi.withdrawReward(to: gaiaAcc.address, fromValidator: validator, transferData: data) { result in
+                    switch result {
+                    case .success(let data):
+                        print(" -> [OK] - ", data.first?.hash ?? "")
+                        DispatchQueue.main.async { completion?(data.first, nil) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                    }
+                }
+            } else {
+                DispatchQueue.main.async { completion?(nil, errMsg) }
+            }
+        }
+    }
+
     public func redelegateStake(node: GaiaNode, key: GaiaKey, feeAmount: String, fromValidator: String, toValidator: String, amount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in

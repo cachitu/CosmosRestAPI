@@ -588,7 +588,7 @@ public struct TransferPostData: Codable {
     public var baseReq: TransferBaseReq?
     public var amount: [TxFeeAmount]?
     
-    public init(name: String, pass: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
+    public init(name: String, pass: String, chain: String, amount: String? = nil, denom: String? = nil, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.amount = [TxFeeAmount(denom: denom, amount: amount)]
         self.baseReq = TransferBaseReq(name: name, password: pass, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }

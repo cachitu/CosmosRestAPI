@@ -30,7 +30,6 @@ public class GaiaAddressBook: PersistCodable, CustomStringConvertible {
         }
         return result
     }
-
 }
 
 public class GaiaAddressBookItem: PersistCodable, Equatable {
@@ -60,6 +59,7 @@ public class GaiaNode: Codable {
     public var network: String = ""
     public var nodeID: String = ""
     public var stakeDenom: String = "stake"
+    public var knownValidators: [String : String] = [:]
     
     public init(name: String = "Gaia Node", scheme: String = "https", host: String = "localhost", rcpPort: Int = 1317, tendrmintPort: Int = 26657) {
         self.name = name
