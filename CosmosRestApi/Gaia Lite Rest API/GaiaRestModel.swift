@@ -370,16 +370,24 @@ public class GaiaProposal {
     public let type: String
     public let status: String
     public let yes: String
+    public let abstain: String
     public let no: String
+    public let noWithVeto: String
     public let proposalId: String
-
+    public let totalDepopsit: String
+    
     public init(proposal: Proposal) {
-        self.title = proposal.value?.title ?? "-"
+        self.title       = proposal.value?.title ?? "-"
         self.description = proposal.value?.description ?? "-"
-        self.type = proposal.value?.proposalType ?? ""
-        self.status = proposal.value?.proposalStatus ?? ""
-        self.yes = proposal.value?.tallyResult?.yes ?? "0"
-        self.no = proposal.value?.tallyResult?.no ?? "0"
-        self.proposalId = proposal.value?.proposalId ?? "0"
+        self.type        = proposal.value?.proposalType ?? ""
+        self.status      = proposal.value?.proposalStatus ?? ""
+        self.yes         = proposal.value?.tallyResult?.yes ?? "0"
+        self.abstain     = proposal.value?.tallyResult?.abstain ?? "0"
+        self.no          = proposal.value?.tallyResult?.no ?? "0"
+        self.noWithVeto  = proposal.value?.tallyResult?.noWithVeto ?? "0"
+        self.proposalId  = proposal.value?.proposalId ?? "0"
+        let depAmount = proposal.value?.totalDeposit?.first?.amount ?? "0"
+        let depDenom = proposal.value?.totalDeposit?.first?.denom ?? "-"
+        self.totalDepopsit = "\(depAmount) \(depDenom)"
     }
 }

@@ -272,6 +272,7 @@ public protocol GaiaGovernaceCapable {
     var node: GaiaNode? { get set }
     func retrieveAllPropsals(node: GaiaNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->())
     func vote(for proposal: String, option: String, node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
+    func propose(deposit: String, title: String, description: String, type: ProposalType, node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaGovernaceCapable {
@@ -322,5 +323,39 @@ extension GaiaGovernaceCapable {
         }
     }
     
+    public func propose(deposit: String, title: String, description: String, type: ProposalType, node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+            if let gaiaAcc = gaiaAccount  {
+                
+                let data = ProposalPostData(
+                    keyName: key.name,
+                    pass: key.getPassFromKeychain() ?? "",
+                    chain: node.network,
+                    deposit: deposit,
+                    denom: gaiaAcc.denom,
+                    accNum: gaiaAcc.accNumber,
+                    sequence: gaiaAcc.accSequence,
+                    title: title,
+                    description: description,
+                    proposalType: type,
+                    proposer: key.address,
+                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                restApi.submitProposal(transferData: data) { result in
+                    switch result {
+                    case .success(let rdata):
+                        print(" -> [OK] - ", rdata.first ?? "")
+                        DispatchQueue.main.async { completion?(rdata.first, nil) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        completion?(nil, error.localizedDescription)
+                    }
+                }
+            } else {
+                DispatchQueue.main.async { completion?(nil, errMsg) }
+            }
+        }
+    }
+
 
 }
