@@ -252,12 +252,20 @@ public struct Transaction: Codable {
     
     public let hash: String?
     public let height: String?
+    public let log: String?
+    public let gasWanted: String?
+    public let gasUsed: String?
+    public let tags: [TrResultTag]?
     public let tx: TransactionTx?
     public let result: TransactionResult?
 
     enum CodingKeys : String, CodingKey {
         case hash = "txhash"
         case height
+        case log
+        case gasWanted = "gas_wanted"
+        case gasUsed = "gas_used"
+        case tags
         case tx
         case result
     }
@@ -348,12 +356,18 @@ public struct TxMsgVal: Codable {
     
     public let delegatorAddr: String?
     public let validatorAddr: String?
+    public let fromAddr: String?
+    public let toAddr: String?
     public let delegation: TxMsgValDelegation?
-    
+    public let amount: [TxMsgValDelegation]?
+
     enum CodingKeys : String, CodingKey {
         case delegatorAddr = "delegator_addr"
         case validatorAddr = "validator_addr"
+        case fromAddr = "from_address"
+        case toAddr = "to_address"
         case delegation
+        case amount
     }
 }
 

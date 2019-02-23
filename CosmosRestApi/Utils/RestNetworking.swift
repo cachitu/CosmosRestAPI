@@ -32,6 +32,7 @@ public protocol RestNetworking {
         reqMethod: String,
         singleItemResponse: Bool,
         timeout: Double,
+        queryItems: [URLQueryItem]?,
         completion: ((RestResult<[Resp]>) -> Void)?)
 }
 
@@ -46,6 +47,7 @@ extension RestNetworking {
         reqMethod: String = "GET",
         singleItemResponse: Bool = false,
         timeout: Double = 20,
+        queryItems: [URLQueryItem]? = nil,
         completion: ((RestResult<[Resp]>) -> Void)?)
     {
         
@@ -54,7 +56,11 @@ extension RestNetworking {
         urlComponents.host = connData.host
         urlComponents.port = connData.port
         urlComponents.path = path
-
+        
+        if let validQuery = queryItems {
+            urlComponents.queryItems = validQuery
+        }
+        
         guard let url = urlComponents.url else {
             let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Could not create URL from components"])
             completion?(.failure(error))

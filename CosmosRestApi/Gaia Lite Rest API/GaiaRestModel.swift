@@ -223,6 +223,48 @@ public class GaiaKey: CustomStringConvertible {
          })
     }
 
+    public func getTransactions(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaTransaction]?, _ message: String?) -> ())) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getSentTransactions(by: self.address) { result in
+            switch result {
+            case .success(let outTransactions):
+                var gaiaTransactions: [GaiaTransaction] = []
+                for transaction in outTransactions {
+                    let amount = transaction.tx?.value?.msg?.first?.value?.amount?.first?.amount ?? "0"
+                    let denom = transaction.tx?.value?.msg?.first?.value?.amount?.first?.denom ?? "-"
+                    let gaiaTransaction = GaiaTransaction(
+                        sender: transaction.tx?.value?.msg?.first?.value?.fromAddr ?? "-",
+                        receiver: transaction.tx?.value?.msg?.first?.value?.toAddr ?? "-",
+                        height: transaction.height ?? "0",
+                        hash: transaction.hash ?? "-",
+                        amount: "\(amount) \(denom)")
+                    gaiaTransactions.append(gaiaTransaction)
+                }
+                restApi.getReceivedTransactions(by: self.address) { result in
+                    switch result {
+                    case .success(let inTransactions):
+                        for transaction in inTransactions {
+                            let amount = transaction.tx?.value?.msg?.first?.value?.amount?.first?.amount ?? "0"
+                            let denom = transaction.tx?.value?.msg?.first?.value?.amount?.first?.denom ?? "-"
+                            let gaiaTransaction = GaiaTransaction(
+                                sender: transaction.tx?.value?.msg?.first?.value?.fromAddr ?? "-",
+                                receiver: transaction.tx?.value?.msg?.first?.value?.toAddr ?? "-",
+                                height: transaction.height ?? "0",
+                                hash: transaction.hash ?? "-",
+                                amount: "\(amount) \(denom)")
+                            gaiaTransactions.append(gaiaTransaction)
+                        }
+                        DispatchQueue.main.async {
+                            completion(gaiaTransactions, nil)
+                        }
+                    case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                    }
+                }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
     public func getDelegations(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getDelegations(for: self.address) { result in
@@ -267,6 +309,23 @@ public class GaiaKey: CustomStringConvertible {
         return "[\(name), \(type), \(address), \(pubKey)\n]"
     }
     
+}
+
+public class GaiaTransaction {
+    
+    public let sender: String
+    public let receiver: String
+    public let height: String
+    public let hash: String
+    public let amount: String
+
+    public init(sender: String, receiver: String, height: String, hash: String, amount: String) {
+        self.sender = sender
+        self.receiver = receiver
+        self.height = height
+        self.hash = hash
+        self.amount = amount
+    }
 }
 
 public class GaiaDelegation {
