@@ -272,7 +272,7 @@ public class GaiaKey: CustomStringConvertible {
             case .success(let delegations):
                 var gaiaDelegations: [GaiaDelegation] = []
                 for delegation in delegations {
-                    let gaiaDelegation = GaiaDelegation(validator: delegation.validatorAddr ?? "cosmosval...", shares: delegation.shares ?? "0")
+                    let gaiaDelegation = GaiaDelegation(delegation: delegation)
                     gaiaDelegations.append(gaiaDelegation)
                 }
                 DispatchQueue.main.async { completion(gaiaDelegations, nil) }
@@ -315,14 +315,14 @@ public class GaiaTransaction {
     
     public let sender: String
     public let receiver: String
-    public let height: String
+    public let height: Int
     public let hash: String
     public let amount: String
 
     public init(sender: String, receiver: String, height: String, hash: String, amount: String) {
         self.sender = sender
         self.receiver = receiver
-        self.height = height
+        self.height = Int(height) ?? 0
         self.hash = hash
         self.amount = amount
     }
@@ -331,11 +331,15 @@ public class GaiaTransaction {
 public class GaiaDelegation {
     
     public let validatorAddr: String
+    public let delegatorAddr: String
     public let shares: String
+    public let height: Int
     
-    public init(validator: String, shares: String) {
-        self.validatorAddr = validator
-        self.shares = shares
+    public init(delegation: Delegation) {
+        self.validatorAddr = delegation.validatorAddr ?? "-"
+        self.delegatorAddr = delegation.delegatorAddr ?? "-"
+        self.height = delegation.height ?? 0
+        self.shares = delegation.shares ?? "0"
     }
 }
 
@@ -397,6 +401,22 @@ public class GaiaValidator {
         self.votingPower = Double(self.shares) ?? 0.0
     }
     
+    public func getValidatorDelegations(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getStakeValidatorDelegations(for: self.validator) { result in
+            switch result {
+            case .success(let delegations):
+                var gaiaDelegations: [GaiaDelegation] = []
+                for delegation in delegations {
+                    let gaiaDelegation = GaiaDelegation(delegation: delegation)
+                    gaiaDelegations.append(gaiaDelegation)
+                }
+                DispatchQueue.main.async { completion(gaiaDelegations, nil) }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
     public func unjail(node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: String?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
