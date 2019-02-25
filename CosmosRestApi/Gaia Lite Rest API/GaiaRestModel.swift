@@ -398,7 +398,7 @@ public class GaiaValidator {
         self.moniker = validator.description?.moniker ?? "-"
         self.rate = validator.commission?.rate ?? "0"
         self.jailed = validator.jailed ?? false
-        self.votingPower = Double(self.shares) ?? 0.0
+        self.votingPower = Double(self.tokens) ?? 0.0
     }
     
     public func getValidatorDelegations(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
