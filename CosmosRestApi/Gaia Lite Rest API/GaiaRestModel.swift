@@ -130,8 +130,21 @@ public class GaiaKey: CustomStringConvertible {
     public let address: String
     public let pubKey: String
     public let nodeId: String
-    public var isUnlocked: Bool {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)-\(name)") != nil
+    public var isUnlocked: Bool = true
+//    {
+//        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)-\(name)") != nil
+//    }
+    
+    public init(hardcoded: Bool = true, seed: String? = nil, nodeId: String) {
+        self.nodeId = nodeId
+        self.name = "Kytzu Hardcoded"
+        self.type = "local"
+        self.address = "cosmos1wtv0kp6ydt03edd8kyr5arr4f3yc52vp5g7na0"
+        self.pubKey = "cosmospub1addwnpepqd3xtcfgysaydlrs8hpaqeprdqua6wpx6dldklwwykgd9pq9c90vuea50zc"
+        KeychainWrapper.setString(value: "Sw1ft2015", forKey: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
+        if let validSeed = seed {
+            saveSeedToKeychain(seed: validSeed)
+        }
     }
     
     init(data: Key, seed: String? = nil, nodeId: String) {
@@ -198,9 +211,8 @@ public class GaiaKey: CustomStringConvertible {
     }
 
     public func unlockKey(node: GaiaNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         let data = KeyPasswordData(name: self.name, oldPass: password, newPass: password)
-        restApi.changeKeyPassword(keyData: data) { result in
+        GaiaLocalClient.changeKeyPassword(keyData: data) { result in
             switch result {
             case .success(_): DispatchQueue.main.async { completion(true, nil) }
             case .failure(let error): DispatchQueue.main.async { completion(false, error.localizedDescription) }
@@ -209,10 +221,9 @@ public class GaiaKey: CustomStringConvertible {
     }
     
     public func deleteKey(node: GaiaNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         let kdata = KeyPostData(name: self.name, pass: password, seed: nil)
 
-        restApi.deleteKey(keyData: kdata, completion: { result in
+        GaiaLocalClient.deleteKey(keyData: kdata, completion: { result in
             switch result {
             case .success(_):
                 let _ = self.forgetPassFromKeychain()
@@ -363,7 +374,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.amount = 0.0
         self.denom = stakeDenom
         self.feeAmount = 0.0
-        self.feeDenom = "photin"
+        self.feeDenom = "fee token?"
         for coin in accountValue?.coins ?? [] {
             if coin.denom == stakeDenom {
                 self.amount = Double(coin.amount ?? "0.0") ?? 0.0
@@ -372,6 +383,10 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
                 self.feeAmount = Double(coin.amount ?? "0.0") ?? 0.0
                 self.feeDenom = coin.denom ?? "photin"
             }
+        }
+        if let coins = accountValue?.coins, coins.count == 1 {
+            self.feeAmount = 0.0
+            self.feeDenom = stakeDenom
         }
         assets = accountValue?.coins ?? []
     }
@@ -417,20 +432,19 @@ public class GaiaValidator {
         }
     }
 
-    public func unjail(node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: String?, _ errMsg: String?) -> ())?) {
+    public func unjail(node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
-                let baseReq = UnjailPostData(name: key.name,
-                                             pass: key.getPassFromKeychain() ?? "",
+                let baseReq = UnjailPostData(name: key.address,
                                              chain: node.network,
                                              accNum: gaiaAcc.accNumber,
                                              sequence: gaiaAcc.accSequence,
                                              fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
                 restApi.unjail(validator: self.validator, transferData: baseReq) { result in
                     switch result {
-                    case .success(_):
-                        DispatchQueue.main.async { completion?("OK", nil) }
+                    case .success(let data):
+                        GaiaLocalClient.handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
                     case .failure(let error):
                         completion?(nil, error.localizedDescription)
                     }

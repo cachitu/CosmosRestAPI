@@ -137,7 +137,7 @@ public class GaiaRestTester {
         //ICS1
         
         dispatchGroup.enter()
-        restApi.getKeys { result in
+        GaiaLocalClient.getKeys { result in
             print("\n... Get all keys on this node ...")
             switch result {
             case .success(let data):
@@ -150,7 +150,7 @@ public class GaiaRestTester {
         
         dispatchGroup.enter()
         let kdata = KeyPostData(name: "testCreate", pass: "test1234", seed: recoverSeed)
-        restApi.createKey(keyData: kdata) { result in
+        GaiaLocalClient.createKey(keyData: kdata) { result in
             print("\n... Create a test key ...")
             switch result {
             case .success(let data):
@@ -161,7 +161,7 @@ public class GaiaRestTester {
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
             
-            restApi.deleteKey(keyData: kdata, completion: { result in
+            GaiaLocalClient.deleteKey(keyData: kdata, completion: { result in
                 print("\n... Delete acc <testCreate> ...")
                 switch result {
                 case .success(let data):
@@ -176,7 +176,7 @@ public class GaiaRestTester {
         }
         
         dispatchGroup.enter()
-        restApi.createSeed { result in
+        GaiaLocalClient.createSeed { result in
             print("\n... Get seed ...")
             switch result {
             case .success(let data):
@@ -184,7 +184,7 @@ public class GaiaRestTester {
                     print(" -> [OK] - ", item)
                     
                     let kdata = KeyPostData(name: "testRecover", pass: "test1234", seed: recoverSeed)
-                    restApi.recoverKey(keyData: kdata, completion: { result in
+                    GaiaLocalClient.recoverKey(keyData: kdata, completion: { result in
                         print("\n... Recover testRecover with seed [\(recoverSeed)] ...")
                         switch result {
                         case .success(let data):
@@ -195,7 +195,7 @@ public class GaiaRestTester {
                             print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         }
                         
-                        restApi.deleteKey(keyData: kdata, completion: { result in
+                        GaiaLocalClient.deleteKey(keyData: kdata, completion: { result in
                             print("\n... Delete acc <testRecover> ...")
                             switch result {
                             case .success(let data):
@@ -216,7 +216,7 @@ public class GaiaRestTester {
         
         dispatchGroup.enter()
         let data = KeyPasswordData(name: key1name, oldPass: acc1Pass, newPass: "newpass123")
-        restApi.changeKeyPassword(keyData: data) { result in
+        GaiaLocalClient.changeKeyPassword(keyData: data) { result in
             print("\n... Change pass for [\(key1name)] ...")
             switch result {
             case .success(let data):
@@ -226,7 +226,7 @@ public class GaiaRestTester {
             }
             
             let data1 = KeyPasswordData(name: key1name, oldPass: "newpass123", newPass: acc1Pass)
-            restApi.changeKeyPassword(keyData: data1) { result in
+            GaiaLocalClient.changeKeyPassword(keyData: data1) { result in
                 print("\n... Change pass back for [\(key1name)] ...")
                 switch result {
                 case .success(let data):
@@ -254,7 +254,7 @@ public class GaiaRestTester {
                         print("\n... Transfer 1 photino ...")
                         switch result {
                         case .success(let data):
-                            print(" -> [OK] - ", data.first?.hash ?? "")
+                            print(" -> [OK] - ", data.first ?? "")
                         case .failure(let error):
                             print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         }
@@ -417,12 +417,12 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let data = ProposalPostData(keyName: key1name, pass: acc1Pass, chain: chainID, deposit: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", title: "Third", description: "Upgrade the net", proposalType: ProposalType.software_upgrade, proposer: addr1, fees: nil)
+                    let data = ProposalPostData(keyName: key1name, chain: chainID, deposit: "1", denom: "photinos", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", title: "Third", description: "Upgrade the net", proposalType: ProposalType.software_upgrade, proposer: addr1, fees: nil)
                     restApi.submitProposal(transferData: data) { result in
                         print("\n... Submit proposal ...")
                         switch result {
                         case .success(let data):
-                            print(" -> [OK] - ", data.first?.hash ?? "")
+                            print(" -> [OK] - ", data.first ?? "")
                         case .failure(let error):
                             print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         }
@@ -444,12 +444,12 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let data = ProposalDepositPostData(keyName: key2name, pass: acc2Pass, chain: chainID, deposit: "25", denom: "STAKE", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", depositor: addr2, fees: nil)
+                    let data = ProposalDepositPostData(keyName: key2name, chain: chainID, deposit: "25", denom: "STAKE", accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", depositor: addr2, fees: nil)
                     restApi.depositToProposal(id: "2", transferData: data) { result in
                         print("\n... Submit deposit proposal id 1 ...")
                         switch result {
                         case .success(let data):
-                            print(" -> [OK] - ", data.first?.hash ?? "")
+                            print(" -> [OK] - ", data.first ?? "")
                         case .failure(let error):
                             print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         }
@@ -471,12 +471,12 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let data = ProposalVotePostData(keyName: key2name, pass: acc2Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", voter: addr2, option: "no", fees: nil)
+                    let data = ProposalVotePostData(keyName: key2name, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", voter: addr2, option: "no", fees: nil)
                     restApi.voteProposal(id: "1", transferData: data) { result in
                         print("\n... Submit vote id 1 ...")
                         switch result {
                         case .success(let data):
-                            print(" -> [OK] - ", data.first?.hash ?? "")
+                            print(" -> [OK] - ", data.first ?? "")
                         case .failure(let error):
                             print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         }
@@ -525,12 +525,12 @@ public class GaiaRestTester {
                 if let item = data.first, let field = item.type {
                     print(" -> [OK] - ", field)
                     
-                    let baseReq = UnjailPostData(name: key1name, pass: acc1Pass, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", fees: nil)
+                    let baseReq = UnjailPostData(name: key1name, chain: chainID, accNum: item.value?.accountNumber ?? "0", sequence: item.value?.sequence ?? "0", fees: nil)
                     restApi.unjail(validator: val1, transferData: baseReq) { result in
                         print("\n... Unjail \(val1) ...")
                         switch result {
                         case .success(let data):
-                            print(" -> [OK] - ", data.first?.hash ?? "")
+                            print(" -> [OK] - ", data.first ?? "")
                         case .failure(let error):
                             if error.code == 500 {
                                 print(" -> [OK] - Not jailed")

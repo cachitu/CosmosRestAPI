@@ -17,7 +17,7 @@ import Foundation
 
 public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
-    static let minVersion = "0.32.0-2-g19f0f92c"
+    static let minVersion = "0.33.0"
     
     let connectData: ConnectData
     
@@ -69,8 +69,14 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "recipient", value: "\(address)")], completion: completion)
     }
 
+    public func broadcast(transferData: SignedTx, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/txs", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     //ICS1 - Key management APIs
     
+    // The commented APIs below hase been removed in version 0.33
+    /*
     public func createSeed(completion: ((RestResult<[String]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/keys/seed", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -98,6 +104,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func changeKeyPassword(keyData: KeyPasswordData, completion:((RestResult<[String]>) -> Void)?) {
         genericRequest(bodyData: keyData, connData: connectData, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "PUT", singleItemResponse: true, completion: completion)
     }
+    */
     
     public func getAccount(address: String, completion: ((RestResult<[Account]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
@@ -109,7 +116,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
 
     // ICS20
     
-    public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/bank/accounts/\(address)/transfers", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
@@ -124,7 +131,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, completion: completion)
     }
     
-    public func delegation(from address: String, transferData: DelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func delegation(from address: String, transferData: DelegationPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
@@ -136,7 +143,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations", delegate: self, completion: completion)
     }
     
-    public func unbonding(from address: String, transferData: UnbondingDelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func unbonding(from address: String, transferData: UnbondingDelegationPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
@@ -148,7 +155,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/redelegations", delegate: self, completion: completion)
     }
     
-    public func redelegation(from address: String, transferData: RedelegationPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func redelegation(from address: String, transferData: RedelegationPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
@@ -195,7 +202,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     //ICS22 - Governance
     
-    public func submitProposal(transferData: ProposalPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func submitProposal(transferData: ProposalPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
@@ -227,11 +234,11 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes/\(voter)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
-    public func depositToProposal(id: String, transferData: ProposalDepositPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func depositToProposal(id: String, transferData: ProposalDepositPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/deposits", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
-    public func voteProposal(id: String, transferData: ProposalVotePostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func voteProposal(id: String, transferData: ProposalVotePostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
@@ -254,7 +261,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/slashing/validators/\(valPubKey)/signing_info", delegate: self, singleItemResponse: true, completion: completion)
     }
 
-    public func unjail(validator valAddr: String, transferData: UnjailPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func unjail(validator valAddr: String, transferData: UnjailPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/slashing/validators/\(valAddr)/unjail", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
@@ -266,7 +273,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     // POST /distribution/delegators/{delegatorAddr}/rewards/{validatorAddr}
 
-    public func withdrawReward(to address: String, fromValidator: String, transferData: TransferPostData, completion:((RestResult<[TransferResponse]>) -> Void)?) {
+    public func withdrawReward(to address: String, fromValidator: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/delegators/\(address)/rewards/\(fromValidator)", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
