@@ -36,6 +36,7 @@
 		88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestInterfaces.swift; path = "../../../CosmosRestAPI/CosmosRestApi/Gaia Lite Rest API/GaiaRestInterfaces.swift"; sourceTree = "<group>"; };
 		88677FEC21E903520022A09E /* GaiaRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestModel.swift; path = "../../../CosmosRestAPI/CosmosRestApi/Gaia Lite Rest API/GaiaRestModel.swift"; sourceTree = "<group>"; };
 		8869755E21E9CC8700044EB8 /* KeychainWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
+		88A8B52A22463984004F0B82 /* CryptoSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +55,7 @@
 			children = (
 				88300D7F21DCA73E007B9C43 /* CosmosRestApi */,
 				88300D7E21DCA73E007B9C43 /* Products */,
+				88A8B52922463984004F0B82 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -107,6 +109,14 @@
 				88300D8821DCA76B007B9C43 /* RestNetworking.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		88A8B52922463984004F0B82 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				88A8B52A22463984004F0B82 /* CryptoSwift.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

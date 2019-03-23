@@ -73,39 +73,6 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/txs", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
-    //ICS1 - Key management APIs
-    
-    // The commented APIs below hase been removed in version 0.33
-    /*
-    public func createSeed(completion: ((RestResult<[String]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/keys/seed", delegate: self, singleItemResponse: true, completion: completion)
-    }
-    
-    public func getKeys(completion: ((RestResult<[Key]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/keys", delegate: self, completion: completion)
-    }
-    
-    public func getKey(by name: String, completion: ((RestResult<[Key]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/keys/\(name)", delegate: self, singleItemResponse: true, completion: completion)
-    }
-    
-    public func createKey(keyData: KeyPostData, completion:((RestResult<[Key]>) -> Void)?) {
-        genericRequest(bodyData: keyData, connData: connectData, path: "/keys", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
-    }
-    
-    public func recoverKey(keyData: KeyPostData, completion:((RestResult<[Key]>) -> Void)?) {
-        genericRequest(bodyData: keyData, connData: connectData, path: "/keys/\(keyData.name)/recover", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
-    }
-    
-    public func deleteKey(keyData: KeyPostData, completion:((RestResult<[String]>) -> Void)?) {
-        genericRequest(bodyData: keyData, connData: connectData, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "DELETE", singleItemResponse: true, completion: completion)
-    }
-    
-    public func changeKeyPassword(keyData: KeyPasswordData, completion:((RestResult<[String]>) -> Void)?) {
-        genericRequest(bodyData: keyData, connData: connectData, path: "/keys/\(keyData.name)", delegate: self, reqMethod: "PUT", singleItemResponse: true, completion: completion)
-    }
-    */
-    
     public func getAccount(address: String, completion: ((RestResult<[Account]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }

@@ -9,7 +9,7 @@
 import Foundation
 
 public class GaiaRestTester {
-  
+
     public static func selfTesting(
         chainID: String = "kytzu-001",
         key1name: String = "validator",
@@ -135,85 +135,7 @@ public class GaiaRestTester {
         
         
         //ICS1
-        
-        dispatchGroup.enter()
-        GaiaLocalClient.getKeys { result in
-            print("\n... Get all keys on this node ...")
-            switch result {
-            case .success(let data):
-                print(" -> [OK] - ", data.count)
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            dispatchGroup.leave()
-        }
-        
-        dispatchGroup.enter()
-        let kdata = KeyPostData(name: "testCreate", pass: "test1234", seed: recoverSeed)
-        GaiaLocalClient.createKey(keyData: kdata) { result in
-            print("\n... Create a test key ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first, let field = item.address {
-                    print(" -> [OK] - ", field)
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            
-            GaiaLocalClient.deleteKey(keyData: kdata, completion: { result in
-                print("\n... Delete acc <testCreate> ...")
-                switch result {
-                case .success(let data):
-                    if let item = data.first {
-                        print(" -> [OK] - ", item)
-                    }
-                case .failure(let error):
-                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                }
-                dispatchGroup.leave()
-            })
-        }
-        
-        dispatchGroup.enter()
-        GaiaLocalClient.createSeed { result in
-            print("\n... Get seed ...")
-            switch result {
-            case .success(let data):
-                if let item = data.first {
-                    print(" -> [OK] - ", item)
-                    
-                    let kdata = KeyPostData(name: "testRecover", pass: "test1234", seed: recoverSeed)
-                    GaiaLocalClient.recoverKey(keyData: kdata, completion: { result in
-                        print("\n... Recover testRecover with seed [\(recoverSeed)] ...")
-                        switch result {
-                        case .success(let data):
-                            if let item = data.first, let field = item.address {
-                                print(" -> [OK] - ", field)
-                            }
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        }
-                        
-                        GaiaLocalClient.deleteKey(keyData: kdata, completion: { result in
-                            print("\n... Delete acc <testRecover> ...")
-                            switch result {
-                            case .success(let data):
-                                if let item = data.first {
-                                    print(" -> [OK] - ", item)
-                                }
-                            case .failure(let error):
-                                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            }
-                            dispatchGroup.leave()
-                        })
-                    })
-                }
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-        }
-        
+                
         dispatchGroup.enter()
         let data = KeyPasswordData(name: key1name, oldPass: acc1Pass, newPass: "newpass123")
         GaiaLocalClient.changeKeyPassword(keyData: data) { result in

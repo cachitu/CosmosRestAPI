@@ -90,41 +90,60 @@ public struct SignedTx: Codable {
     }
 }
 
+public protocol KeysClientDelegate: AnyObject {
+    func getSavedKeys() -> [GaiaKey]
+    func generateMnemonic() -> String
+    func recoverKey(from mnemonic: String, name: String, password: String) -> Key
+    func createKey(with name: String, password: String) -> Key
+    func deleteKey(with name: String, password: String) -> NSError?
+}
+
 public class GaiaLocalClient {
     
-    public static let signingImplemented = false
+    public static let signingImplemented = true
+    public weak var delegate: KeysClientDelegate?
     
-    public class func getKeys(completion: ((RestResult<[Key]>) -> Void)?) {
-        var keys: [Key] = []
-        if let gaiaAddress = GaiaAddressBook.loadFromDisk() as? GaiaAddressBook {
-            for item in gaiaAddress.items {
-                let key = Key(name: item.name, addres: item.address)
-                keys.append(key)
-            }
-        }
-
+    public init(delegate: KeysClientDelegate) {
+        self.delegate = delegate
+    }
+    
+    public func getKeys(completion: ((RestResult<[GaiaKey]>) -> Void)?) {
+        let keys: [GaiaKey] = delegate?.getSavedKeys() ?? []
         completion?(.success(keys))
     }
     
-    public class func recoverKey(keyData: KeyPostData, completion:((RestResult<[Key]>) -> Void)?) {
-        let key = Key(name: "KytzuHC", addres: "cosmos1yhm8yfckgre4xepqsecy6v8tnez3nk30ts5cpw")
+    public func recoverKey(keyData: KeyPostData, completion:((RestResult<[Any]>) -> Void)?) {
+        guard let key = delegate?.recoverKey(from: keyData.mnemonic ?? "", name: keyData.name, password: keyData.password ?? "") else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Recover failed"])
+            completion?(.failure(error))
+            return
+        }
         completion?(.success([key]))
     }
     
-    public class func createSeed(completion: ((RestResult<[String]>) -> Void)?) {
-        completion?(.success(["impose travel confirm oppose arctic artwork vapor develop hollow file salt spend oven result shove olympic captain snow multiply stuff health plastic cart mistake"]))
+    public func createSeed(completion: ((RestResult<[String]>) -> Void)?) {
+        let seed = delegate?.generateMnemonic() ?? ""
+        completion?(.success([seed]))
     }
     
-    public class func deleteKey(keyData: KeyPostData, completion:((RestResult<[String]>) -> Void)?) {
-        completion?(.success(["OK"]))
+    public func deleteKey(keyData: KeyPostData, completion:((RestResult<[String]>) -> Void)?) {
+        if let error = delegate?.deleteKey(with: keyData.name, password: keyData.password ?? "") {
+            completion?(.failure(error))
+        } else {
+            completion?(.success(["Key \(keyData.name) deleted"]))
+        }
     }
     
     public class func changeKeyPassword(keyData: KeyPasswordData, completion:((RestResult<[String]>) -> Void)?) {
         completion?(.success(["OK"]))
     }
     
-    public class func createKey(keyData: KeyPostData, completion:((RestResult<[Key]>) -> Void)?) {
-        let key = Key(name: "KytzuHC", addres: "cosmos1yhm8yfckgre4xepqsecy6v8tnez3nk30ts5cpw")
+    public func createKey(keyData: KeyPostData, completion:((RestResult<[Any]>) -> Void)?) {
+        guard let key = delegate?.createKey(with: keyData.name , password: keyData.password ?? "") else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Create key failed"])
+            completion?(.failure(error))
+            return
+        }
         completion?(.success([key]))
     }
     

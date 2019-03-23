@@ -14,8 +14,8 @@ import Foundation
 public protocol GaiaKeysManagementCapable {
     
     var node: GaiaNode? { get set }
-    func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
-    func createKey(node: GaiaNode, name: String, pass: String, seed: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
+    func retrieveAllKeys(node: GaiaNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
+    func createKey(node: GaiaNode, clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
     func sendAssets(node: GaiaNode, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
@@ -161,39 +161,34 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func retrieveAllKeys(node: GaiaNode, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->()) {
+    public func retrieveAllKeys(node: GaiaNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->()) {
         
-        GaiaLocalClient.getKeys { result in
+        GaiaLocalClient(delegate: clientDelegate).getKeys { result in
             switch result {
             case .success(let data):
-                var gaiaKeys: [GaiaKey] = []
-                for key in data {
-                    gaiaKeys.append(GaiaKey(data: key, nodeId: node.nodeID))
-                }
-                DispatchQueue.main.async { completion(gaiaKeys, nil) }
+                DispatchQueue.main.async { completion(data, nil) }
             case .failure(let error): completion(nil, error.localizedDescription)
              }
         }
     }
     
-    public func createKey(node: GaiaNode, name: String, pass: String, seed: String? = nil, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->()) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func createKey(node: GaiaNode, clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String? = nil, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->()) {
         if let validSeed = seed {
-            self.createGaiaKey(restApi: restApi, name: name, pass: pass, seed: validSeed) { rawkey, seed, errMessage in
+            createGaiaKey(clientDelegate: clientDelegate, name: name, pass: pass, seed: validSeed) { rawkey, seed, errMessage in
                 if let error = errMessage {
                     DispatchQueue.main.async { completion(nil, error) }
                 } else if let validKey = rawkey {
-                    let gaiaKey = GaiaKey(data: validKey, seed: validSeed, nodeId: node.nodeID)
+                    let gaiaKey = GaiaKey(data: validKey, nodeId: node.nodeID)
                     gaiaKey.savePassToKeychain(pass: pass)
                     DispatchQueue.main.async { completion(gaiaKey, nil) }
                 }
            }
         } else {
-            createSeed(restApi: restApi, name: name, pass: pass) { rawkey, seed, errMessage in
+            createSeed(clientDelegate: clientDelegate, name: name, pass: pass) { rawkey, seed, errMessage in
                 if let error = errMessage {
                     DispatchQueue.main.async {completion(nil, error) }
                 } else if let validKey = rawkey {
-                    let gaiaKey = GaiaKey(data: validKey, seed: seed, nodeId: node.nodeID)
+                    let gaiaKey = GaiaKey(data: validKey, nodeId: node.nodeID)
                     gaiaKey.savePassToKeychain(pass: pass)
                     DispatchQueue.main.async { completion(gaiaKey, nil) }
                 }
@@ -201,12 +196,12 @@ extension GaiaKeysManagementCapable {
         }
     }
     
-    func createSeed(restApi: GaiaRestAPI, name: String, pass: String, completion: @escaping (_ data: Key?, _ seed: String?, _ errMsg: String?)->()) {
-        GaiaLocalClient.createSeed { result in
+    func createSeed(clientDelegate: KeysClientDelegate, name: String, pass: String, completion: @escaping (_ data: Key?, _ seed: String?, _ errMsg: String?)->()) {
+        GaiaLocalClient(delegate: clientDelegate).createSeed { result in
             switch result {
             case .success(let data):
                 if let seed = data.first {
-                    self.createGaiaKey(restApi: restApi, name: name, pass: pass, seed: seed, completion: completion)
+                    self.createGaiaKey(clientDelegate: clientDelegate, name: name, pass: pass, seed: seed, completion: completion)
                 } else {
                     DispatchQueue.main.async { completion(nil, nil, "Failed to generate a seed") }
                 }
@@ -216,12 +211,12 @@ extension GaiaKeysManagementCapable {
         }
     }
     
-    func createGaiaKey(restApi: GaiaRestAPI, name: String, pass: String, seed: String, completion: @escaping (_ data: Key?, _ seed: String?, _ errMsg: String?)->()) {
+    func createGaiaKey(clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String, completion: @escaping (_ data: Key?, _ seed: String?, _ errMsg: String?)->()) {
         let kdata = KeyPostData(name: name, pass: pass, seed: seed)
-        GaiaLocalClient.recoverKey(keyData: kdata, completion: { result in
+        GaiaLocalClient(delegate: clientDelegate).recoverKey(keyData: kdata, completion: { result in
             switch result {
             case .success(let data):
-                if let item = data.first {
+                if let item = data.first as? Key {
                     DispatchQueue.main.async { completion(item, seed, nil) }
                 }
             case .failure(let error):

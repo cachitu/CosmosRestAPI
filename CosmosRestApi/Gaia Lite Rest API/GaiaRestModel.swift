@@ -123,38 +123,38 @@ public class GaiaNode: Codable {
 
 }
 
-public class GaiaKey: CustomStringConvertible {
+public class GaiaKey: CustomStringConvertible, Codable {
     
     public let name: String
     public let type: String
     public let address: String
-    public let pubKey: String
+    public let pubAddress: String
+    public let validator: String
+    public let pubValidator: String
     public let nodeId: String
-    public var isUnlocked: Bool = true
-//    {
-//        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)-\(name)") != nil
-//    }
     
-    public init(hardcoded: Bool = true, seed: String? = nil, nodeId: String) {
-        self.nodeId = nodeId
-        self.name = "Kytzu Hardcoded"
-        self.type = "local"
-        self.address = "cosmos1wtv0kp6ydt03edd8kyr5arr4f3yc52vp5g7na0"
-        self.pubKey = "cosmospub1addwnpepqd3xtcfgysaydlrs8hpaqeprdqua6wpx6dldklwwykgd9pq9c90vuea50zc"
-        KeychainWrapper.setString(value: "Sw1ft2015", forKey: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
-        if let validSeed = seed {
-            saveSeedToKeychain(seed: validSeed)
-        }
+    public var password: String {
+        return getPassFromKeychain() ?? ""
     }
-    
-    init(data: Key, seed: String? = nil, nodeId: String) {
+    public var mnemonic: String {
+        return getMnemonicFromKeychain() ?? ""
+    }
+
+    public init(data: Key, nodeId: String) {
+        
         self.nodeId = nodeId
         self.name = data.name ?? "-"
         self.type = data.type ?? "-"
         self.address = data.address ?? "-"
-        self.pubKey = data.pubKey ?? "-"
-        if let validSeed = seed {
-            saveSeedToKeychain(seed: validSeed)
+        self.pubAddress = data.pubAddress ?? "-"
+        self.validator = data.validator ?? "-"
+        self.pubValidator = data.pubValidator ?? "-"
+        
+        if let pass = data.password {
+            savePassToKeychain(pass: pass)
+        }
+        if let validMnemonic = data.mnemonic {
+            saveMnemonicToKeychain(seed: validMnemonic)
         }
     }
     
@@ -211,23 +211,21 @@ public class GaiaKey: CustomStringConvertible {
     }
 
     public func unlockKey(node: GaiaNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
-        let data = KeyPasswordData(name: self.name, oldPass: password, newPass: password)
-        GaiaLocalClient.changeKeyPassword(keyData: data) { result in
-            switch result {
-            case .success(_): DispatchQueue.main.async { completion(true, nil) }
-            case .failure(let error): DispatchQueue.main.async { completion(false, error.localizedDescription) }
-            }
+        if self.password == password {
+            DispatchQueue.main.async { completion(true, nil) }
+        } else {
+            DispatchQueue.main.async { completion(false, "Wrong password") }
         }
     }
     
-    public func deleteKey(node: GaiaNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
+    public func deleteKey(node: GaiaNode, clientDelegate: KeysClientDelegate, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
         let kdata = KeyPostData(name: self.name, pass: password, seed: nil)
 
-        GaiaLocalClient.deleteKey(keyData: kdata, completion: { result in
+        GaiaLocalClient(delegate: clientDelegate).deleteKey(keyData: kdata, completion: { result in
             switch result {
             case .success(_):
                 let _ = self.forgetPassFromKeychain()
-                let _ = self.forgetSeedFromKeychain()
+                let _ = self.forgetMnemonicFromKeychain()
                 DispatchQueue.main.async { completion(true, nil) }
             case .failure(let error): DispatchQueue.main.async { completion(false, error.localizedDescription) }
             }
@@ -293,31 +291,31 @@ public class GaiaKey: CustomStringConvertible {
     }
 
     public func savePassToKeychain(pass: String) {
-        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
+        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-password-\(address)-\(name)")
     }
     
     public func getPassFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-password-\(address)-\(name)")
     }
 
     public func forgetPassFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-address-\(nodeId)-\(address)-\(name)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-password-\(address)-\(name)")
     }
 
-    public func saveSeedToKeychain(seed: String) {
-        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-seed-\(nodeId)-\(address)-\(name)")
+    public func saveMnemonicToKeychain(seed: String) {
+        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-mnemonic-\(address)-\(name)")
     }
     
-    public func getSeedFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-seed-\(nodeId)-\(address)-\(name)")
+    public func getMnemonicFromKeychain() -> String? {
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-mnemonic-\(address)-\(name)")
     }
     
-    public func forgetSeedFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-seed-\(nodeId)-\(address)-\(name)")
+    public func forgetMnemonicFromKeychain() -> Bool {
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-mnemonic-\(address)-\(name)")
     }
 
     public var description: String {
-        return "[\(name), \(type), \(address), \(pubKey)\n]"
+        return "[\(name), \(type), \(address), \(pubAddress)\n]"
     }
     
 }

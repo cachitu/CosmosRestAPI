@@ -455,25 +455,26 @@ public struct Keys: PersistCodable {
 
 public struct Key: Codable {
     
-    public let name: String?
-    public let type: String?
-    public let address: String?
-    public let pubKey: String?
-    public var mnemonic: String?
+    public var name: String? = "dummy"
+    public var password: String? = "test1234"
+    public var type: String? = "dummy"
+    public var address: String? = "cosmos1..."
+    public var pubAddress: String? = "cosmospub1..."
+    public var validator: String? = "cosmosvaloper..."
+    public var pubValidator: String? = "cosmosvaloper1..."
+    public var mnemonic: String? = "a b c"
     
-    init(name: String, addres: String) {
-        self.name = name
-        self.address = addres
-        type = "hardcoded"
-        pubKey = nil
-        mnemonic = nil
+    public init() {
     }
     
     enum CodingKeys : String, CodingKey {
         case name
+        case password
         case type
         case address
-        case pubKey = "pub_key"
+        case pubAddress
+        case validator
+        case pubValidator
         case mnemonic
     }
 }
