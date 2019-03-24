@@ -134,33 +134,6 @@ public class GaiaRestTester {
         }
         
         
-        //ICS1
-                
-        dispatchGroup.enter()
-        let data = KeyPasswordData(name: key1name, oldPass: acc1Pass, newPass: "newpass123")
-        GaiaLocalClient.changeKeyPassword(keyData: data) { result in
-            print("\n... Change pass for [\(key1name)] ...")
-            switch result {
-            case .success(let data):
-                print(" -> [OK] - ", data.count)
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-            }
-            
-            let data1 = KeyPasswordData(name: key1name, oldPass: "newpass123", newPass: acc1Pass)
-            GaiaLocalClient.changeKeyPassword(keyData: data1) { result in
-                print("\n... Change pass back for [\(key1name)] ...")
-                switch result {
-                case .success(let data):
-                    print(" -> [OK] - ", data.count)
-                case .failure(let error):
-                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                }
-                dispatchGroup.leave()
-            }
-        }
-        
-        
         //ICS20
         
         dispatchGroup.enter()

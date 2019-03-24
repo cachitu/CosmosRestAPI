@@ -430,7 +430,7 @@ public class GaiaValidator {
         }
     }
 
-    public func unjail(node: GaiaNode, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func unjail(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
@@ -442,7 +442,7 @@ public class GaiaValidator {
                 restApi.unjail(validator: self.validator, transferData: baseReq) { result in
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient.handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
                     case .failure(let error):
                         completion?(nil, error.localizedDescription)
                     }

@@ -377,6 +377,15 @@ public struct TxMsgVal: Codable {
     public let sharesAmount: String?
     public let fromAddr: String?
     public let toAddr: String?
+    public let proposalId: String?
+    public let depositor: String?
+    public let title: String?
+    public let description: String?
+    public let proposalType: String?
+    public let proposer: String?
+    public let voter: String?
+    public let option: String?
+    public let initialDeposit: [TxMsgValDelegation]?
     public let delegation: TxMsgValDelegation?
     public let amount: [TxMsgValDelegation]?
     public let value: TxMsgValDelegation?
@@ -389,6 +398,15 @@ public struct TxMsgVal: Codable {
         case sharesAmount = "shares_amount"
         case fromAddr = "from_address"
         case toAddr = "to_address"
+        case proposalId = "proposal_id"
+        case depositor
+        case title
+        case description
+        case proposalType = "proposal_type"
+        case proposer
+        case voter
+        case option
+        case initialDeposit = "initial_deposit"
         case delegation
         case amount
         case value
