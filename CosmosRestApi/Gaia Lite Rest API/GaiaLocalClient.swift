@@ -84,20 +84,9 @@ public class GaiaLocalClient {
     public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: GaiaNode, completion: ((SignedTx?, String?) -> ())?) {
         
         delegate?.sign(transferData: tx, account: account, node: node) { response in
-            //print(response)
             switch response {
             case .success(let data):
-                let sign = data.first?.value?.signatures?.first?.signature ?? "-"
-                print("OOK: ", sign)
-                let sig = TxValueSignature(
-                    sig: data.first?.value?.signatures?.first?.signature ?? "",
-                    type: data.first?.value?.signatures?.first?.pubKey?.type ?? "",
-                    value: data.first?.value?.signatures?.first?.pubKey?.value ?? "",
-                    accNum: account.accNumber,
-                    seq: account.accSequence)
-                var signed = tx
-                signed?.value?.signatures = [sig]
-                completion?(SignedTx(tx: signed), nil)
+                completion?(SignedTx(tx: data.first), nil)
             case .failure(let error):
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                 completion?(nil, error.localizedDescription)
@@ -109,19 +98,19 @@ public class GaiaLocalClient {
         
         generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node) { signed, err in
             
-            DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
-//            if let bcData = signed {
-//                restApi.broadcast(transferData: bcData) { result in
-//                    switch result {
-//                    case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
-//                    case .failure(let error):
-//                        print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
-//                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-//                    }
-//                }
-//            } else {
-//                DispatchQueue.main.async { completion?(nil, "Sign failed") }
-//            }
+            //DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
+            if let bcData = signed {
+                restApi.broadcast(transferData: bcData) { result in
+                    switch result {
+                    case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                    }
+                }
+            } else {
+                DispatchQueue.main.async { completion?(nil, "Sign failed") }
+            }
         }
     }
 }
