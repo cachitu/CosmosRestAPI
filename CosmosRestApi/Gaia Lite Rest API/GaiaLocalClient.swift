@@ -30,12 +30,11 @@ public protocol KeysClientDelegate: AnyObject {
     func recoverKey(from mnemonic: String, name: String, password: String) -> Key
     func createKey(with name: String, password: String) -> Key
     func deleteKey(with name: String, password: String) -> NSError?
-    func sign(transferData: TransactionTx?, completion:((RestResult<[TransactionTx]>) -> Void)?)
+    func sign(transferData: TransactionTx?, account: GaiaAccount, node: GaiaNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
 }
 
 public class GaiaLocalClient {
     
-    public static let signingImplemented = true
     public weak var delegate: KeysClientDelegate?
     
     public init(delegate: KeysClientDelegate) {
@@ -82,18 +81,20 @@ public class GaiaLocalClient {
         completion?(.success([key]))
     }
     
-    public func generateBroadcatsData(tx: TransactionTx?, accNum: String, sequence: String, completion: ((SignedTx?, String?) -> ())?) {
+    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: GaiaNode, completion: ((SignedTx?, String?) -> ())?) {
         
-        delegate?.sign(transferData: tx) { response in
-            print(response)
+        delegate?.sign(transferData: tx, account: account, node: node) { response in
+            //print(response)
             switch response {
             case .success(let data):
+                let sign = data.first?.value?.signatures?.first?.signature ?? "-"
+                print("OOK: ", sign)
                 let sig = TxValueSignature(
                     sig: data.first?.value?.signatures?.first?.signature ?? "",
                     type: data.first?.value?.signatures?.first?.pubKey?.type ?? "",
                     value: data.first?.value?.signatures?.first?.pubKey?.value ?? "",
-                    accNum: accNum,
-                    seq: sequence)
+                    accNum: account.accNumber,
+                    seq: account.accSequence)
                 var signed = tx
                 signed?.value?.signatures = [sig]
                 completion?(SignedTx(tx: signed), nil)
@@ -102,45 +103,25 @@ public class GaiaLocalClient {
                 completion?(nil, error.localizedDescription)
             }
         }
-//        let signer = Signer()
-//        signer.sign(transferData: tx) { response in
-//            print(response)
-//            switch response {
-//            case .success(let data):
-//                let sig = TxValueSignature(
-//                    sig: data.first?.value?.signatures?.first?.signature ?? "",
-//                    type: data.first?.value?.signatures?.first?.pubKey?.type ?? "",
-//                    value: data.first?.value?.signatures?.first?.pubKey?.value ?? "",
-//                    accNum: accNum,
-//                    seq: sequence)
-//                var signed = tx
-//                signed?.value?.signatures = [sig]
-//                completion?(SignedTx(tx: signed), nil)
-//            case .failure(let error):
-//                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-//                completion?(nil, error.localizedDescription)
-//            }
-//        }
     }
     
-    public func handleSignAndBroadcast(restApi: GaiaRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func handleSignAndBroadcast(restApi: GaiaRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: GaiaNode, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         
-        print(" -> [OK] - genrated", data.first ?? "")
-        guard GaiaLocalClient.signingImplemented else {
-            DispatchQueue.main.async { completion?(nil, "Tx Generated. Sign and broadcast not yet implemented") }
-            return
-        }
-        generateBroadcatsData(tx: data.first, accNum: gaiaAcc.accNumber, sequence: gaiaAcc.accSequence) { signed, err in
-            if let bcData = signed {
-                restApi.broadcast(transferData: bcData) { result in
-                    switch result {
-                    case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
-                    case .failure(let error):
-                        print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
-                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                    }
-                }
-            }
+        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node) { signed, err in
+            
+            DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
+//            if let bcData = signed {
+//                restApi.broadcast(transferData: bcData) { result in
+//                    switch result {
+//                    case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
+//                    case .failure(let error):
+//                        print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
+//                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+//                    }
+//                }
+//            } else {
+//                DispatchQueue.main.async { completion?(nil, "Sign failed") }
+//            }
         }
     }
 }

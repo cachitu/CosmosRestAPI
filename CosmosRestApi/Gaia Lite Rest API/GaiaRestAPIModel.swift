@@ -337,23 +337,23 @@ public struct TxValSigPubKey: Codable {
 
 public struct TxValueFee: Codable {
     
-    public let gas: String?
     public let amount: [TxFeeAmount]?
+    public let gas: String?
     
     enum CodingKeys : String, CodingKey {
-        case gas
         case amount
+        case gas
     }
 }
 
 public struct TxFeeAmount: Codable {
     
-    public let denom: String?
     public let amount: String?
+    public let denom: String?
     
     enum CodingKeys : String, CodingKey {
-        case denom
         case amount
+        case denom
     }
 }
 
@@ -368,7 +368,9 @@ public struct TxValueMsg: Codable {
     }
 }
 
-public struct TxMsgVal: Codable {
+public struct TxMsgVal: Codable, PropertyLoopable {
+    
+    //static let instance: TxMsgVal = TxMsgVal()
     
     public let delegatorAddr: String?
     public let validatorAddr: String?
@@ -385,11 +387,13 @@ public struct TxMsgVal: Codable {
     public let proposer: String?
     public let voter: String?
     public let option: String?
-    public let initialDeposit: [TxMsgValDelegation]?
-    public let delegation: TxMsgValDelegation?
-    public let amount: [TxMsgValDelegation]?
-    public let value: TxMsgValDelegation?
+    public let initialDeposit: [TxFeeAmount]?
+    public let delegation: TxFeeAmount?
+    public let amount: [TxFeeAmount]?
+    public let value: TxFeeAmount?
 
+    //public init () {}
+    
     enum CodingKeys : String, CodingKey {
         case delegatorAddr = "delegator_address"
         case validatorAddr = "validator_address"
@@ -413,14 +417,41 @@ public struct TxMsgVal: Codable {
     }
 }
 
+public protocol PropertyLoopable {
+    func allProperties() throws -> [String: Any?]
+}
+
+extension PropertyLoopable {
+    public func allProperties() throws -> [String: Any?] {
+        
+        var result: [String: Any?] = [:]
+        
+        let mirror = Mirror(reflecting: self)
+        
+        guard let _ = mirror.displayStyle else {
+            throw NSError(domain: "ip.sx", code: 0, userInfo: nil)
+        }
+        
+        for (labelMaybe, valueMaybe) in mirror.children {
+            guard let label = labelMaybe else {
+                continue
+            }
+            
+            result[label] = valueMaybe
+        }
+        
+        return result
+    }
+}
+
 public struct TxMsgValDelegation: Codable {
     
-    public let denom: String?
     public let amount: String?
+    public let denom: String?
     
     enum CodingKeys : String, CodingKey {
-        case denom
         case amount
+        case denom
     }
 }
 
@@ -604,12 +635,13 @@ public struct AccountValue: Codable {
 
 public struct Coin: Codable {
     
-    public let denom: String?
     public let amount: String?
+    public let denom: String?
+
     
     enum CodingKeys : String, CodingKey {
-        case denom
         case amount
+        case denom
     }
 }
 
@@ -654,7 +686,7 @@ public struct TransferPostData: Codable {
     public var amount: [TxFeeAmount]?
     
     public init(name: String, pass: String = "", chain: String, amount: String? = nil, denom: String? = nil, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
-        self.amount = [TxFeeAmount(denom: denom, amount: amount)]
+        self.amount = [TxFeeAmount(amount: amount, denom: denom)]
         self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
@@ -812,7 +844,7 @@ public struct DelegationPostData: Codable {
     public init(validator: String, delegator: String, name: String, pass: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.validatorAddr = validator
         self.delegatorAddr = delegator
-        self.delegation  = TxFeeAmount(denom: denom, amount: amount)
+        self.delegation  = TxFeeAmount(amount: amount, denom: denom)
         self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
@@ -1081,7 +1113,7 @@ public struct ProposalPostData: Codable {
     public var proposer: String?
 
     public init(keyName: String, chain: String, deposit: String, denom: String, accNum: String, sequence: String, title: String, description: String?, proposalType: ProposalType, proposer: String, fees: [TxFeeAmount]?) {
-        self.initialDeposit = [TxFeeAmount(denom: denom, amount: deposit)]
+        self.initialDeposit = [TxFeeAmount(amount: deposit, denom: denom)]
         self.baseReq = TransferBaseReq(name: keyName, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
         self.title = title
         self.description = description
@@ -1106,7 +1138,7 @@ public struct ProposalDepositPostData: Codable {
     public var depositor: String?
     
     public init(keyName: String, chain: String, deposit: String, denom: String, accNum: String, sequence: String, depositor: String, fees: [TxFeeAmount]?) {
-        self.amount = [TxFeeAmount(denom: denom, amount: deposit)]
+        self.amount = [TxFeeAmount(amount: deposit, denom: denom)]
         self.baseReq = TransferBaseReq(name: keyName, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
         self.depositor = depositor
     }

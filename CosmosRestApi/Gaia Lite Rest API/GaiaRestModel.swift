@@ -158,16 +158,16 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
     
-    public func getGaiaAccount(node: GaiaNode, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
+    public func getGaiaAccount(node: GaiaNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: self.address) { [weak self] result in
             switch result {
             case .success(let data):
                 if let item = data.first, let type = item.type {
                     if type.contains("VestingAccount") {
-                        self?.getVestedAccount(node: node, completion: completion)
+                        self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
                     } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value, stakeDenom: node.stakeDenom)
+                        let gaiaAcc = GaiaAccount(accountValue: item.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
                         DispatchQueue.main.async {
                             completion?(gaiaAcc, nil)
                         }
@@ -186,13 +186,13 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
     
-    private func getVestedAccount(node: GaiaNode, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
+    private func getVestedAccount(node: GaiaNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getVestedAccount(address: self.address) { result in
             switch result {
             case .success(let data):
                 if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                    let gaiaAcc = GaiaAccount(accountValue: item, stakeDenom: node.stakeDenom)
+                    let gaiaAcc = GaiaAccount(accountValue: item, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
                     DispatchQueue.main.async {
                         completion?(gaiaAcc, nil)
                     }
@@ -363,8 +363,9 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     public let assets: [Coin]
     public let accNumber: String
     public let accSequence: String
+    public let gaiaKey: GaiaKey
     
-    init(accountValue: AccountValue?, seed: String? = nil, stakeDenom: String) {
+    init(accountValue: AccountValue?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
         self.accNumber = accountValue?.accountNumber ?? "0"
         self.accSequence = accountValue?.sequence ?? "0"
         self.address = accountValue?.address ?? "="
@@ -373,6 +374,8 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.denom = stakeDenom
         self.feeAmount = 0.0
         self.feeDenom = "fee token?"
+        self.gaiaKey = gaiaKey
+        
         for coin in accountValue?.coins ?? [] {
             if coin.denom == stakeDenom {
                 self.amount = Double(coin.amount ?? "0.0") ?? 0.0
@@ -432,17 +435,17 @@ public class GaiaValidator {
 
     public func unjail(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let baseReq = UnjailPostData(name: key.address,
                                              chain: node.network,
                                              accNum: gaiaAcc.accNumber,
                                              sequence: gaiaAcc.accSequence,
-                                             fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                                             fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.unjail(validator: self.validator, transferData: baseReq) { result in
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         completion?(nil, error.localizedDescription)
                     }

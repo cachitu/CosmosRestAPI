@@ -24,7 +24,7 @@ extension GaiaKeysManagementCapable {
 
     public func sendAssets(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = TransferPostData(name: key.address,
                                             chain: node.network,
@@ -32,12 +32,12 @@ extension GaiaKeysManagementCapable {
                                             denom: denom,
                                             accNum: gaiaAcc.accNumber,
                                             sequence:gaiaAcc.accSequence,
-                                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                                            fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.bankTransfer(to: toAddress, transferData: data) { result in
                     print("\n... Transfered \(amount) \(denom) ...")
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
@@ -51,17 +51,17 @@ extension GaiaKeysManagementCapable {
     
     public func withdraw(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, validator: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = TransferPostData(name: key.address,
                                             chain: node.network,
                                             accNum: gaiaAcc.accNumber,
                                             sequence: gaiaAcc.accSequence,
-                                            fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                                            fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.withdrawReward(to: gaiaAcc.address, fromValidator: validator, transferData: data) { result in
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
@@ -75,7 +75,7 @@ extension GaiaKeysManagementCapable {
 
     public func redelegateStake(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, fromValidator: String, toValidator: String, amount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = RedelegationPostData(
                     sourceValidator: fromValidator,
@@ -86,11 +86,11 @@ extension GaiaKeysManagementCapable {
                     amount: amount,
                     accNum: gaiaAcc.accNumber,
                     sequence: gaiaAcc.accSequence,
-                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                    fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.redelegation(from: key.address, transferData: data) { result in
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         completion?(nil, error.localizedDescription)
@@ -104,7 +104,7 @@ extension GaiaKeysManagementCapable {
 
     public func delegateStake(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = DelegationPostData(
                     validator: toValidator,
@@ -116,11 +116,11 @@ extension GaiaKeysManagementCapable {
                     denom: denom,
                     accNum: gaiaAcc.accNumber,
                     sequence: gaiaAcc.accSequence,
-                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                    fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.delegation(from: key.address, transferData: data) { result in
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         completion?(nil, error.localizedDescription)
@@ -135,7 +135,7 @@ extension GaiaKeysManagementCapable {
 
     public func unbondStake(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, fromValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = UnbondingDelegationPostData(
                     validator: fromValidator,
@@ -145,11 +145,11 @@ extension GaiaKeysManagementCapable {
                     amount: amount,
                     accNum: gaiaAcc.accNumber,
                     sequence: gaiaAcc.accSequence,
-                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                    fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.unbonding(from: key.address, transferData: data) { result in
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         completion?(nil, error.localizedDescription)
@@ -282,7 +282,7 @@ extension GaiaGovernaceCapable {
     
     public func vote(for proposal: String, option: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = ProposalVotePostData(keyName: key.address,
                                                 chain: node.network,
@@ -290,12 +290,12 @@ extension GaiaGovernaceCapable {
                                                 sequence: gaiaAcc.accSequence,
                                                 voter: key.address,
                                                 option: option,
-                                                fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                                                fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.voteProposal(id: proposal, transferData: data) { result in
                     print("\n... Submit vote id \(proposal) ...")
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         completion?(nil, error.localizedDescription)
@@ -309,7 +309,7 @@ extension GaiaGovernaceCapable {
     
     public func propose(deposit: String, title: String, description: String, type: ProposalType, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 
                 let data = ProposalPostData(
@@ -323,11 +323,11 @@ extension GaiaGovernaceCapable {
                     description: description,
                     proposalType: type,
                     proposer: key.address,
-                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                    fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.submitProposal(transferData: data) { result in
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         completion?(nil, error.localizedDescription)
@@ -341,7 +341,7 @@ extension GaiaGovernaceCapable {
 
     public func depositToProposal(proposalId: String, amount: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        key.getGaiaAccount(node: node) { (gaiaAccount, errMsg) in
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 
                 let data = ProposalDepositPostData(
@@ -352,11 +352,11 @@ extension GaiaGovernaceCapable {
                     accNum: gaiaAcc.accNumber,
                     sequence: gaiaAcc.accSequence,
                     depositor: key.address,
-                    fees: [TxFeeAmount(denom: gaiaAcc.feeDenom, amount: feeAmount)])
+                    fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
                 restApi.depositToProposal(id: proposalId, transferData: data) { result in
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         completion?(nil, error.localizedDescription)
