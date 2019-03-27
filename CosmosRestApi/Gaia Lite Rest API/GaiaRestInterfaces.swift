@@ -73,6 +73,30 @@ extension GaiaKeysManagementCapable {
         }
     }
 
+    public func withdrawComission(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
+            if let gaiaAcc = gaiaAccount  {
+                let data = TransferPostData(name: key.address,
+                                            chain: node.network,
+                                            accNum: gaiaAcc.accNumber,
+                                            sequence: gaiaAcc.accSequence,
+                                            fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                restApi.withdrawComission(from: key.validator, transferData: data) { result in
+                    switch result {
+                    case .success(let data):
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                    }
+                }
+            } else {
+                DispatchQueue.main.async { completion?(nil, errMsg) }
+            }
+        }
+    }
+
     public func redelegateStake(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, fromValidator: String, toValidator: String, amount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in

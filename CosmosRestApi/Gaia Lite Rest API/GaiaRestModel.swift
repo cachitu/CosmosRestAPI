@@ -364,7 +364,9 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     public let accNumber: String
     public let accSequence: String
     public let gaiaKey: GaiaKey
-    
+    public let noFeeToken: Bool
+    public var isValidator: Bool = false
+
     init(accountValue: AccountValue?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
         self.accNumber = accountValue?.accountNumber ?? "0"
         self.accSequence = accountValue?.sequence ?? "0"
@@ -385,10 +387,13 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
                 self.feeDenom = coin.denom ?? "photin"
             }
         }
+        var noFeeToken = false
         if let coins = accountValue?.coins, coins.count == 1 {
             self.feeAmount = 0.0
             self.feeDenom = stakeDenom
+            noFeeToken = true
         }
+        self.noFeeToken = noFeeToken
         assets = accountValue?.coins ?? []
     }
     

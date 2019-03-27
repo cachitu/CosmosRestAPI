@@ -244,7 +244,10 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/delegators/\(address)/rewards/\(fromValidator)", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
-    
+    public func withdrawComission(from validator: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/validators/\(validator)/rewards", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     //Version
     
     public func getGaiaVersion(completion: ((RestResult<[String]>) -> Void)?) {
