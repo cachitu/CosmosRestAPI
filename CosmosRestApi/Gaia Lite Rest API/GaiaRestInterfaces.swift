@@ -279,7 +279,9 @@ extension GaiaValidatorsCapable {
 public protocol GaiaGovernaceCapable {
     
     var node: GaiaNode? { get set }
+    
     func retrieveAllPropsals(node: GaiaNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->())
+    func getPropsalDetails(node: GaiaNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->())
     func vote(for proposal: String, option: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
     func propose(deposit: String, title: String, description: String, type: ProposalType, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
     func depositToProposal(proposalId: String, amount: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
@@ -304,6 +306,33 @@ extension GaiaGovernaceCapable {
         }
     }
     
+    public func getPropsalDetails(node: GaiaNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->()) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        
+        restApi.getPorposalTally(forId: proposal.proposalId) { result in
+            switch result {
+            case .success(let data):
+                if let tally = data.first {
+                    proposal.yes = tally.yes ?? "0"
+                    proposal.no = tally.no ?? "0"
+                    proposal.abstain = tally.abstain ?? "0"
+                    proposal.noWithVeto = tally.noWithVeto ?? "0"
+                }
+                restApi.getPorposalVotes(forId: proposal.proposalId) { result in
+                    switch result {
+                    case .success(let data):
+                        proposal.votes = data
+                        DispatchQueue.main.async { completion(proposal, nil) }
+                    case .failure(let error): completion(nil, error.localizedDescription)
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                    }
+                }
+            case .failure(let error): completion(nil, error.localizedDescription)
+            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
     public func vote(for proposal: String, option: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in

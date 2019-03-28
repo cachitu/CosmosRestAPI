@@ -469,12 +469,13 @@ public class GaiaProposal {
     public let description: String
     public let type: String
     public let status: String
-    public let yes: String
-    public let abstain: String
-    public let no: String
-    public let noWithVeto: String
+    public var yes: String
+    public var abstain: String
+    public var no: String
+    public var noWithVeto: String
     public let proposalId: String
     public let totalDepopsit: String
+    public var votes: [ProposalVote] = []
     
     public init(proposal: Proposal) {
         self.title       = proposal.value?.title ?? "-"

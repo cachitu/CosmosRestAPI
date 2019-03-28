@@ -1066,7 +1066,7 @@ public struct ProposalValue: Codable {
     public let description: String?
     public let proposalType: String?
     public let proposalStatus: String?
-    public let tallyResult: ProposalTallyResult?
+    public var tallyResult: ProposalTallyResult?
     public let submitTime: String?
     public let depositEndTime: String?
     public let totalDeposit: [TxFeeAmount]?

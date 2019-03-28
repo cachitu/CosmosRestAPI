@@ -193,20 +193,20 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, singleItemResponse: false, completion: completion)
     }
 
+    public func getPorposalVote(forId id: String, by voter: String, completion: ((RestResult<[ProposalVote]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes/\(voter)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+    
+    public func voteProposal(id: String, transferData: ProposalVotePostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+    
     public func getPorposalTally(forId id: String, completion: ((RestResult<[ProposalTallyResult]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/tally", delegate: self, singleItemResponse: true, completion: completion)
     }
 
-    public func getPorposalVote(forId id: String, by voter: String, completion: ((RestResult<[ProposalVote]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes/\(voter)", delegate: self, singleItemResponse: true, completion: completion)
-    }
-
     public func depositToProposal(id: String, transferData: ProposalDepositPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/deposits", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
-    }
-
-    public func voteProposal(id: String, transferData: ProposalVotePostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
-        genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
     public func getGovDepositParameters(completion: ((RestResult<[GovDepositParameters]>) -> Void)?) {
