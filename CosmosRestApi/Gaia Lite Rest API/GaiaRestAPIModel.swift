@@ -949,7 +949,7 @@ public struct RedelegationPostData: Codable {
 
 public struct DelegatorValidator: Codable {
     
-    public let operator_address: String?
+    public let operatorAddress: String?
     public let consensus_pubkey: String?
     public let jailed: Bool?
     public let status: Int?
@@ -962,7 +962,7 @@ public struct DelegatorValidator: Codable {
     public let commission: ValidatorComission?
 
     enum CodingKeys : String, CodingKey {
-        case operator_address = "operator_address"
+        case operatorAddress = "operator_address"
         case consensus_pubkey = "consensus_pubkey"
         case jailed
         case status
@@ -973,6 +973,19 @@ public struct DelegatorValidator: Codable {
         case unbondingHeight = "unbonding_height"
         case unbondingTime = "unbonding_time"
         case commission
+    }
+}
+
+public struct ValidatorRewards: Codable {
+    
+    public let operatorAddress: String?
+    public let selfBondRewards: [TxFeeAmount]?
+    public let valCommission: [TxFeeAmount]?
+    
+    enum CodingKeys : String, CodingKey {
+        case operatorAddress = "operator_address"
+        case selfBondRewards = "self_bond_rewards"
+        case valCommission = "val_commission"
     }
 }
 

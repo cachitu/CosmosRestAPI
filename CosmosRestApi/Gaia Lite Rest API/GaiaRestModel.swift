@@ -290,6 +290,28 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
+    public func queryValidatorRewards(node: GaiaNode, validator: String, completion: @escaping ((_ delegations: ValidatorRewards?, _ message: String?) -> ())) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getValidatorRewards(from: validator) { result in
+            switch result {
+            case .success(let rewards):
+                DispatchQueue.main.async { completion(rewards.first, nil) }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
+    public func queryDelegationRewards(node: GaiaNode, validator: String, completion: @escaping ((_ delegations: TxFeeAmount?, _ message: String?) -> ())) {
+        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getDelegatorReward(for: self.address, fromValidator: validator) { result in
+            switch result {
+            case .success(let rewards):
+                DispatchQueue.main.async { completion(rewards.first, nil) }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
     public func savePassToKeychain(pass: String) {
         KeychainWrapper.setString(value: pass, forKey: "GaiaKey-password-\(address)-\(name)")
     }
@@ -343,6 +365,7 @@ public class GaiaDelegation {
     public let delegatorAddr: String
     public let shares: String
     public let height: Int
+    public var availableReward = "...💰"
     
     public init(delegation: Delegation) {
         self.validatorAddr = delegation.validatorAddr ?? "-"
@@ -413,7 +436,7 @@ public class GaiaValidator {
     public let votingPower: Double
     
     public init(validator: DelegatorValidator) {
-        self.validator = validator.operator_address ?? "-"
+        self.validator = validator.operatorAddress ?? "-"
         self.tokens = validator.tokens ?? "0"
         self.shares = validator.delegatorShares ?? "0"
         self.moniker = validator.description?.moniker ?? "-"

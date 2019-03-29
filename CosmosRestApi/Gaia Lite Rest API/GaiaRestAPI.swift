@@ -238,7 +238,14 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
 
     //ICS24 - Fee distribution module APIs
     
-    // POST /distribution/delegators/{delegatorAddr}/rewards/{validatorAddr}
+
+    public func getValidatorRewards(from validator: String, completion:((RestResult<[ValidatorRewards]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/validators/\(validator)", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
+    }
+
+    public func getDelegatorReward(for address: String, fromValidator: String, completion:((RestResult<[TxFeeAmount]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/delegators/\(address)/rewards/\(fromValidator)", delegate: self, reqMethod: "GET", singleItemResponse: false, completion: completion)
+    }
 
     public func withdrawReward(to address: String, fromValidator: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/delegators/\(address)/rewards/\(fromValidator)", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
