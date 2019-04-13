@@ -709,7 +709,8 @@ public struct TransferBaseReq: Codable {
     //public let generateOnly: Bool = false
     public let simulate: Bool = false
     public let fees: [TxFeeAmount]? // = [TxFeeAmount(denom: "photinos", amount: "1000000")]
-
+    //public let returnType: String? = "block"
+    
     enum CodingKeys : String, CodingKey {
         case name = "from"
         //case password
@@ -722,6 +723,7 @@ public struct TransferBaseReq: Codable {
         //case generateOnly = "generate_only"
         case simulate
         case fees
+        //case returnType = "return"
     }
 }
 
@@ -1061,10 +1063,10 @@ public enum ProposalVoteOption: String, Codable {
 }
 
 
-public struct Proposal: Codable {
+public struct ProposalObsolete: Codable {
     
     public let type: String?
-    public let value: ProposalValue?
+    public let value: Proposal?
     
     enum CodingKeys : String, CodingKey {
         case type
@@ -1072,12 +1074,10 @@ public struct Proposal: Codable {
     }
 }
 
-public struct ProposalValue: Codable {
+public struct Proposal: Codable {
     
+    public let content: ProposalContent?
     public let proposalId: String?
-    public let title: String?
-    public let description: String?
-    public let proposalType: String?
     public let proposalStatus: String?
     public var tallyResult: ProposalTallyResult?
     public let submitTime: String?
@@ -1087,10 +1087,8 @@ public struct ProposalValue: Codable {
     public let votingEndTime: String?
 
     enum CodingKeys : String, CodingKey {
+        case content = "proposal_content"
         case proposalId = "proposal_id"
-        case title
-        case description
-        case proposalType = "proposal_type"
         case proposalStatus = "proposal_status"
         case tallyResult = "final_tally_result"
         case submitTime = "submit_time"
@@ -1099,6 +1097,28 @@ public struct ProposalValue: Codable {
         case votingStartTime = "voting_start_time"
         case votingEndTime = "voting_end_time"
    }
+}
+
+public struct ProposalContent: Codable {
+
+    public let proposalType: String?
+    public let value: ProposalContentValue?
+    
+    enum CodingKeys : String, CodingKey {
+        case proposalType = "type"
+        case value
+    }
+}
+
+public struct ProposalContentValue: Codable {
+    
+    public let title: String?
+    public let description: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case title
+        case description
+    }
 }
 
 public struct ProposalTallyResult: Codable {

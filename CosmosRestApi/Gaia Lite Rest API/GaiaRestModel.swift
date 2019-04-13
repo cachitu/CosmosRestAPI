@@ -501,17 +501,17 @@ public class GaiaProposal {
     public var votes: [ProposalVote] = []
     
     public init(proposal: Proposal) {
-        self.title       = proposal.value?.title ?? "-"
-        self.description = proposal.value?.description ?? "-"
-        self.type        = proposal.value?.proposalType ?? ""
-        self.status      = proposal.value?.proposalStatus ?? ""
-        self.yes         = proposal.value?.tallyResult?.yes ?? "0"
-        self.abstain     = proposal.value?.tallyResult?.abstain ?? "0"
-        self.no          = proposal.value?.tallyResult?.no ?? "0"
-        self.noWithVeto  = proposal.value?.tallyResult?.noWithVeto ?? "0"
-        self.proposalId  = proposal.value?.proposalId ?? "0"
-        let depAmount = proposal.value?.totalDeposit?.first?.amount ?? "0"
-        let depDenom = proposal.value?.totalDeposit?.first?.denom ?? "-"
+        self.title       = proposal.content?.value?.title ?? "-"
+        self.description = proposal.content?.value?.description ?? "-"
+        self.type        = proposal.content?.proposalType ?? ""
+        self.status      = proposal.proposalStatus ?? ""
+        self.yes         = proposal.tallyResult?.yes ?? "0"
+        self.abstain     = proposal.tallyResult?.abstain ?? "0"
+        self.no          = proposal.tallyResult?.no ?? "0"
+        self.noWithVeto  = proposal.tallyResult?.noWithVeto ?? "0"
+        self.proposalId  = proposal.proposalId ?? "0"
+        let depAmount = proposal.totalDeposit?.first?.amount ?? "0"
+        let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"
     }
 }

@@ -106,6 +106,10 @@ extension RestNetworking {
                 } else if let jsonData = responseData {
                     
                     let rsData = String(data: jsonData, encoding: String.Encoding.utf8)
+                    if rsData == "null" {
+                        completion?(.success([]))
+                        return
+                    }
                     let httpResponse = response as! HTTPURLResponse
                     if httpResponse.statusCode == 200 {
                         

@@ -11,16 +11,16 @@ import Foundation
 
 public struct SignedTx: Codable {
     
-    public let returnType: String = "block"
     public var tx: TxValue?
-    
+    public let returnType: String = "block"
+
     public init(tx: TransactionTx?) {
         self.tx = tx?.value
     }
     
     enum CodingKeys : String, CodingKey {
-        case returnType = "return"
         case tx
+        case returnType = "mode"
     }
 }
 

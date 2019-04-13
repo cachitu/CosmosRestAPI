@@ -189,7 +189,7 @@ public class GaiaRestTester {
             print("\n... Get Proposals ...")
             switch result {
             case .success(let data):
-                print(" -> [OK] - ", data.first?.value?.title ?? "")
+                print(" -> [OK] - ", data.first?.content?.value?.title ?? "")
             case .failure(let error):
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
@@ -201,7 +201,7 @@ public class GaiaRestTester {
             print("\n... Get Proposal 1 ...")
             switch result {
             case .success(let data):
-                print(" -> [OK] - ", data.first?.value?.title ?? "")
+                print(" -> [OK] - ", data.first?.content?.value?.title ?? "")
             case .failure(let error):
                 print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
             }
