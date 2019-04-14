@@ -108,6 +108,7 @@ extension GaiaKeysManagementCapable {
                     name: key.address,
                     chain: node.network,
                     amount: amount,
+                    denom: node.stakeDenom,
                     accNum: gaiaAcc.accNumber,
                     sequence: gaiaAcc.accSequence,
                     fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
@@ -167,6 +168,7 @@ extension GaiaKeysManagementCapable {
                     name: key.address,
                     chain: node.network,
                     amount: amount,
+                    denom: node.stakeDenom,
                     accNum: gaiaAcc.accNumber,
                     sequence: gaiaAcc.accSequence,
                     fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])

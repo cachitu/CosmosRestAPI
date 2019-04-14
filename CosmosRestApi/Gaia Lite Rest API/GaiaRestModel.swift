@@ -239,8 +239,18 @@ public class GaiaKey: CustomStringConvertible, Codable {
             case .success(let outTransactions):
                 var gaiaTransactions: [GaiaTransaction] = []
                 for transaction in outTransactions {
-                    let amount = transaction.tx?.value?.msg?.first?.value?.amount?.first?.amount ?? "0"
-                    let denom = transaction.tx?.value?.msg?.first?.value?.amount?.first?.denom ?? "-"
+                    var amount = ""
+                    var denom = ""
+                    if let amountData = transaction.tx?.value?.msg?.first?.value?.amount {
+                        switch amountData {
+                        case .amount(let single):
+                            amount = single.amount ?? "-"
+                            denom = single.denom ?? "-"
+                        case .amounts(let multiple):
+                            amount = multiple.first?.amount ?? "-"
+                            denom  = multiple.first?.denom ?? "-"
+                        }
+                    }
                     let gaiaTransaction = GaiaTransaction(
                         sender: transaction.tx?.value?.msg?.first?.value?.fromAddr ?? "-",
                         receiver: transaction.tx?.value?.msg?.first?.value?.toAddr ?? "-",
@@ -253,8 +263,18 @@ public class GaiaKey: CustomStringConvertible, Codable {
                     switch result {
                     case .success(let inTransactions):
                         for transaction in inTransactions {
-                            let amount = transaction.tx?.value?.msg?.first?.value?.amount?.first?.amount ?? "0"
-                            let denom = transaction.tx?.value?.msg?.first?.value?.amount?.first?.denom ?? "-"
+                            var amount = ""
+                            var denom = ""
+                            if let amountData = transaction.tx?.value?.msg?.first?.value?.amount {
+                                switch amountData {
+                                case .amount(let single):
+                                    amount = single.amount ?? "-"
+                                    denom = single.denom ?? "-"
+                                case .amounts(let multiple):
+                                    amount = multiple.first?.amount ?? "-"
+                                    denom  = multiple.first?.denom ?? "-"
+                                }
+                            }
                             let gaiaTransaction = GaiaTransaction(
                                 sender: transaction.tx?.value?.msg?.first?.value?.fromAddr ?? "-",
                                 receiver: transaction.tx?.value?.msg?.first?.value?.toAddr ?? "-",

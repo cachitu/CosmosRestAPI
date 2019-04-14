@@ -370,8 +370,6 @@ public struct TxValueMsg: Codable {
 
 public struct TxMsgVal: Codable, PropertyLoopable {
     
-    //static let instance: TxMsgVal = TxMsgVal()
-    
     public let delegatorAddr: String?
     public let validatorAddr: String?
     public let validatorSrcAddr: String?
@@ -389,10 +387,36 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     public let option: String?
     public let initialDeposit: [TxFeeAmount]?
     public let delegation: TxFeeAmount?
-    public let amount: [TxFeeAmount]?
+    public let amount: DynamicAmount?
     public let value: TxFeeAmount?
 
-    //public init () {}
+    public enum DynamicAmount: Codable {
+        case amount(TxFeeAmount)
+        case amounts([TxFeeAmount])
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if let x = try? container.decode(TxFeeAmount.self) {
+                self = .amount(x)
+                return
+            }
+            if let x = try? container.decode([TxFeeAmount].self) {
+                self = .amounts(x)
+                return
+            }
+            throw DecodingError.typeMismatch(DynamicAmount.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for MyValue"))
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            switch self {
+            case .amount(let x):
+                try container.encode(x)
+            case .amounts(let x):
+                try container.encode(x)
+            }
+        }
+    }
     
     enum CodingKeys : String, CodingKey {
         case delegatorAddr = "delegator_address"
@@ -699,31 +723,25 @@ public struct TransferPostData: Codable {
 public struct TransferBaseReq: Codable {
     
     public let name: String?
-    //public let password: String?
     public let memo: String? = "KytzuIOS"
     public let chainId: String?
     public let accountNumber: String?
     public let sequence: String?
     public let gas: String? = "auto"
     public let gasAdjustment: String? = "1.3"
-    //public let generateOnly: Bool = false
     public let simulate: Bool = false
     public let fees: [TxFeeAmount]? // = [TxFeeAmount(denom: "photinos", amount: "1000000")]
-    //public let returnType: String? = "block"
     
     enum CodingKeys : String, CodingKey {
         case name = "from"
-        //case password
         case memo
         case chainId = "chain_id"
         case accountNumber = "account_number"
         case sequence
         case gas
         case gasAdjustment = "gas_adjustment"
-        //case generateOnly = "generate_only"
         case simulate
         case fees
-        //case returnType = "return"
     }
 }
 
@@ -852,7 +870,7 @@ public struct DelegationPostData: Codable {
     
     enum CodingKeys : String, CodingKey {
         case baseReq = "base_req"
-        case delegation
+        case delegation = "amount"
         case validatorAddr = "validator_address"
         case delegatorAddr = "delegator_address"
     }
@@ -880,20 +898,20 @@ public struct UnbondingDelegation: Codable {
 public struct UnbondingDelegationPostData: Codable {
     
     public var baseReq: TransferBaseReq?
-    public var shares: String?
+    public var shares: TxFeeAmount?
     public var validatorAddr: String?
     public var delegatorAddr: String?
     
-    public init(validator: String, delegator: String, name: String, chain: String, amount: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
+    public init(validator: String, delegator: String, name: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.validatorAddr = validator
         self.delegatorAddr = delegator
-        self.shares  = amount
+        self.shares  = TxFeeAmount(amount: amount, denom: denom)
         self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
     enum CodingKeys : String, CodingKey {
         case baseReq = "base_req"
-        case shares
+        case shares = "amount"
         case validatorAddr = "validator_address"
         case delegatorAddr = "delegator_address"
     }
@@ -927,22 +945,22 @@ public struct Redelegation: Codable {
 public struct RedelegationPostData: Codable {
     
     public var baseReq: TransferBaseReq?
-    public var shares: String?
+    public var shares: TxFeeAmount?
     public var delegatorAddr: String?
     public var validatorSrcAddr: String?
     public var validatorDstAddr: String?
     
-    public init(sourceValidator: String, destValidator: String, delegator: String, name: String, chain: String, amount: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
+    public init(sourceValidator: String, destValidator: String, delegator: String, name: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.validatorSrcAddr = sourceValidator
         self.validatorDstAddr = destValidator
         self.delegatorAddr = delegator
-        self.shares  = amount
+        self.shares  = TxFeeAmount(amount: amount, denom: denom)
         self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
     enum CodingKeys : String, CodingKey {
         case baseReq = "base_req"
-        case shares
+        case shares = "amount"
         case delegatorAddr = "delegator_address"
         case validatorSrcAddr = "validator_src_address"
         case validatorDstAddr = "validator_dst_address"
