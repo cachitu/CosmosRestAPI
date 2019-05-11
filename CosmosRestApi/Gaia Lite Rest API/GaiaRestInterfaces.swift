@@ -27,6 +27,7 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = TransferPostData(name: key.address,
+                                            memo: node.defaultMemo,
                                             chain: node.network,
                                             amount: amount,
                                             denom: denom,
@@ -54,6 +55,7 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = TransferPostData(name: key.address,
+                                            memo: node.defaultMemo,
                                             chain: node.network,
                                             accNum: gaiaAcc.accNumber,
                                             sequence: gaiaAcc.accSequence,
@@ -78,6 +80,7 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = TransferPostData(name: key.address,
+                                            memo: node.defaultMemo,
                                             chain: node.network,
                                             accNum: gaiaAcc.accNumber,
                                             sequence: gaiaAcc.accSequence,
@@ -106,6 +109,7 @@ extension GaiaKeysManagementCapable {
                     destValidator: toValidator,
                     delegator: key.address,
                     name: key.address,
+                    memo: node.defaultMemo,
                     chain: node.network,
                     amount: amount,
                     denom: node.stakeDenom,
@@ -135,6 +139,7 @@ extension GaiaKeysManagementCapable {
                     validator: toValidator,
                     delegator: key.address,
                     name: key.address,
+                    memo: node.defaultMemo,
                     pass: key.getPassFromKeychain() ?? "",
                     chain: node.network,
                     amount: amount,
@@ -166,6 +171,7 @@ extension GaiaKeysManagementCapable {
                     validator: fromValidator,
                     delegator: key.address,
                     name: key.address,
+                    memo: node.defaultMemo,
                     chain: node.network,
                     amount: amount,
                     denom: node.stakeDenom,
@@ -340,6 +346,7 @@ extension GaiaGovernaceCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = ProposalVotePostData(keyName: key.address,
+                                                memo: node.defaultMemo,
                                                 chain: node.network,
                                                 accNum: gaiaAcc.accNumber,
                                                 sequence: gaiaAcc.accSequence,
@@ -369,6 +376,7 @@ extension GaiaGovernaceCapable {
                 
                 let data = ProposalPostData(
                     keyName: key.address,
+                    memo: node.defaultMemo,
                     chain: node.network,
                     deposit: deposit,
                     denom: gaiaAcc.denom,
@@ -401,6 +409,7 @@ extension GaiaGovernaceCapable {
                 
                 let data = ProposalDepositPostData(
                     keyName: key.address,
+                    memo: node.defaultMemo,
                     chain: node.network,
                     deposit: amount,
                     denom: gaiaAcc.denom,

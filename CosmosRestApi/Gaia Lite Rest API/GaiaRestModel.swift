@@ -61,7 +61,8 @@ public class GaiaNode: Codable {
     public var stakeDenom: String = "stake"
     public var knownValidators: [String : String] = [:]
     public var defaultTxFee: String = "0"
-    
+    public var defaultMemo: String = "IPSX iOS Wallet"
+
     public init(name: String = "Gaia Node", scheme: String = "https", host: String = "localhost", rcpPort: Int = 1317, tendrmintPort: Int = 26657) {
         self.name = name
         self.scheme = scheme
@@ -486,6 +487,7 @@ public class GaiaValidator {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let baseReq = UnjailPostData(name: key.address,
+                                             memo: node.defaultMemo,
                                              chain: node.network,
                                              accNum: gaiaAcc.accNumber,
                                              sequence: gaiaAcc.accSequence,

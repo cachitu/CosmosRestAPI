@@ -62,11 +62,11 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
     
     public func getSentTransactions(by address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "sender", value: "\(address)")], completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "sender", value: "\(address)"), URLQueryItem(name: "limit", value: "9999")], completion: completion)
     }
     
     public func getReceivedTransactions(by address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "recipient", value: "\(address)")], completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "recipient", value: "\(address)"), URLQueryItem(name: "limit", value: "9999")], completion: completion)
     }
 
     public func broadcast(transferData: SignedTx, completion:((RestResult<[TransferResponse]>) -> Void)?) {

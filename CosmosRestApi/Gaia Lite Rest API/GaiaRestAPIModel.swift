@@ -709,9 +709,9 @@ public struct TransferPostData: Codable {
     public var baseReq: TransferBaseReq?
     public var amount: [TxFeeAmount]?
     
-    public init(name: String, pass: String = "", chain: String, amount: String? = nil, denom: String? = nil, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
+    public init(name: String, memo: String, pass: String = "", chain: String, amount: String? = nil, denom: String? = nil, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.amount = [TxFeeAmount(amount: amount, denom: denom)]
-        self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+        self.baseReq = TransferBaseReq(name: name, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
     enum CodingKeys : String, CodingKey {
@@ -723,7 +723,7 @@ public struct TransferPostData: Codable {
 public struct TransferBaseReq: Codable {
     
     public let name: String?
-    public let memo: String? = "KytzuIOS"
+    public let memo: String?// = "KytzuIOS"
     public let chainId: String?
     public let accountNumber: String?
     public let sequence: String?
@@ -861,11 +861,11 @@ public struct DelegationPostData: Codable {
     public var validatorAddr: String?
     public var delegatorAddr: String?
 
-    public init(validator: String, delegator: String, name: String, pass: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
+    public init(validator: String, delegator: String, name: String, memo: String, pass: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.validatorAddr = validator
         self.delegatorAddr = delegator
         self.delegation  = TxFeeAmount(amount: amount, denom: denom)
-        self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+        self.baseReq = TransferBaseReq(name: name, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
     enum CodingKeys : String, CodingKey {
@@ -902,11 +902,11 @@ public struct UnbondingDelegationPostData: Codable {
     public var validatorAddr: String?
     public var delegatorAddr: String?
     
-    public init(validator: String, delegator: String, name: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
+    public init(validator: String, delegator: String, name: String, memo: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.validatorAddr = validator
         self.delegatorAddr = delegator
         self.shares  = TxFeeAmount(amount: amount, denom: denom)
-        self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+        self.baseReq = TransferBaseReq(name: name, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
     enum CodingKeys : String, CodingKey {
@@ -950,12 +950,12 @@ public struct RedelegationPostData: Codable {
     public var validatorSrcAddr: String?
     public var validatorDstAddr: String?
     
-    public init(sourceValidator: String, destValidator: String, delegator: String, name: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
+    public init(sourceValidator: String, destValidator: String, delegator: String, name: String, memo: String, chain: String, amount: String, denom: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.validatorSrcAddr = sourceValidator
         self.validatorDstAddr = destValidator
         self.delegatorAddr = delegator
         self.shares  = TxFeeAmount(amount: amount, denom: denom)
-        self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+        self.baseReq = TransferBaseReq(name: name, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
     enum CodingKeys : String, CodingKey {
@@ -1163,9 +1163,9 @@ public struct ProposalPostData: Codable {
     public var proposalType: ProposalType?
     public var proposer: String?
 
-    public init(keyName: String, chain: String, deposit: String, denom: String, accNum: String, sequence: String, title: String, description: String?, proposalType: ProposalType, proposer: String, fees: [TxFeeAmount]?) {
+    public init(keyName: String, memo: String, chain: String, deposit: String, denom: String, accNum: String, sequence: String, title: String, description: String?, proposalType: ProposalType, proposer: String, fees: [TxFeeAmount]?) {
         self.initialDeposit = [TxFeeAmount(amount: deposit, denom: denom)]
-        self.baseReq = TransferBaseReq(name: keyName, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+        self.baseReq = TransferBaseReq(name: keyName, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
         self.title = title
         self.description = description
         self.proposalType = proposalType
@@ -1188,9 +1188,9 @@ public struct ProposalDepositPostData: Codable {
     public let amount: [TxFeeAmount]?
     public var depositor: String?
     
-    public init(keyName: String, chain: String, deposit: String, denom: String, accNum: String, sequence: String, depositor: String, fees: [TxFeeAmount]?) {
+    public init(keyName: String, memo: String, chain: String, deposit: String, denom: String, accNum: String, sequence: String, depositor: String, fees: [TxFeeAmount]?) {
         self.amount = [TxFeeAmount(amount: deposit, denom: denom)]
-        self.baseReq = TransferBaseReq(name: keyName, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+        self.baseReq = TransferBaseReq(name: keyName, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
         self.depositor = depositor
     }
     
@@ -1207,8 +1207,8 @@ public struct ProposalVotePostData: Codable {
     public let voter: String?
     public var option: String?
     
-    public init(keyName: String, chain: String, accNum: String, sequence: String, voter: String, option: String, fees: [TxFeeAmount]?) {
-        self.baseReq = TransferBaseReq(name: keyName, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+    public init(keyName: String, memo: String, chain: String, accNum: String, sequence: String, voter: String, option: String, fees: [TxFeeAmount]?) {
+        self.baseReq = TransferBaseReq(name: keyName, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
         self.voter = voter
         self.option = option
     }
@@ -1324,8 +1324,8 @@ public struct UnjailPostData: Codable {
     
     public var baseReq: TransferBaseReq?
     
-    public init(name: String, chain: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
-        self.baseReq = TransferBaseReq(name: name, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+    public init(name: String, memo: String, chain: String, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
+        self.baseReq = TransferBaseReq(name: name, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
     enum CodingKeys : String, CodingKey {
