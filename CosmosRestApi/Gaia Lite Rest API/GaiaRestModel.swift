@@ -404,7 +404,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     public var denom: String
     public var feeAmount: Double?
     public var feeDenom: String?
-    public let assets: [Coin]
+    public var assets: [Coin]
     public let accNumber: String
     public let accSequence: String
     public let gaiaKey: GaiaKey
@@ -421,24 +421,27 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.feeAmount = 0.0
         self.feeDenom = "fee token?"
         self.gaiaKey = gaiaKey
+        self.assets = []
         
         for coin in accountValue?.coins ?? [] {
             if coin.denom == stakeDenom {
+                assets.insert(coin, at: 0)
                 self.amount = Double(coin.amount ?? "0.0") ?? 0.0
                 self.denom = coin.denom ?? stakeDenom
             } else {
+                assets.insert(coin, at: assets.count)
                 self.feeAmount = Double(coin.amount ?? "0.0") ?? 0.0
                 self.feeDenom = coin.denom ?? "photin"
             }
         }
         var noFeeToken = false
-        if let coins = accountValue?.coins, coins.count == 1 {
+        //TODO: as multiple fees are possible, this should be refactored
+        //if let coins = accountValue?.coins, coins.count == 1 {
             self.feeAmount = 0.0
             self.feeDenom = stakeDenom
             noFeeToken = true
-        }
+        //}
         self.noFeeToken = noFeeToken
-        assets = accountValue?.coins ?? []
     }
     
 //    public var description: String {
