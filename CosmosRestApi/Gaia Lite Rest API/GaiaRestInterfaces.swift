@@ -262,6 +262,7 @@ public protocol GaiaValidatorsCapable {
     
     var node: GaiaNode? { get set }
     func retrieveAllValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
+    func retrieveIrisValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
 }
 
 extension GaiaValidatorsCapable {
@@ -282,6 +283,24 @@ extension GaiaValidatorsCapable {
             }
         }
     }
+    
+    public func retrieveIrisValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
+        let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        
+        restApi.getStakeValidators { result in
+            switch result {
+            case .success(let data):
+                var gaiaValidators: [GaiaValidator] = []
+                for validator in data {
+                    gaiaValidators.append(GaiaValidator(validator: validator))
+                }
+                DispatchQueue.main.async { completion(gaiaValidators, nil) }
+            case .failure(let error): completion(nil, error.localizedDescription)
+            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
 }
 
 public protocol GaiaGovernaceCapable {

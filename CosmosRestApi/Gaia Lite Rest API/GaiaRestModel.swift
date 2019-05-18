@@ -60,7 +60,7 @@ public class GaiaNode: Codable {
     public var nodeID: String = ""
     public var stakeDenom: String = "stake"
     public var knownValidators: [String : String] = [:]
-    public var defaultTxFee: String = "0"
+    public var defaultTxFee: String = "0.3"
     public var defaultMemo: String = "IPSX iOS Wallet"
 
     public init(name: String = "Gaia Node", scheme: String = "https", host: String = "localhost", rcpPort: Int = 1317, tendrmintPort: Int = 26657) {
@@ -187,6 +187,30 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
     
+    public func getIrisAccount(node: GaiaNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
+        let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getAccount(address: self.address) { result in
+            switch result {
+            case .success(let data):
+                if let item = data.first {
+                    let gaiaAcc = GaiaAccount(irisAccount: item, gaiaKey: gaiaKey, stakeDenom: "iris")
+                    DispatchQueue.main.async {
+                        completion?(gaiaAcc, nil)
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion?(nil, "Request OK but no data")
+                    }
+                }
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    let message = error.code == 204 ? nil : error.localizedDescription
+                    completion?(nil, message)
+                }
+            }
+        }
+    }
+
     private func getVestedAccount(node: GaiaNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getVestedAccount(address: self.address) { result in
@@ -444,6 +468,20 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.noFeeToken = noFeeToken
     }
     
+    init(irisAccount: IrisAccount, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
+        self.accNumber = irisAccount.accountNumber ?? "0"
+        self.accSequence = irisAccount.sequence ?? "0"
+        self.address = irisAccount.address ?? "="
+        self.pubKey = irisAccount.publicKey?.value ?? "-"
+        let amountString = irisAccount.coins?.first?.replacingOccurrences(of: "iris", with: "") ?? "0"
+        self.amount = Double(amountString) ?? 0.0
+        self.denom = stakeDenom
+        self.feeAmount = 0.0
+        self.feeDenom = "fee token?"
+        self.gaiaKey = gaiaKey
+        self.assets = [Coin(amount: amountString, denom: "iris")]
+        self.noFeeToken = true
+    }
 //    public var description: String {
 //        return "\(address): \(amount) \(denom)"
 //    }
