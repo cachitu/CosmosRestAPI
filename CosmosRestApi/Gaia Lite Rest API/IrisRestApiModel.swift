@@ -24,3 +24,27 @@ public struct IrisAccount: Codable {
         case publicKey = "public_key"
    }
 }
+
+public struct IrisDelegation: Codable {
+    
+    public let delegatorAddr: String?
+    public let validatorAddr: String?
+    public let shares: String?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case delegatorAddr = "delegator_addr"
+        case validatorAddr = "validator_addr"
+        case shares
+        case height
+    }
+}
+
+public struct IrisRewards: Codable {
+    
+    public let total: [TxFeeAmount]?
+    
+    enum CodingKeys : String, CodingKey {
+        case total
+    }
+}

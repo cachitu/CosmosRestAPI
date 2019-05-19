@@ -335,8 +335,35 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
+    public func getIrisDelegations(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
+        let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getDelegations(for: self.address) { result in
+            switch result {
+            case .success(let delegations):
+                var gaiaDelegations: [GaiaDelegation] = []
+                for delegation in delegations {
+                    let gaiaDelegation = GaiaDelegation(delegation: delegation)
+                    gaiaDelegations.append(gaiaDelegation)
+                }
+                DispatchQueue.main.async { completion(gaiaDelegations, nil) }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
     public func queryValidatorRewards(node: GaiaNode, validator: String, completion: @escaping ((_ delegations: ValidatorRewards?, _ message: String?) -> ())) {
         let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getValidatorRewards(from: validator) { result in
+            switch result {
+            case .success(let rewards):
+                DispatchQueue.main.async { completion(rewards.first, nil) }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        }
+    }
+
+    public func queryIrisValidatorRewards(node: GaiaNode, validator: String, completion: @escaping ((_ delegations: IrisRewards?, _ message: String?) -> ())) {
+        let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getValidatorRewards(from: validator) { result in
             switch result {
             case .success(let rewards):
@@ -416,6 +443,13 @@ public class GaiaDelegation {
         self.validatorAddr = delegation.validatorAddr ?? "-"
         self.delegatorAddr = delegation.delegatorAddr ?? "-"
         self.height = delegation.height ?? 0
+        self.shares = delegation.shares ?? "0"
+    }
+    
+    public init(delegation: IrisDelegation) {
+        self.validatorAddr = delegation.validatorAddr ?? "-"
+        self.delegatorAddr = delegation.delegatorAddr ?? "-"
+        self.height = Int(delegation.height ?? "0") ?? 0
         self.shares = delegation.shares ?? "0"
     }
 }
