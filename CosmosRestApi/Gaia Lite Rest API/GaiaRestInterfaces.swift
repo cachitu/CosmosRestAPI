@@ -122,7 +122,7 @@ extension GaiaKeysManagementCapable {
                         GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        completion?(nil, error.localizedDescription)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                     }
                 }
             } else {
@@ -153,7 +153,7 @@ extension GaiaKeysManagementCapable {
                         GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        completion?(nil, error.localizedDescription)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                     }
                 }
 
@@ -184,7 +184,7 @@ extension GaiaKeysManagementCapable {
                         GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        completion?(nil, error.localizedDescription)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                     }
                 }
             } else {
@@ -199,7 +199,7 @@ extension GaiaKeysManagementCapable {
             switch result {
             case .success(let data):
                 DispatchQueue.main.async { completion(data, nil) }
-            case .failure(let error): completion(nil, error.localizedDescription)
+            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
              }
         }
     }
@@ -278,7 +278,7 @@ extension GaiaValidatorsCapable {
                     gaiaValidators.append(GaiaValidator(validator: validator))
                 }
                 DispatchQueue.main.async { completion(gaiaValidators, nil) }
-            case .failure(let error): completion(nil, error.localizedDescription)
+            case .failure(let error):
                 DispatchQueue.main.async { completion(nil, error.localizedDescription) }
             }
         }
@@ -295,12 +295,12 @@ extension GaiaValidatorsCapable {
                     gaiaValidators.append(GaiaValidator(validator: validator))
                 }
                 DispatchQueue.main.async { completion(gaiaValidators, nil) }
-            case .failure(let error): completion(nil, error.localizedDescription)
-            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            case .failure(let error):
+                DispatchQueue.main.async { completion(nil, error.localizedDescription) }
             }
         }
     }
-
+    
 }
 
 public protocol GaiaGovernaceCapable {
@@ -327,8 +327,8 @@ extension GaiaGovernaceCapable {
                     gaiaPropsals.append(GaiaProposal(proposal: proposal))
                 }
                 DispatchQueue.main.async { completion(gaiaPropsals, nil) }
-            case .failure(let error): completion(nil, error.localizedDescription)
-            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            case .failure(let error):
+                DispatchQueue.main.async { completion(nil, error.localizedDescription) }
             }
         }
     }
@@ -350,12 +350,12 @@ extension GaiaGovernaceCapable {
                     case .success(let data):
                         proposal.votes = data
                         DispatchQueue.main.async { completion(proposal, nil) }
-                    case .failure(let error): completion(nil, error.localizedDescription)
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                    case .failure(let error):
+                        DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                     }
                 }
-            case .failure(let error): completion(nil, error.localizedDescription)
-            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            case .failure(let error):
+                DispatchQueue.main.async { completion(nil, error.localizedDescription) }
             }
         }
     }
@@ -379,7 +379,7 @@ extension GaiaGovernaceCapable {
                         GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        completion?(nil, error.localizedDescription)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                     }
                 }
             } else {
@@ -412,7 +412,7 @@ extension GaiaGovernaceCapable {
                         GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        completion?(nil, error.localizedDescription)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                     }
                 }
             } else {
@@ -442,7 +442,7 @@ extension GaiaGovernaceCapable {
                         GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        completion?(nil, error.localizedDescription)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                     }
                 }
             } else {

@@ -390,6 +390,11 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     public let amount: DynamicAmount?
     public let value: TxFeeAmount?
 
+    //terra swap
+    public let trader: String?
+    public let offerCoin: TxFeeAmount?
+    public let askDenom: String?
+    
     public enum DynamicAmount: Codable {
         case amount(TxFeeAmount)
         case amounts([TxFeeAmount])
@@ -438,6 +443,11 @@ public struct TxMsgVal: Codable, PropertyLoopable {
         case delegation
         case amount
         case value
+        
+        //terra swap
+        case trader
+        case offerCoin = "offer_coin"
+        case askDenom = "ask_denom"
     }
 }
 
