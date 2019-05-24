@@ -60,7 +60,7 @@ public class GaiaNode: Codable {
     public var nodeID: String = ""
     public var stakeDenom: String = "stake"
     public var knownValidators: [String : String] = [:]
-    public var defaultTxFee: String = "0.3"
+    public var defaultTxFee: String = "0"
     public var defaultMemo: String = "IPSX iOS Wallet"
 
     public init(name: String = "Gaia Node", scheme: String = "https", host: String = "localhost", rcpPort: Int = 1317, tendrmintPort: Int = 26657) {
