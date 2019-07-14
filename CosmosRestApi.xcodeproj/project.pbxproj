@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		4600A72B22956EA000A23B88 /* TerraRestApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4600A72A22956EA000A23B88 /* TerraRestApi.swift */; };
 		4600A72D22956F9B00A23B88 /* TerraRestInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4600A72C22956F9B00A23B88 /* TerraRestInterfaces.swift */; };
+		881438BE22DB343000D882CB /* TerraRestAPIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881438BD22DB343000D882CB /* TerraRestAPIModel.swift */; };
 		88300D8221DCA73E007B9C43 /* CosmosRestApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 88300D8021DCA73E007B9C43 /* CosmosRestApi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88300D8C21DCA76C007B9C43 /* RestNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8821DCA76B007B9C43 /* RestNetworking.swift */; };
 		88300D8D21DCA76C007B9C43 /* GaiaRestAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8921DCA76C007B9C43 /* GaiaRestAPI.swift */; };
@@ -29,6 +30,7 @@
 /* Begin PBXFileReference section */
 		4600A72A22956EA000A23B88 /* TerraRestApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerraRestApi.swift; sourceTree = "<group>"; };
 		4600A72C22956F9B00A23B88 /* TerraRestInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerraRestInterfaces.swift; sourceTree = "<group>"; };
+		881438BD22DB343000D882CB /* TerraRestAPIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = TerraRestAPIModel.swift; path = "../../../CosmosRestApi/CosmosRestApi/Gaia Lite Rest API/TerraRestAPIModel.swift"; sourceTree = "<group>"; };
 		88300D7D21DCA73E007B9C43 /* CosmosRestApi.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CosmosRestApi.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		88300D8021DCA73E007B9C43 /* CosmosRestApi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CosmosRestApi.h; sourceTree = "<group>"; };
 		88300D8121DCA73E007B9C43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 			children = (
 				4600A72C22956F9B00A23B88 /* TerraRestInterfaces.swift */,
 				4600A72A22956EA000A23B88 /* TerraRestApi.swift */,
+				881438BD22DB343000D882CB /* TerraRestAPIModel.swift */,
 				88A38F11228FDEEF00F71284 /* IrisRestApiModel.swift */,
 				88A38F13228FE12300F71284 /* IrisRestModel.swift */,
 				88A38F0F228FDE4D00F71284 /* IrisRestApi.swift */,
@@ -221,6 +224,7 @@
 				4600A72D22956F9B00A23B88 /* TerraRestInterfaces.swift in Sources */,
 				88A38F12228FDEEF00F71284 /* IrisRestApiModel.swift in Sources */,
 				88300D8D21DCA76C007B9C43 /* GaiaRestAPI.swift in Sources */,
+				881438BE22DB343000D882CB /* TerraRestAPIModel.swift in Sources */,
 				88300DC221DD0317007B9C43 /* GaiaTendermintAPIModel.swift in Sources */,
 				4600A72B22956EA000A23B88 /* TerraRestApi.swift in Sources */,
 				88677FE421E8F4CD0022A09E /* GaiaRestTester.swift in Sources */,

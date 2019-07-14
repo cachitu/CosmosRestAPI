@@ -718,15 +718,18 @@ public struct TransferPostData: Codable {
     
     public var baseReq: TransferBaseReq?
     public var amount: [TxFeeAmount]?
-    
+    public var coins: [TxFeeAmount]?
+
     public init(name: String, memo: String, pass: String = "", chain: String, amount: String? = nil, denom: String? = nil, accNum: String, sequence: String, fees: [TxFeeAmount]?) {
         self.amount = [TxFeeAmount(amount: amount, denom: denom)]
+        self.coins  = self.amount
         self.baseReq = TransferBaseReq(name: name, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
     }
     
     enum CodingKeys : String, CodingKey {
         case baseReq = "base_req"
         case amount
+        case coins
     }
 }
 

@@ -23,15 +23,24 @@ public class TerraRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         completionHandler(URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }
     
-    public func getActives(completion: ((RestResult<[[String]]>) -> Void)?) {
+    public func getActives(completion: ((RestResult<[Actives]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/oracle/denoms/actives", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getPrice(for denom:String, completion: ((RestResult<[String]>) -> Void)?) {
+    public func getPrice(for denom:String, completion: ((RestResult<[Price]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/oracle/denoms/\(denom)/price", delegate: self, singleItemResponse: true, completion: completion)
     }
 
     public func swapActive(transferData: SwapPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/market/swap", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
+    
+    public func getTerraSentTransactions(by address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "sender", value: "\(address)"), URLQueryItem(name: "limit", value: "9999")], completion: completion)
+    }
+    
+    public func getTerraReceivedTransactions(by address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "recipient", value: "\(address)"), URLQueryItem(name: "limit", value: "9999")], completion: completion)
+    }
+
 }
