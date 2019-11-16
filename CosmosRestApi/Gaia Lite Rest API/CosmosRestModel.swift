@@ -77,28 +77,58 @@ public class GaiaKey: CustomStringConvertible, Codable {
     }
     
     public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
-        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getAccount(address: self.address) { [weak self] result in
-            switch result {
-            case .success(let data):
-                if let item = data.first, let type = item.type {
-                    if type.contains("VestingAccount") {
-                        self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+        switch node.type {
+        case .cosmos:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getAccount(address: self.address) { [weak self] result in
+                switch result {
+                case .success(let data):
+                    if let item = data.first, let type = item.type {
+                        if type.contains("VestingAccount") {
+                            self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+                        } else {
+                            let gaiaAcc = GaiaAccount(accountValue: item.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                            DispatchQueue.main.async {
+                                completion?(gaiaAcc, nil)
+                            }
+                        }
                     } else {
-                        let gaiaAcc = GaiaAccount(accountValue: item.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
                         DispatchQueue.main.async {
-                            completion?(gaiaAcc, nil)
+                            completion?(nil, "Request OK but no data")
                         }
                     }
-                } else {
+                case .failure(let error):
                     DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
+                        let message = error.code == 204 ? nil : error.localizedDescription
+                        completion?(nil, message)
                     }
                 }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    let message = error.code == 204 ? nil : error.localizedDescription
-                    completion?(nil, message)
+            }
+        case .iris: getIrisAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getAccountV2(address: self.address) { [weak self] result in
+                switch result {
+                case .success(let data):
+                    if let item = data.first, let type = item.result?.type {
+                        if type.contains("VestingAccount") {
+                            self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+                        } else {
+                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                            DispatchQueue.main.async {
+                                completion?(gaiaAcc, nil)
+                            }
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            completion?(nil, "Request OK but no data")
+                        }
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        let message = error.code == 204 ? nil : error.localizedDescription
+                        completion?(nil, message)
+                    }
                 }
             }
         }
@@ -420,17 +450,17 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     }
     
     init(irisAccount: IrisAccount, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
-        self.accNumber = irisAccount.accountNumber ?? "0"
-        self.accSequence = irisAccount.sequence ?? "0"
-        self.address = irisAccount.address ?? "="
-        self.pubKey = irisAccount.publicKey?.value ?? "-"
-        let amountString = irisAccount.coins?.first?.replacingOccurrences(of: "iris", with: "") ?? "0"
+        self.accNumber = irisAccount.value?.accountNumber ?? "0"
+        self.accSequence = irisAccount.value?.sequence ?? "0"
+        self.address = irisAccount.value?.address ?? "="
+        self.pubKey = irisAccount.value?.publicKey?.value ?? "-"
+        var amountString = irisAccount.value?.coins?.first?.amount ?? "0"
         self.amount = Double(amountString) ?? 0.0
-        self.denom = stakeDenom
+        self.denom = irisAccount.value?.coins?.first?.denom ?? stakeDenom
         self.feeAmount = 0.0
-        self.feeDenom = "fee token?"
+        self.feeDenom = irisAccount.value?.coins?.first?.denom ?? "fee token?"
         self.gaiaKey = gaiaKey
-        self.assets = [Coin(amount: amountString, denom: "iris")]
+        self.assets = irisAccount.value?.coins ?? [Coin(amount: amountString, denom: "iris")]
         self.noFeeToken = true
     }
 //    public var description: String {

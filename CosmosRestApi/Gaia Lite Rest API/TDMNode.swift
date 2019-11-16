@@ -15,11 +15,12 @@ public enum TDMNodeState: String, Codable {
     case unknown
 }
 
-public enum TDMNodeType: String, Codable {
-    case cosmos
-    case iris
-    case terra
-    case kava
+public enum TDMNodeType: String, Codable, CaseIterable {
+    case cosmos = "Cosmos Hub"
+    case iris = "Iris Network"
+    case terra = "Terra Money"
+    case kava = "Kava Network"
+    case cosmosTestnet = "Cosmos Testnet"
 }
 
 public class TDMNode: Codable {
@@ -81,7 +82,7 @@ public class TDMNode: Codable {
                     completion?()
                 }
             }
-            case .kava:
+        case .kava, .cosmosTestnet:
             KavaRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
                             switch result {
                 case .success(let data):

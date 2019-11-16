@@ -10,11 +10,23 @@ import Foundation
 
 public struct IrisAccount: Codable {
     
+    public let type: String?
+    public let value: IrisAccountData?
+
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+   }
+}
+
+public struct IrisAccountData: Codable {
+    
     public let address: String?
-    public let coins: [String]?
+    public let coins: [Coin]?
     public let accountNumber: String?
     public let sequence: String?
     public let publicKey: PublicKey?
+    public let memoRegexp: String?
 
     enum CodingKeys : String, CodingKey {
         case address
@@ -22,6 +34,7 @@ public struct IrisAccount: Codable {
         case accountNumber = "account_number"
         case sequence
         case publicKey = "public_key"
+        case memoRegexp = "memo_regexp"
    }
 }
 

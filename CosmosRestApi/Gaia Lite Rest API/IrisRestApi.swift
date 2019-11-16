@@ -32,7 +32,7 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
 
     public func getAccount(address: String, completion: ((RestResult<[IrisAccount]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/bank/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
     public func getStakeValidators(completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
