@@ -605,6 +605,17 @@ public struct TdmAccount: Codable {
     }
 }
 
+public struct VestedAccountResult: Codable {
+    
+    public let height: String?
+    public let result: VestedAccount?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
 public struct VestedAccount: Codable {
     
     public let type: String?
@@ -846,6 +857,17 @@ public struct TransferDeliverTx: Codable {
 
 //ICS21 - Stake module APIs
 
+public struct DelegationsResult: Codable {
+    
+    public let result: [Delegation]?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case result
+        case height
+    }
+}
+
 public struct Delegation: Codable {
     
     public let delegatorAddr: String?
@@ -971,6 +993,16 @@ public struct RedelegationPostData: Codable {
         case delegatorAddr = "delegator_address"
         case validatorSrcAddr = "validator_src_address"
         case validatorDstAddr = "validator_dst_address"
+    }
+}
+public struct DelegatorValidatorResult: Codable {
+
+public let height: String?
+public let result: [DelegatorValidator]?
+
+enum CodingKeys : String, CodingKey {
+    case height
+    case result
     }
 }
 

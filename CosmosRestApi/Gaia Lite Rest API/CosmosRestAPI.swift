@@ -85,6 +85,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
+    public func getVestedAccountV2(address: String, completion: ((RestResult<[VestedAccountResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     // ICS20
     
     public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
@@ -102,6 +106,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, completion: completion)
     }
     
+    public func getDelegationsV2(for address: String, completion: ((RestResult<[DelegationsResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func delegation(from address: String, transferData: DelegationPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
@@ -146,6 +154,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators", delegate: self, singleItemResponse: false, completion: completion)
     }
     
+    public func getStakeValidatorsV2(completion: ((RestResult<[DelegatorValidatorResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func getStakeValidator(for valAddress: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)", delegate: self, singleItemResponse: true, completion: completion)
     }

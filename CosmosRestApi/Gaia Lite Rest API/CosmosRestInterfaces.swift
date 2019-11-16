@@ -268,18 +268,35 @@ public protocol GaiaValidatorsCapable {
 extension GaiaValidatorsCapable {
     
     public func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
-        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        
-        restApi.getStakeValidators { result in
-            switch result {
-            case .success(let data):
-                var gaiaValidators: [GaiaValidator] = []
-                for validator in data {
-                    gaiaValidators.append(GaiaValidator(validator: validator))
+        switch node.type {
+        case .cosmos, .terra:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+             restApi.getStakeValidators { result in
+                switch result {
+                case .success(let data):
+                    var gaiaValidators: [GaiaValidator] = []
+                    for validator in data {
+                        gaiaValidators.append(GaiaValidator(validator: validator))
+                    }
+                    DispatchQueue.main.async { completion(gaiaValidators, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
-                DispatchQueue.main.async { completion(gaiaValidators, nil) }
-            case .failure(let error):
-                DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        case .iris: retrieveIrisValidators(node: node, completion: completion)
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+             restApi.getStakeValidatorsV2 { result in
+                switch result {
+                case .success(let data):
+                    var gaiaValidators: [GaiaValidator] = []
+                    for validator in data.first?.result ?? [] {
+                        gaiaValidators.append(GaiaValidator(validator: validator))
+                    }
+                    DispatchQueue.main.async { completion(gaiaValidators, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
             }
         }
     }

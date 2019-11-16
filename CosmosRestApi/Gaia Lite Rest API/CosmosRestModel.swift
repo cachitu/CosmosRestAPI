@@ -78,7 +78,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
     
     public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .cosmos:
+        case .cosmos, .terra:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccount(address: self.address) { [weak self] result in
                 switch result {
@@ -159,29 +159,56 @@ public class GaiaKey: CustomStringConvertible, Codable {
     }
 
     private func getVestedAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
-        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getVestedAccount(address: self.address) { result in
-            switch result {
-            case .success(let data):
-                if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                    let gaiaAcc = GaiaAccount(accountValue: item, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
-                    DispatchQueue.main.async {
-                        completion?(gaiaAcc, nil)
+        switch node.type {
+        case .cosmos, .terra:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getVestedAccount(address: self.address) { result in
+                switch result {
+                case .success(let data):
+                    if let item = data.first?.value?.baseVestingAccount?.baseAccount {
+                        let gaiaAcc = GaiaAccount(accountValue: item, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                        DispatchQueue.main.async {
+                            completion?(gaiaAcc, nil)
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            completion?(nil, "Request OK but no data")
+                        }
                     }
-                } else {
+                case .failure(let error):
                     DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
+                        let message = error.code == 204 ? nil : error.localizedDescription
+                        completion?(nil, message)
                     }
-                }
-            case .failure(let error):
-                DispatchQueue.main.async {
-                    let message = error.code == 204 ? nil : error.localizedDescription
-                    completion?(nil, message)
                 }
             }
+            
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getVestedAccountV2(address: self.address) { result in
+                switch result {
+                case .success(let data):
+                    if let item = data.first?.result?.value?.baseVestingAccount?.baseAccount {
+                        let gaiaAcc = GaiaAccount(accountValue: item, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                        DispatchQueue.main.async {
+                            completion?(gaiaAcc, nil)
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            completion?(nil, "Request OK but no data")
+                        }
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        let message = error.code == 204 ? nil : error.localizedDescription
+                        completion?(nil, message)
+                    }
+                }
+            }
+            
         }
     }
-
+    
     public func unlockKey(node: TDMNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
         if self.password == password {
             DispatchQueue.main.async { completion(true, nil) }
@@ -192,7 +219,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
     
     public func deleteKey(node: TDMNode, clientDelegate: KeysClientDelegate, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
         let kdata = KeyPostData(name: self.address, pass: password, seed: nil)
-
+        
         GaiaLocalClient(delegate: clientDelegate).deleteKey(keyData: kdata, completion: { result in
             switch result {
             case .success(_):
@@ -201,9 +228,9 @@ public class GaiaKey: CustomStringConvertible, Codable {
                 DispatchQueue.main.async { completion(true, nil) }
             case .failure(let error): DispatchQueue.main.async { completion(false, error.localizedDescription) }
             }
-         })
+        })
     }
-
+    
     public func getTransactions(node: TDMNode, completion: @escaping ((_ delegations: [GaiaTransaction]?, _ message: String?) -> ())) {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getSentTransactions(by: self.address) { result in
@@ -267,17 +294,35 @@ public class GaiaKey: CustomStringConvertible, Codable {
     }
 
     public func getDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
-        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getDelegations(for: self.address) { result in
-            switch result {
-            case .success(let delegations):
-                var gaiaDelegations: [GaiaDelegation] = []
-                for delegation in delegations {
-                    let gaiaDelegation = GaiaDelegation(delegation: delegation)
-                    gaiaDelegations.append(gaiaDelegation)
+        switch node.type {
+        case .cosmos, .terra:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getDelegations(for: self.address) { result in
+                switch result {
+                case .success(let delegations):
+                    var gaiaDelegations: [GaiaDelegation] = []
+                    for delegation in delegations {
+                        let gaiaDelegation = GaiaDelegation(delegation: delegation)
+                        gaiaDelegations.append(gaiaDelegation)
+                    }
+                    DispatchQueue.main.async { completion(gaiaDelegations, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
-                DispatchQueue.main.async { completion(gaiaDelegations, nil) }
-            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        case .iris: getIrisDelegations(node: node, completion: completion)
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getDelegationsV2(for: self.address) { result in
+                switch result {
+                case .success(let delegations):
+                    var gaiaDelegations: [GaiaDelegation] = []
+                    for delegation in delegations.first?.result ?? [] {
+                        let gaiaDelegation = GaiaDelegation(delegation: delegation)
+                        gaiaDelegations.append(gaiaDelegation)
+                    }
+                    DispatchQueue.main.async { completion(gaiaDelegations, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
             }
         }
     }
@@ -454,7 +499,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.accSequence = irisAccount.value?.sequence ?? "0"
         self.address = irisAccount.value?.address ?? "="
         self.pubKey = irisAccount.value?.publicKey?.value ?? "-"
-        var amountString = irisAccount.value?.coins?.first?.amount ?? "0"
+        let amountString = irisAccount.value?.coins?.first?.amount ?? "0"
         self.amount = Double(amountString) ?? 0.0
         self.denom = irisAccount.value?.coins?.first?.denom ?? stakeDenom
         self.feeAmount = 0.0
