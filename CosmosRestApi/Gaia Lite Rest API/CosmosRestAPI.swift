@@ -15,7 +15,7 @@ import Foundation
  
  */
 
-public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
+public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     static let minVersion = "0.33.0"
     
@@ -73,7 +73,7 @@ public class GaiaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/txs", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
-    public func getAccount(address: String, completion: ((RestResult<[Account]>) -> Void)?) {
+    public func getAccount(address: String, completion: ((RestResult<[TdmAccount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
     

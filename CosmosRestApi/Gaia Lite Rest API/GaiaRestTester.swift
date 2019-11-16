@@ -26,7 +26,7 @@ public class GaiaRestTester {
         )
     {
         
-        let restApi = GaiaRestAPI()
+        let restApi = CosmosRestAPI()
         let dispatchGroup = DispatchGroup()
         
         

@@ -13,17 +13,17 @@ import Foundation
 
 public protocol GaiaKeysManagementCapable {
     
-    var node: GaiaNode? { get set }
-    func retrieveAllKeys(node: GaiaNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
-    func createKey(node: GaiaNode, clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
-    func sendAssets(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
+    var node: TDMNode? { get set }
+    func retrieveAllKeys(node: TDMNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
+    func createKey(node: TDMNode, clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
+    func sendAssets(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaKeysManagementCapable {
     
 
-    public func sendAssets(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func sendAssets(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = TransferPostData(name: key.address,
@@ -50,8 +50,8 @@ extension GaiaKeysManagementCapable {
         }
     }
     
-    public func withdraw(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, validator: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func withdraw(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, validator: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = TransferPostData(name: key.address,
@@ -75,8 +75,8 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func withdrawComission(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func withdrawComission(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = TransferPostData(name: key.address,
@@ -100,8 +100,8 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func redelegateStake(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, fromValidator: String, toValidator: String, amount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func redelegateStake(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, fromValidator: String, toValidator: String, amount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = RedelegationPostData(
@@ -131,8 +131,8 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func delegateStake(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func delegateStake(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = DelegationPostData(
@@ -163,8 +163,8 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func unbondStake(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, fromValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func unbondStake(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, fromValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = UnbondingDelegationPostData(
@@ -193,7 +193,7 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func retrieveAllKeys(node: GaiaNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->()) {
+    public func retrieveAllKeys(node: TDMNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->()) {
         
         GaiaLocalClient(delegate: clientDelegate).getKeys { result in
             switch result {
@@ -204,7 +204,7 @@ extension GaiaKeysManagementCapable {
         }
     }
     
-    public func createKey(node: GaiaNode, clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String? = nil, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->()) {
+    public func createKey(node: TDMNode, clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String? = nil, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->()) {
         if let validSeed = seed {
             createGaiaKey(clientDelegate: clientDelegate, name: name, pass: pass, seed: validSeed) { rawkey, seed, errMessage in
                 if let error = errMessage {
@@ -228,7 +228,7 @@ extension GaiaKeysManagementCapable {
         }
     }
     
-    func createSeed(clientDelegate: KeysClientDelegate, name: String, pass: String, completion: @escaping (_ data: Key?, _ seed: String?, _ errMsg: String?)->()) {
+    func createSeed(clientDelegate: KeysClientDelegate, name: String, pass: String, completion: @escaping (_ data: TDMKey?, _ seed: String?, _ errMsg: String?)->()) {
         GaiaLocalClient(delegate: clientDelegate).createSeed { result in
             switch result {
             case .success(let data):
@@ -243,12 +243,12 @@ extension GaiaKeysManagementCapable {
         }
     }
     
-    func createGaiaKey(clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String, completion: @escaping (_ data: Key?, _ seed: String?, _ errMsg: String?)->()) {
+    func createGaiaKey(clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String, completion: @escaping (_ data: TDMKey?, _ seed: String?, _ errMsg: String?)->()) {
         let kdata = KeyPostData(name: name, pass: pass, seed: seed)
         GaiaLocalClient(delegate: clientDelegate).recoverKey(keyData: kdata, completion: { result in
             switch result {
             case .success(let data):
-                if let item = data.first as? Key {
+                if let item = data.first as? TDMKey {
                     DispatchQueue.main.async { completion(item, seed, nil) }
                 }
             case .failure(let error):
@@ -260,15 +260,15 @@ extension GaiaKeysManagementCapable {
 
 public protocol GaiaValidatorsCapable {
     
-    var node: GaiaNode? { get set }
-    func retrieveAllValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
-    func retrieveIrisValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
+    var node: TDMNode? { get set }
+    func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
+    func retrieveIrisValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
 }
 
 extension GaiaValidatorsCapable {
     
-    public func retrieveAllValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
         restApi.getStakeValidators { result in
             switch result {
@@ -284,7 +284,7 @@ extension GaiaValidatorsCapable {
         }
     }
     
-    public func retrieveIrisValidators(node: GaiaNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
+    public func retrieveIrisValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
         let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
         restApi.getStakeValidators { result in
@@ -305,19 +305,19 @@ extension GaiaValidatorsCapable {
 
 public protocol GaiaGovernaceCapable {
     
-    var node: GaiaNode? { get set }
+    var node: TDMNode? { get set }
     
-    func retrieveAllPropsals(node: GaiaNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->())
-    func getPropsalDetails(node: GaiaNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->())
-    func vote(for proposal: String, option: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
-    func propose(deposit: String, title: String, description: String, type: ProposalType, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
-    func depositToProposal(proposalId: String, amount: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
+    func retrieveAllPropsals(node: TDMNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->())
+    func getPropsalDetails(node: TDMNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->())
+    func vote(for proposal: String, option: String, node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
+    func propose(deposit: String, title: String, description: String, type: ProposalType, node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
+    func depositToProposal(proposalId: String, amount: String, node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
 
 extension GaiaGovernaceCapable {
     
-    public func retrieveAllPropsals(node: GaiaNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->()) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func retrieveAllPropsals(node: TDMNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->()) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
         restApi.getPorposals { result in
             switch result {
@@ -333,8 +333,8 @@ extension GaiaGovernaceCapable {
         }
     }
     
-    public func getPropsalDetails(node: GaiaNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->()) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func getPropsalDetails(node: TDMNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->()) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
         restApi.getPorposalTally(forId: proposal.proposalId) { result in
             switch result {
@@ -360,8 +360,8 @@ extension GaiaGovernaceCapable {
         }
     }
 
-    public func vote(for proposal: String, option: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func vote(for proposal: String, option: String, node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let data = ProposalVotePostData(keyName: key.address,
@@ -388,8 +388,8 @@ extension GaiaGovernaceCapable {
         }
     }
     
-    public func propose(deposit: String, title: String, description: String, type: ProposalType, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func propose(deposit: String, title: String, description: String, type: ProposalType, node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 
@@ -421,8 +421,8 @@ extension GaiaGovernaceCapable {
         }
     }
 
-    public func depositToProposal(proposalId: String, amount: String, node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func depositToProposal(proposalId: String, amount: String, node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 

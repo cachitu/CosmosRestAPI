@@ -10,14 +10,14 @@ import Foundation
 
 public protocol TerraOraclesCapable {
     
-    var node: GaiaNode? { get set }
-    func retrieveAllActives(node: GaiaNode, completion: @escaping (_ data: [String]?, _ errMsg: String?)->())
-    func retrievePrice(node: GaiaNode, active: String, completion: @escaping (_ data: String?, _ errMsg: String?)->())
+    var node: TDMNode? { get set }
+    func retrieveAllActives(node: TDMNode, completion: @escaping (_ data: [String]?, _ errMsg: String?)->())
+    func retrievePrice(node: TDMNode, active: String, completion: @escaping (_ data: String?, _ errMsg: String?)->())
 }
 
 extension TerraOraclesCapable {
     
-    public func retrieveAllActives(node: GaiaNode, completion: @escaping (_ data: [String]?, _ errMsg: String?)->()) {
+    public func retrieveAllActives(node: TDMNode, completion: @escaping (_ data: [String]?, _ errMsg: String?)->()) {
         
         let restApi = TerraRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
@@ -31,7 +31,7 @@ extension TerraOraclesCapable {
         }
     }
     
-    public func retrievePrice(node: GaiaNode, active: String, completion: @escaping (_ data: String?, _ errMsg: String?)->()) {
+    public func retrievePrice(node: TDMNode, active: String, completion: @escaping (_ data: String?, _ errMsg: String?)->()) {
         
         let restApi = TerraRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
@@ -45,11 +45,11 @@ extension TerraOraclesCapable {
         }
     }
     
-    public func swapActives(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, offerAmount: String, offerDenom: String, askDenom: String, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func swapActives(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, offerAmount: String, offerDenom: String, askDenom: String, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         
         let restApi = TerraRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
-        let gaiaRestApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        let gaiaRestApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let swData = SwapPostData(name: key.address,

@@ -14,6 +14,15 @@ import Foundation
 
 //ICS0 - endermint APIs, such as query blocks, transactions and validatorset
 
+public struct NodeInfoParent: Codable {
+    
+    public let nodeInfo: NodeInfo?
+    
+    enum CodingKeys : String, CodingKey {
+        case nodeInfo = "node_info"
+    }
+}
+
 public struct NodeInfo: Codable {
     
     public let protocolVersion: ProtocolVersion?
@@ -525,40 +534,14 @@ public struct TrResultTag: Codable {
 
 public struct Keys: PersistCodable {
     
-    public var items: [Key]?
+    public var items: [TDMKey]?
     
-    public init(items: [Key]?) {
+    public init(items: [TDMKey]?) {
         self.items = items
     }
     
     enum CodingKeys : String, CodingKey {
         case items
-    }
-}
-
-public struct Key: Codable {
-    
-    public var name: String? = "dummy"
-    public var password: String? = "test1234"
-    public var type: String? = "dummy"
-    public var address: String? = "cosmos1..."
-    public var pubAddress: String? = "cosmospub1..."
-    public var validator: String? = "cosmosvaloper..."
-    public var pubValidator: String? = "cosmosvaloper1..."
-    public var mnemonic: String? = "a b c"
-    
-    public init() {
-    }
-    
-    enum CodingKeys : String, CodingKey {
-        case name
-        case password
-        case type
-        case address
-        case pubAddress
-        case validator
-        case pubValidator
-        case mnemonic
     }
 }
 
@@ -600,7 +583,7 @@ public struct KeyPasswordData: Codable {
     }
 }
 
-public struct Account: Codable {
+public struct TdmAccount: Codable {
     
     public let type: String?
     public let value: AccountValue?

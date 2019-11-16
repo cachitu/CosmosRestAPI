@@ -10,7 +10,7 @@ import Foundation
 
 public class TerraRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
-    static let minVersion = "0.1.1"
+    static let minVersion = "0.31.9"
     
     let connectData: ConnectData
     
@@ -19,6 +19,10 @@ public class TerraRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         super.init()
     }
     
+    public func getNodeInfo(completion: ((RestResult<[NodeInfo]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node_info", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
+    }
+
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         completionHandler(URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }

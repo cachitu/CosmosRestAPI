@@ -27,10 +27,9 @@ public struct SignedTx: Codable {
 public protocol KeysClientDelegate: AnyObject {
     func getSavedKeys() -> [GaiaKey]
     func generateMnemonic() -> String
-    func recoverKey(from mnemonic: String, name: String, password: String) -> Key
-    func createKey(with name: String, password: String) -> Key
+    func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
     func deleteKey(with name: String, password: String) -> NSError?
-    func sign(transferData: TransactionTx?, account: GaiaAccount, node: GaiaNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
+    func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
 }
 
 public class GaiaLocalClient {
@@ -72,16 +71,7 @@ public class GaiaLocalClient {
         completion?(.success(["OK"]))
     }
     
-    public func createKey(keyData: KeyPostData, completion:((RestResult<[Any]>) -> Void)?) {
-        guard let key = delegate?.createKey(with: keyData.name , password: keyData.password ?? "") else {
-            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Create key failed"])
-            completion?(.failure(error))
-            return
-        }
-        completion?(.success([key]))
-    }
-    
-    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: GaiaNode, completion: ((SignedTx?, String?) -> ())?) {
+    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, completion: ((SignedTx?, String?) -> ())?) {
         
         delegate?.sign(transferData: tx, account: account, node: node) { response in
             switch response {
@@ -94,7 +84,7 @@ public class GaiaLocalClient {
         }
     }
     
-    public func handleSignAndBroadcast(restApi: GaiaRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: GaiaNode, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func handleSignAndBroadcast(restApi: CosmosRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: TDMNode, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         
         generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node) { signed, err in
             

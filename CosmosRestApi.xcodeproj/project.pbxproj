@@ -12,19 +12,21 @@
 		881438BE22DB343000D882CB /* TerraRestAPIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 881438BD22DB343000D882CB /* TerraRestAPIModel.swift */; };
 		88300D8221DCA73E007B9C43 /* CosmosRestApi.h in Headers */ = {isa = PBXBuildFile; fileRef = 88300D8021DCA73E007B9C43 /* CosmosRestApi.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88300D8C21DCA76C007B9C43 /* RestNetworking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8821DCA76B007B9C43 /* RestNetworking.swift */; };
-		88300D8D21DCA76C007B9C43 /* GaiaRestAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8921DCA76C007B9C43 /* GaiaRestAPI.swift */; };
+		88300D8D21DCA76C007B9C43 /* CosmosRestAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8921DCA76C007B9C43 /* CosmosRestAPI.swift */; };
 		88300D8E21DCA76C007B9C43 /* GaiaRestAPIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8A21DCA76C007B9C43 /* GaiaRestAPIModel.swift */; };
 		88300D8F21DCA76C007B9C43 /* PersistCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300D8B21DCA76C007B9C43 /* PersistCodable.swift */; };
-		88300DBB21DCA90A007B9C43 /* GaiaTendermintAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300DBA21DCA90A007B9C43 /* GaiaTendermintAPI.swift */; };
-		88300DC221DD0317007B9C43 /* GaiaTendermintAPIModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88300DC121DD0317007B9C43 /* GaiaTendermintAPIModel.swift */; };
 		885CFE2F223429F40037F5DD /* GaiaLocalClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 885CFE2E223429F40037F5DD /* GaiaLocalClient.swift */; };
 		88677FE421E8F4CD0022A09E /* GaiaRestTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */; };
-		88677FE921E8F62E0022A09E /* GaiaRestInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */; };
-		88677FED21E903520022A09E /* GaiaRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FEC21E903520022A09E /* GaiaRestModel.swift */; };
+		88677FE921E8F62E0022A09E /* CosmosRestInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FE821E8F62E0022A09E /* CosmosRestInterfaces.swift */; };
+		88677FED21E903520022A09E /* CosmosRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FEC21E903520022A09E /* CosmosRestModel.swift */; };
 		8869755F21E9CC8700044EB8 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8869755E21E9CC8700044EB8 /* KeychainWrapper.swift */; };
 		88A38F10228FDE4D00F71284 /* IrisRestApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A38F0F228FDE4D00F71284 /* IrisRestApi.swift */; };
 		88A38F12228FDEEF00F71284 /* IrisRestApiModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A38F11228FDEEF00F71284 /* IrisRestApiModel.swift */; };
 		88A38F14228FE12300F71284 /* IrisRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A38F13228FE12300F71284 /* IrisRestModel.swift */; };
+		EEBDFC19237FFB4900079F38 /* TDMNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDFC18237FFB4900079F38 /* TDMNode.swift */; };
+		EEBDFC1D238002F000079F38 /* TDMKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDFC1C238002F000079F38 /* TDMKey.swift */; };
+		EEBDFC1F23801AA600079F38 /* KavaRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDFC1E23801AA600079F38 /* KavaRestModel.swift */; };
+		EEBDFC2123801AE200079F38 /* KavaRestApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDFC2023801AE200079F38 /* KavaRestApi.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,20 +37,22 @@
 		88300D8021DCA73E007B9C43 /* CosmosRestApi.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CosmosRestApi.h; sourceTree = "<group>"; };
 		88300D8121DCA73E007B9C43 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		88300D8821DCA76B007B9C43 /* RestNetworking.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestNetworking.swift; sourceTree = "<group>"; };
-		88300D8921DCA76C007B9C43 /* GaiaRestAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GaiaRestAPI.swift; sourceTree = "<group>"; };
+		88300D8921DCA76C007B9C43 /* CosmosRestAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CosmosRestAPI.swift; sourceTree = "<group>"; };
 		88300D8A21DCA76C007B9C43 /* GaiaRestAPIModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GaiaRestAPIModel.swift; sourceTree = "<group>"; };
 		88300D8B21DCA76C007B9C43 /* PersistCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersistCodable.swift; sourceTree = "<group>"; };
-		88300DBA21DCA90A007B9C43 /* GaiaTendermintAPI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GaiaTendermintAPI.swift; sourceTree = "<group>"; };
-		88300DC121DD0317007B9C43 /* GaiaTendermintAPIModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaiaTendermintAPIModel.swift; sourceTree = "<group>"; };
 		885CFE2E223429F40037F5DD /* GaiaLocalClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaiaLocalClient.swift; sourceTree = "<group>"; };
 		88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaiaRestTester.swift; sourceTree = "<group>"; };
-		88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestInterfaces.swift; path = "../../../CosmosRestAPI/CosmosRestApi/Gaia Lite Rest API/GaiaRestInterfaces.swift"; sourceTree = "<group>"; };
-		88677FEC21E903520022A09E /* GaiaRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GaiaRestModel.swift; path = "../../../CosmosRestAPI/CosmosRestApi/Gaia Lite Rest API/GaiaRestModel.swift"; sourceTree = "<group>"; };
+		88677FE821E8F62E0022A09E /* CosmosRestInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmosRestInterfaces.swift; sourceTree = "<group>"; };
+		88677FEC21E903520022A09E /* CosmosRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmosRestModel.swift; sourceTree = "<group>"; };
 		8869755E21E9CC8700044EB8 /* KeychainWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
 		88A38F0F228FDE4D00F71284 /* IrisRestApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IrisRestApi.swift; path = "../../../CosmosRestApi/CosmosRestApi/Gaia Lite Rest API/IrisRestApi.swift"; sourceTree = "<group>"; };
 		88A38F11228FDEEF00F71284 /* IrisRestApiModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IrisRestApiModel.swift; path = "../../../CosmosRestApi/CosmosRestApi/Gaia Lite Rest API/IrisRestApiModel.swift"; sourceTree = "<group>"; };
 		88A38F13228FE12300F71284 /* IrisRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IrisRestModel.swift; path = "../../../CosmosRestApi/CosmosRestApi/Gaia Lite Rest API/IrisRestModel.swift"; sourceTree = "<group>"; };
 		88A8B52A22463984004F0B82 /* CryptoSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		EEBDFC18237FFB4900079F38 /* TDMNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMNode.swift; sourceTree = "<group>"; };
+		EEBDFC1C238002F000079F38 /* TDMKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMKey.swift; sourceTree = "<group>"; };
+		EEBDFC1E23801AA600079F38 /* KavaRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KavaRestModel.swift; sourceTree = "<group>"; };
+		EEBDFC2023801AE200079F38 /* KavaRestApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KavaRestApi.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -85,7 +89,6 @@
 				88300D8021DCA73E007B9C43 /* CosmosRestApi.h */,
 				88300D8121DCA73E007B9C43 /* Info.plist */,
 				88677FE521E8F5BC0022A09E /* Gaia Lite Rest API */,
-				88677FE621E8F5D80022A09E /* Gaia Tendermint API */,
 				88677FE721E8F5F10022A09E /* Utils */,
 			);
 			path = CosmosRestApi;
@@ -94,6 +97,10 @@
 		88677FE521E8F5BC0022A09E /* Gaia Lite Rest API */ = {
 			isa = PBXGroup;
 			children = (
+				EEBDFC18237FFB4900079F38 /* TDMNode.swift */,
+				EEBDFC1C238002F000079F38 /* TDMKey.swift */,
+				EEBDFC2023801AE200079F38 /* KavaRestApi.swift */,
+				EEBDFC1E23801AA600079F38 /* KavaRestModel.swift */,
 				4600A72C22956F9B00A23B88 /* TerraRestInterfaces.swift */,
 				4600A72A22956EA000A23B88 /* TerraRestApi.swift */,
 				881438BD22DB343000D882CB /* TerraRestAPIModel.swift */,
@@ -101,22 +108,13 @@
 				88A38F13228FE12300F71284 /* IrisRestModel.swift */,
 				88A38F0F228FDE4D00F71284 /* IrisRestApi.swift */,
 				885CFE2E223429F40037F5DD /* GaiaLocalClient.swift */,
-				88677FE821E8F62E0022A09E /* GaiaRestInterfaces.swift */,
-				88677FEC21E903520022A09E /* GaiaRestModel.swift */,
-				88300D8921DCA76C007B9C43 /* GaiaRestAPI.swift */,
+				88677FE821E8F62E0022A09E /* CosmosRestInterfaces.swift */,
+				88677FEC21E903520022A09E /* CosmosRestModel.swift */,
+				88300D8921DCA76C007B9C43 /* CosmosRestAPI.swift */,
 				88300D8A21DCA76C007B9C43 /* GaiaRestAPIModel.swift */,
 				88677FE321E8F4CD0022A09E /* GaiaRestTester.swift */,
 			);
 			path = "Gaia Lite Rest API";
-			sourceTree = "<group>";
-		};
-		88677FE621E8F5D80022A09E /* Gaia Tendermint API */ = {
-			isa = PBXGroup;
-			children = (
-				88300DBA21DCA90A007B9C43 /* GaiaTendermintAPI.swift */,
-				88300DC121DD0317007B9C43 /* GaiaTendermintAPIModel.swift */,
-			);
-			path = "Gaia Tendermint API";
 			sourceTree = "<group>";
 		};
 		88677FE721E8F5F10022A09E /* Utils */ = {
@@ -218,22 +216,24 @@
 			buildActionMask = 2147483647;
 			files = (
 				88300D8E21DCA76C007B9C43 /* GaiaRestAPIModel.swift in Sources */,
-				88300DBB21DCA90A007B9C43 /* GaiaTendermintAPI.swift in Sources */,
 				88A38F14228FE12300F71284 /* IrisRestModel.swift in Sources */,
 				885CFE2F223429F40037F5DD /* GaiaLocalClient.swift in Sources */,
+				EEBDFC2123801AE200079F38 /* KavaRestApi.swift in Sources */,
 				4600A72D22956F9B00A23B88 /* TerraRestInterfaces.swift in Sources */,
 				88A38F12228FDEEF00F71284 /* IrisRestApiModel.swift in Sources */,
-				88300D8D21DCA76C007B9C43 /* GaiaRestAPI.swift in Sources */,
+				88300D8D21DCA76C007B9C43 /* CosmosRestAPI.swift in Sources */,
 				881438BE22DB343000D882CB /* TerraRestAPIModel.swift in Sources */,
-				88300DC221DD0317007B9C43 /* GaiaTendermintAPIModel.swift in Sources */,
 				4600A72B22956EA000A23B88 /* TerraRestApi.swift in Sources */,
+				EEBDFC1D238002F000079F38 /* TDMKey.swift in Sources */,
 				88677FE421E8F4CD0022A09E /* GaiaRestTester.swift in Sources */,
 				88300D8C21DCA76C007B9C43 /* RestNetworking.swift in Sources */,
 				88A38F10228FDE4D00F71284 /* IrisRestApi.swift in Sources */,
-				88677FED21E903520022A09E /* GaiaRestModel.swift in Sources */,
+				88677FED21E903520022A09E /* CosmosRestModel.swift in Sources */,
 				88300D8F21DCA76C007B9C43 /* PersistCodable.swift in Sources */,
-				88677FE921E8F62E0022A09E /* GaiaRestInterfaces.swift in Sources */,
+				EEBDFC1F23801AA600079F38 /* KavaRestModel.swift in Sources */,
+				88677FE921E8F62E0022A09E /* CosmosRestInterfaces.swift in Sources */,
 				8869755F21E9CC8700044EB8 /* KeychainWrapper.swift in Sources */,
+				EEBDFC19237FFB4900079F38 /* TDMNode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,7 +292,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -350,7 +350,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

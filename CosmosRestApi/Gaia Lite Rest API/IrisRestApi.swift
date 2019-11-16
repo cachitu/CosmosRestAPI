@@ -10,7 +10,7 @@ import Foundation
 
 public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
-    static let minVersion = "0.13.1"
+    static let minVersion = "0.31.1"
     
     let connectData: ConnectData
     
@@ -23,6 +23,14 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         completionHandler(URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }
     
+    public func getNodeInfo(completion: ((RestResult<[NodeInfo]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node-info", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
+    }
+    
+    public func getSyncingInfo(completion: ((RestResult<[String]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/syncing", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
+    }
+
     public func getAccount(address: String, completion: ((RestResult<[IrisAccount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }

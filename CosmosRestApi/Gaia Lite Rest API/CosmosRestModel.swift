@@ -8,13 +8,6 @@
 
 import Foundation
 
-public enum NodeState: String, Codable {
-    case active
-    case pending
-    case unavailable
-    case unknown
-}
-
 public class GaiaAddressBook: PersistCodable, CustomStringConvertible {
     
     public var items: [GaiaAddressBookItem]
@@ -48,82 +41,6 @@ public class GaiaAddressBookItem: PersistCodable, Equatable {
 }
 
 
-public class GaiaNode: Codable {
-    
-    public var state: NodeState = .unknown
-    public var name: String
-    public var scheme: String
-    public var host: String
-    public var rcpPort: Int
-    public var tendermintPort: Int
-    public var network: String = ""
-    public var nodeID: String = ""
-    public var stakeDenom: String = "stake"
-    public var knownValidators: [String : String] = [:]
-    public var defaultTxFee: String = "0"
-    public var defaultMemo: String = "IPSX iOS Wallet"
-
-    public init(name: String = "Gaia Node", scheme: String = "https", host: String = "localhost", rcpPort: Int = 1317, tendrmintPort: Int = 26657) {
-        self.name = name
-        self.scheme = scheme
-        self.host = host
-        self.rcpPort = rcpPort
-        self.tendermintPort = tendrmintPort
-    }
-    
-    public func getStatus(completion: (() -> ())?) {
-        let restApi = GaiaRestAPI(scheme: scheme, host: host, port: rcpPort)
-        restApi.getSyncingInfo { [weak self] result in
-            switch result {
-            case .success(let data):
-                if let item = data.first, item == "true" {
-                    self?.state = .pending
-                } else {
-                    self?.state = .active
-                }
-            case .failure(_):
-                self?.state = .unknown
-            }
-            DispatchQueue.main.async {
-                completion?()
-            }
-        }
-    }
-    
-    public func getNodeInfo(completion: (() -> ())?) {
-        let restApi = GaiaRestAPI(scheme: scheme, host: host, port: rcpPort)
-        restApi.getNodeInfo { [weak self] result in
-            switch result {
-            case .success(let data):
-                self?.network = data.first?.network ?? ""
-                self?.nodeID = data.first?.id ?? ""
-            case .failure(_):
-                self?.state = .unknown
-            }
-            DispatchQueue.main.async {
-                completion?()
-            }
-        }
-    }
-
-    public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: scheme, host: host, port: rcpPort)
-        restApi.getStakeParameters() { [weak self] result in
-            var denom: String? = nil
-            switch result {
-            case .success(let data):
-                denom = data.first?.bondDenom
-                self?.stakeDenom = denom ?? "stake"
-            case .failure(_): break
-            }
-            DispatchQueue.main.async {
-                completion?(denom)
-            }
-        }
-    }
-
-}
-
 public class GaiaKey: CustomStringConvertible, Codable {
     
     public let name: String
@@ -141,11 +58,11 @@ public class GaiaKey: CustomStringConvertible, Codable {
         return getMnemonicFromKeychain() ?? ""
     }
 
-    public init(data: Key, nodeId: String) {
+    public init(data: TDMKey, nodeId: String) {
         
         self.nodeId = nodeId
         self.name = data.name ?? "-"
-        self.type = data.type ?? "-"
+        self.type = data.type?.rawValue ?? "-"
         self.address = data.address ?? "-"
         self.pubAddress = data.pubAddress ?? "-"
         self.validator = data.validator ?? "-"
@@ -159,8 +76,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
     
-    public func getGaiaAccount(node: GaiaNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: self.address) { [weak self] result in
             switch result {
             case .success(let data):
@@ -187,7 +104,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
     
-    public func getIrisAccount(node: GaiaNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
+    public func getIrisAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getAccount(address: self.address) { result in
             switch result {
@@ -211,8 +128,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
-    private func getVestedAccount(node: GaiaNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    private func getVestedAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getVestedAccount(address: self.address) { result in
             switch result {
             case .success(let data):
@@ -235,7 +152,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
-    public func unlockKey(node: GaiaNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
+    public func unlockKey(node: TDMNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
         if self.password == password {
             DispatchQueue.main.async { completion(true, nil) }
         } else {
@@ -243,8 +160,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
     
-    public func deleteKey(node: GaiaNode, clientDelegate: KeysClientDelegate, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
-        let kdata = KeyPostData(name: self.name, pass: password, seed: nil)
+    public func deleteKey(node: TDMNode, clientDelegate: KeysClientDelegate, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
+        let kdata = KeyPostData(name: self.address, pass: password, seed: nil)
 
         GaiaLocalClient(delegate: clientDelegate).deleteKey(keyData: kdata, completion: { result in
             switch result {
@@ -257,8 +174,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
          })
     }
 
-    public func getTransactions(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaTransaction]?, _ message: String?) -> ())) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func getTransactions(node: TDMNode, completion: @escaping ((_ delegations: [GaiaTransaction]?, _ message: String?) -> ())) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getSentTransactions(by: self.address) { result in
             switch result {
             case .success(let outTransactions):
@@ -319,8 +236,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
-    public func getDelegations(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func getDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getDelegations(for: self.address) { result in
             switch result {
             case .success(let delegations):
@@ -335,7 +252,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
-    public func getIrisDelegations(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
+    public func getIrisDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getDelegations(for: self.address) { result in
             switch result {
@@ -351,8 +268,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
-    public func queryValidatorRewards(node: GaiaNode, validator: String, completion: @escaping ((_ delegations: ValidatorRewards?, _ message: String?) -> ())) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func queryValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: ValidatorRewards?, _ message: String?) -> ())) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getValidatorRewards(from: validator) { result in
             switch result {
             case .success(let rewards):
@@ -362,7 +279,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
-    public func queryIrisValidatorRewards(node: GaiaNode, validator: String, completion: @escaping ((_ delegations: IrisRewards?, _ message: String?) -> ())) {
+    public func queryIrisValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: IrisRewards?, _ message: String?) -> ())) {
         let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getValidatorRewards(from: validator) { result in
             switch result {
@@ -373,8 +290,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
 
-    public func queryDelegationRewards(node: GaiaNode, validator: String, completion: @escaping ((_ delegations: TxFeeAmount?, _ message: String?) -> ())) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func queryDelegationRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: TxFeeAmount?, _ message: String?) -> ())) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getDelegatorReward(for: self.address, fromValidator: validator) { result in
             switch result {
             case .success(let rewards):
@@ -409,7 +326,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
     }
 
     public var description: String {
-        return "[\(name), \(type), \(address), \(pubAddress)\n]"
+        return "[\(name), \(address), \(pubAddress)\n]"
     }
     
 }
@@ -541,8 +458,8 @@ public class GaiaValidator {
         self.votingPower = Double(self.tokens) ?? 0.0
     }
     
-    public func getValidatorDelegations(node: GaiaNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func getValidatorDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getStakeValidatorDelegations(for: self.validator) { result in
             switch result {
             case .success(let delegations):
@@ -557,8 +474,8 @@ public class GaiaValidator {
         }
     }
 
-    public func unjail(node: GaiaNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
-        let restApi = GaiaRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+    public func unjail(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 let baseReq = UnjailPostData(name: key.address,
