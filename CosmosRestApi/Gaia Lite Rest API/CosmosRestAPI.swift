@@ -182,6 +182,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/parameters", delegate: self, singleItemResponse: true, completion: completion)
     }
     
+    public func getStakeParametersV2(completion: ((RestResult<[StakeParametersResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/parameters", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     
     //ICS22 - Governance
     
@@ -191,6 +195,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
 
     public func getPorposals(completion: ((RestResult<[Proposal]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
+    public func getPorposalsV2(completion: ((RestResult<[ProposalResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: true, completion: completion)
     }
 
     public func getPorposal(forId id: String, completion: ((RestResult<[Proposal]>) -> Void)?) {
@@ -209,6 +217,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, singleItemResponse: false, completion: completion)
     }
 
+    public func getPorposalVotesV2(forId id: String, completion: ((RestResult<[ProposalVoteResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func getPorposalVote(forId id: String, by voter: String, completion: ((RestResult<[ProposalVote]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes/\(voter)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -217,7 +229,11 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
-    public func getPorposalTally(forId id: String, completion: ((RestResult<[ProposalTallyResult]>) -> Void)?) {
+    public func getPorposalTally(forId id: String, completion: ((RestResult<[ProposalTallyData]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/tally", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getPorposalTallyV2(forId id: String, completion: ((RestResult<[ProposalTallyResult]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/tally", delegate: self, singleItemResponse: true, completion: completion)
     }
 
@@ -259,8 +275,16 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/validators/\(validator)", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
     }
 
+    public func getValidatorRewardsV2(from validator: String, completion:((RestResult<[ValidatorRewardsResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/validators/\(validator)", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
+    }
+
     public func getDelegatorReward(for address: String, fromValidator: String, completion:((RestResult<[TxFeeAmount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/delegators/\(address)/rewards/\(fromValidator)", delegate: self, reqMethod: "GET", singleItemResponse: false, completion: completion)
+    }
+
+    public func getDelegatorRewardV2(for address: String, fromValidator: String, completion:((RestResult<[TxFeeAmountResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/delegators/\(address)/rewards/\(fromValidator)", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
     }
 
     public func withdrawReward(to address: String, fromValidator: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {

@@ -334,46 +334,92 @@ public protocol GaiaGovernaceCapable {
 extension GaiaGovernaceCapable {
     
     public func retrieveAllPropsals(node: TDMNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->()) {
-        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        
-        restApi.getPorposals { result in
-            switch result {
-            case .success(let data):
-                var gaiaPropsals: [GaiaProposal] = []
-                for proposal in data {
-                    gaiaPropsals.append(GaiaProposal(proposal: proposal))
+        switch node.type {
+        case .cosmos:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getPorposals { result in
+                switch result {
+                case .success(let data):
+                    var gaiaPropsals: [GaiaProposal] = []
+                    for proposal in data {
+                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
+                    }
+                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
-                DispatchQueue.main.async { completion(gaiaPropsals, nil) }
-            case .failure(let error):
-                DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            }
+        case .iris: break
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getPorposalsV2 { result in
+                switch result {
+                case .success(let data):
+                    var gaiaPropsals: [GaiaProposal] = []
+                    for proposal in data.first?.result ?? [] {
+                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
+                    }
+                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
             }
         }
     }
     
     public func getPropsalDetails(node: TDMNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->()) {
-        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
-        restApi.getPorposalTally(forId: proposal.proposalId) { result in
-            switch result {
-            case .success(let data):
-                if let tally = data.first {
-                    proposal.yes = tally.yes ?? "0"
-                    proposal.no = tally.no ?? "0"
-                    proposal.abstain = tally.abstain ?? "0"
-                    proposal.noWithVeto = tally.noWithVeto ?? "0"
-                }
-                restApi.getPorposalVotes(forId: proposal.proposalId) { result in
-                    switch result {
-                    case .success(let data):
-                        proposal.votes = data
-                        DispatchQueue.main.async { completion(proposal, nil) }
-                    case .failure(let error):
-                        DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+        switch node.type {
+        case .cosmos:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getPorposalTally(forId: proposal.proposalId) { result in
+                switch result {
+                case .success(let data):
+                    if let tally = data.first {
+                        proposal.yes = tally.yes ?? "0"
+                        proposal.no = tally.no ?? "0"
+                        proposal.abstain = tally.abstain ?? "0"
+                        proposal.noWithVeto = tally.noWithVeto ?? "0"
                     }
+                    restApi.getPorposalVotes(forId: proposal.proposalId) { result in
+                        switch result {
+                        case .success(let data):
+                            proposal.votes = data
+                            DispatchQueue.main.async { completion(proposal, nil) }
+                        case .failure(let error):
+                            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                        }
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
-            case .failure(let error):
-                DispatchQueue.main.async { completion(nil, error.localizedDescription) }
             }
+
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getPorposalTallyV2(forId: proposal.proposalId) { result in
+                switch result {
+                case .success(let data):
+                    if let tally = data.first?.result {
+                        proposal.yes = tally.yes ?? "0"
+                        proposal.no = tally.no ?? "0"
+                        proposal.abstain = tally.abstain ?? "0"
+                        proposal.noWithVeto = tally.noWithVeto ?? "0"
+                    }
+                    restApi.getPorposalVotesV2(forId: proposal.proposalId) { result in
+                        switch result {
+                        case .success(let data):
+                            proposal.votes = data.first?.result ?? []
+                            DispatchQueue.main.async { completion(proposal, nil) }
+                        case .failure(let error):
+                            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                        }
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
+
         }
     }
 

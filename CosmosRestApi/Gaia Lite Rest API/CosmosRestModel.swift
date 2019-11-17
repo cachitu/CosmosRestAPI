@@ -140,7 +140,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
             switch result {
             case .success(let data):
                 if let item = data.first {
-                    let gaiaAcc = GaiaAccount(irisAccount: item, gaiaKey: gaiaKey, stakeDenom: "iris")
+                    let gaiaAcc = GaiaAccount(irisAccount: item, gaiaKey: gaiaKey, stakeDenom: "iris-atto")
                     DispatchQueue.main.async {
                         completion?(gaiaAcc, nil)
                     }
@@ -344,34 +344,59 @@ public class GaiaKey: CustomStringConvertible, Codable {
     }
 
     public func queryValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: ValidatorRewards?, _ message: String?) -> ())) {
-        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getValidatorRewards(from: validator) { result in
-            switch result {
-            case .success(let rewards):
-                DispatchQueue.main.async { completion(rewards.first, nil) }
-            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+        switch node.type {
+        case .cosmos, .terra:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getValidatorRewards(from: validator) { result in
+                switch result {
+                case .success(let rewards):
+                    DispatchQueue.main.async { completion(rewards.first, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
             }
-        }
-    }
+        case .iris:
+            let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getValidatorRewards(from: self.address) { result in
+                switch result {
+                case .success(let rewards):
+                    let converted = ValidatorRewards(operatorAddress: self.address, selfBondRewards: rewards.first?.total, valCommission: nil)
+                    DispatchQueue.main.async { completion(converted, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getValidatorRewardsV2(from: validator) { result in
+                switch result {
+                case .success(let rewards):
+                    DispatchQueue.main.async { completion(rewards.first?.result, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
 
-    public func queryIrisValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: IrisRewards?, _ message: String?) -> ())) {
-        let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getValidatorRewards(from: validator) { result in
-            switch result {
-            case .success(let rewards):
-                DispatchQueue.main.async { completion(rewards.first, nil) }
-            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-            }
         }
     }
 
     public func queryDelegationRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: TxFeeAmount?, _ message: String?) -> ())) {
-        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getDelegatorReward(for: self.address, fromValidator: validator) { result in
-            switch result {
-            case .success(let rewards):
-                DispatchQueue.main.async { completion(rewards.first, nil) }
-            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+        switch node.type {
+        case .cosmos, .terra:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getDelegatorReward(for: self.address, fromValidator: validator) { result in
+                switch result {
+                case .success(let rewards):
+                    DispatchQueue.main.async { completion(rewards.first, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
+            
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getDelegatorRewardV2(for: self.address, fromValidator: validator) { result in
+                switch result {
+                case .success(let rewards):
+                    DispatchQueue.main.async { completion(rewards.first?.result?.first, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
             }
         }
     }
@@ -505,7 +530,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.feeAmount = 0.0
         self.feeDenom = irisAccount.value?.coins?.first?.denom ?? "fee token?"
         self.gaiaKey = gaiaKey
-        self.assets = irisAccount.value?.coins ?? [Coin(amount: amountString, denom: "iris")]
+        self.assets = irisAccount.value?.coins ?? [Coin(amount: amountString, denom: "iris-atto")]
         self.noFeeToken = true
     }
 //    public var description: String {
@@ -603,4 +628,20 @@ public class GaiaProposal {
         let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"
     }
+    
+    public init(proposal: ProposalV2) {
+        self.title       = proposal.content?.value?.title ?? "-"
+        self.description = proposal.content?.value?.description ?? "-"
+        self.type        = proposal.content?.proposalType ?? ""
+        self.status      = proposal.proposalStatus ?? ""
+        self.yes         = proposal.tallyResult?.yes ?? "0"
+        self.abstain     = proposal.tallyResult?.abstain ?? "0"
+        self.no          = proposal.tallyResult?.no ?? "0"
+        self.noWithVeto  = proposal.tallyResult?.noWithVeto ?? "0"
+        self.proposalId  = proposal.proposalId ?? "0"
+        let depAmount = proposal.totalDeposit?.first?.amount ?? "0"
+        let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
+        self.totalDepopsit = "\(depAmount) \(depDenom)"
+    }
+
 }

@@ -115,18 +115,37 @@ public class TDMNode: Codable {
     }
 
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
-        let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
-        restApi.getStakeParameters() { [weak self] result in
-            var denom: String? = nil
-            switch result {
-            case .success(let data):
-                denom = data.first?.bondDenom
-                self?.stakeDenom = denom ?? "stake"
-            case .failure(_): break
+        switch self.type {
+        case .cosmos, .terra:
+            let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
+            restApi.getStakeParameters() { [weak self] result in
+                var denom: String? = nil
+                switch result {
+                case .success(let data):
+                    denom = data.first?.bondDenom
+                    self?.stakeDenom = denom ?? "stake"
+                case .failure(_): break
+                }
+                DispatchQueue.main.async {
+                    completion?(denom)
+                }
             }
-            DispatchQueue.main.async {
-                completion?(denom)
+
+        default:
+            let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
+            restApi.getStakeParametersV2() { [weak self] result in
+                var denom: String? = nil
+                switch result {
+                case .success(let data):
+                    denom = data.first?.result?.bondDenom
+                    self?.stakeDenom = denom ?? "stake"
+                case .failure(_): break
+                }
+                DispatchQueue.main.async {
+                    completion?(denom)
+                }
             }
+
         }
     }
 }

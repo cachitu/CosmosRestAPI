@@ -355,6 +355,17 @@ public struct TxValueFee: Codable {
     }
 }
 
+public struct TxFeeAmountResult: Codable {
+    
+    public let height: String?
+    public let result: [TxFeeAmount]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
 public struct TxFeeAmount: Codable {
     
     public let amount: String?
@@ -1035,6 +1046,17 @@ public struct DelegatorValidator: Codable {
     }
 }
 
+public struct ValidatorRewardsResult: Codable {
+    
+    public let height: String?
+    public let result: ValidatorRewards?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
 public struct ValidatorRewards: Codable {
     
     public let operatorAddress: String?
@@ -1089,6 +1111,17 @@ public struct StakePool: Codable {
     }
 }
 
+public struct StakeParametersResult: Codable {
+    
+    public let height: String?
+    public let result: StakeParameters?
+
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
 public struct StakeParameters: Codable {
     
     public let unbondingTime: String?
@@ -1131,12 +1164,47 @@ public struct ProposalObsolete: Codable {
     }
 }
 
+public struct ProposalResult: Codable {
+    public let height: String?
+    public let result: [ProposalV2]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct ProposalV2: Codable {
+    
+    public let content: ProposalContent?
+    public let proposalId: String?
+    public let proposalStatus: String?
+    public var tallyResult: ProposalTallyData?
+    public let submitTime: String?
+    public let depositEndTime: String?
+    public let totalDeposit: [TxFeeAmount]?
+    public let votingStartTime: String?
+    public let votingEndTime: String?
+
+    enum CodingKeys : String, CodingKey {
+        case content
+        case proposalId = "id"
+        case proposalStatus = "proposal_status"
+        case tallyResult = "final_tally_result"
+        case submitTime = "submit_time"
+        case depositEndTime = "deposit_end_time"
+        case totalDeposit = "total_deposit"
+        case votingStartTime = "voting_start_time"
+        case votingEndTime = "voting_end_time"
+   }
+}
+
 public struct Proposal: Codable {
     
     public let content: ProposalContent?
     public let proposalId: String?
     public let proposalStatus: String?
-    public var tallyResult: ProposalTallyResult?
+    public var tallyResult: ProposalTallyData?
     public let submitTime: String?
     public let depositEndTime: String?
     public let totalDeposit: [TxFeeAmount]?
@@ -1179,6 +1247,17 @@ public struct ProposalContentValue: Codable {
 }
 
 public struct ProposalTallyResult: Codable {
+    
+    public let height: String?
+    public let result: ProposalTallyData?
+
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct ProposalTallyData: Codable {
     
     public let yes: String?
     public let abstain: String?
@@ -1270,6 +1349,17 @@ public struct ProposalDeposit: Codable {
         case proposalId = "proposal_id"
         case amount
      }
+}
+
+public struct ProposalVoteResult: Codable {
+    
+    public let height: String?
+    public var result: [ProposalVote]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
 }
 
 public struct ProposalVote: Codable {
