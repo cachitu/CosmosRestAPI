@@ -69,36 +69,7 @@ public class TDMNode: Codable {
     
     public func getNodeInfo(completion: (() -> ())?) {
         switch type {
-        case .iris:
-            IrisRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
-                            switch result {
-                case .success(let data):
-                    self?.network = data.first?.network ?? ""
-                    self?.nodeID = data.first?.id ?? ""
-                    self?.version = data.first?.version ?? ""
-                case .failure(_):
-                    self?.state = .unknown
-                }
-                DispatchQueue.main.async {
-                    completion?()
-                }
-            }
-        case .kava, .cosmosTestnet, .bitsong:
-            KavaRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
-                            switch result {
-                case .success(let data):
-                    self?.network = data.first?.nodeInfo?.network ?? ""
-                    self?.nodeID = data.first?.nodeInfo?.id ?? ""
-                    self?.version = data.first?.nodeInfo?.version ?? ""
-                case .failure(_):
-                    self?.state = .unknown
-                }
-                DispatchQueue.main.async {
-                    completion?()
-                }
-            }
-
-        default:
+        case .cosmos, .terra:
             CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
                 switch result {
                 case .success(let data):
@@ -112,9 +83,38 @@ public class TDMNode: Codable {
                     completion?()
                 }
             }
+        case .iris:
+            IrisRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
+                switch result {
+                case .success(let data):
+                    self?.network = data.first?.network ?? ""
+                    self?.nodeID = data.first?.id ?? ""
+                    self?.version = data.first?.version ?? ""
+                case .failure(_):
+                    self?.state = .unknown
+                }
+                DispatchQueue.main.async {
+                    completion?()
+                }
+            }
+        default:
+            KavaRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
+                switch result {
+                case .success(let data):
+                    self?.network = data.first?.nodeInfo?.network ?? ""
+                    self?.nodeID = data.first?.nodeInfo?.id ?? ""
+                    self?.version = data.first?.nodeInfo?.version ?? ""
+                case .failure(_):
+                    self?.state = .unknown
+                }
+                DispatchQueue.main.async {
+                    completion?()
+                }
+            }
+            
         }
     }
-
+    
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
         switch self.type {
         case .cosmos, .terra:
@@ -131,7 +131,7 @@ public class TDMNode: Codable {
                     completion?(denom)
                 }
             }
-
+            
         default:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
             restApi.getStakeParametersV2() { [weak self] result in
@@ -146,7 +146,7 @@ public class TDMNode: Codable {
                     completion?(denom)
                 }
             }
-
+            
         }
     }
 }

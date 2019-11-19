@@ -774,6 +774,25 @@ public struct TransferBaseReq: Codable {
     }
 }
 
+public struct TransferResponseV2: Codable {
+    
+    public let height: String?
+    public let hash: String?
+    public let gasWanted: String?
+    public let gasUsed: String?
+    public let logs: [RespLogV2]?
+    public let tags: [TrResultTag]?
+
+    enum CodingKeys : String, CodingKey {
+        case hash = "txhash"
+        case height
+        case gasWanted = "gas_used"
+        case gasUsed = "gas_wanted"
+        case logs
+        case tags = "events"
+    }
+}
+
 public struct TransferResponse: Codable {
     
     public let height: String?
@@ -785,6 +804,15 @@ public struct TransferResponse: Codable {
     public let logs: [RespLog]?
     public let tags: [TrResultTag]?
 
+    init(v2: TransferResponseV2) {
+        self.height = v2.height
+        self.hash = v2.hash
+        self.gasWanted = v2.gasWanted
+        self.gasUsed = v2.gasUsed
+        self.logs = nil//v2.logs
+        self.tags = v2.tags
+    }
+    
     enum CodingKeys : String, CodingKey {
         //case checkTx = "check_tx"
         //case deliverTx =  "deliver_tx"
@@ -794,6 +822,19 @@ public struct TransferResponse: Codable {
         case gasUsed = "gas_wanted"
         case logs
         case tags
+    }
+}
+
+public struct RespLogV2: Codable {
+    
+    public let msg_index: Int?
+    public let success: Bool?
+    public let log: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case msg_index
+        case success
+        case log
     }
 }
 

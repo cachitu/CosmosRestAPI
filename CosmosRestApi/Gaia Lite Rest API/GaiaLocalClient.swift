@@ -90,12 +90,27 @@ public class GaiaLocalClient {
             
             //DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
             if let bcData = signed {
-                restApi.broadcast(transferData: bcData) { result in
-                    switch result {
-                    case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
-                    case .failure(let error):
-                        print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
-                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                switch node.type {
+                case .cosmos, .terra:
+                    restApi.broadcast(transferData: bcData) { result in
+                        switch result {
+                        case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
+                        case .failure(let error):
+                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
+                    
+                default:
+                    restApi.broadcastV2(transferData: bcData) { result in
+                        switch result {
+                        case .success(let data):
+                            let resp = TransferResponse(v2: data.first!)
+                            DispatchQueue.main.async { completion?(resp, nil) }
+                        case .failure(let error):
+                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
                     }
                 }
             } else {

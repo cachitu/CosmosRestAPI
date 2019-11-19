@@ -100,12 +100,15 @@ extension RestNetworking {
         
         let task = session.dataTask(with: request) { (responseData, response, responseError) in
             DispatchQueue.main.async {
-                print(Resp.self)
+                print("Req completed: ", Resp.self)
                 if let error = responseError as NSError? {
                     completion?(.failure(error))
                 } else if let jsonData = responseData {
                     
                     let rsData = String(data: jsonData, encoding: String.Encoding.utf8)
+                    print("Resp body ------->")
+                    print(rsData ?? "")
+                    print("Resp body <-------")
                     if rsData == "null" {
                         completion?(.success([]))
                         return
