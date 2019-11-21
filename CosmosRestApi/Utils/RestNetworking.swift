@@ -57,6 +57,8 @@ extension RestNetworking {
         completion: ((RestResult<[Resp]>) -> Void)?)
     {
         
+        let debug = true
+        
         var urlComponents = URLComponents()
         urlComponents.scheme = connData.scheme
         urlComponents.host = connData.host
@@ -98,17 +100,28 @@ extension RestNetworking {
         
         let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
         
+        if debug {
+            print("Req will start: \(url.absoluteString)")
+            print("Req post body ------->")
+            let body = String(data: request.httpBody ?? Data(), encoding: String.Encoding.utf8)
+            print(body ?? "-")
+            print("Req post body <-------")
+        }
+
         let task = session.dataTask(with: request) { (responseData, response, responseError) in
             DispatchQueue.main.async {
-                print("Req completed: ", Resp.self)
                 if let error = responseError as NSError? {
                     completion?(.failure(error))
                 } else if let jsonData = responseData {
                     
                     let rsData = String(data: jsonData, encoding: String.Encoding.utf8)
-                    print("Resp body ------->")
-                    print(rsData ?? "")
-                    print("Resp body <-------")
+                    if debug {
+                        print("Req completed \(response?.url?.path ?? "/"): ", Resp.self)
+                        print("Resp body ------->")
+                        print(rsData ?? "")
+                        print("Resp body <-------")
+
+                    }
                     if rsData == "null" {
                         completion?(.success([]))
                         return
@@ -153,3 +166,4 @@ extension RestNetworking {
     }
     
 }
+
