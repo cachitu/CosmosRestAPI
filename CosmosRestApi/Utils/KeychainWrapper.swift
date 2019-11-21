@@ -1,6 +1,5 @@
 //
 //  KeychainWrapper.swift
-//  IPSX
 //
 //  Created by Cristina Virlan on 02/05/2018.
 //  Copyright (c) 2014 Jason Rendel. All rights reserved.

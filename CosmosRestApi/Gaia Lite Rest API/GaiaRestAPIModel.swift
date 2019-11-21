@@ -1052,11 +1052,66 @@ public struct RedelegationPostData: Codable {
 public struct DelegatorValidatorResult: Codable {
 
 public let height: String?
-public let result: [DelegatorValidator]?
+public let result: [DelegatorValidatorV2]?
 
 enum CodingKeys : String, CodingKey {
     case height
     case result
+    }
+}
+
+public struct DelegatorValidatorV2: Codable {
+    
+    public let operatorAddress: String?
+    public let consensus_pubkey: String?
+    public let jailed: Bool?
+    public let status: Int?
+    public let tokens: String?
+    public let delegatorShares: String?
+    public let description: ValidatorDesc?
+    public let bondHeight: String?
+    public let unbondingHeight: String?
+    public let unbondingTime: String?
+    public let commission: ValidatorComissionV2Res?
+    public let minSelfDelegation: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case operatorAddress = "operator_address"
+        case consensus_pubkey = "consensus_pubkey"
+        case jailed
+        case status
+        case tokens
+        case delegatorShares = "delegator_shares"
+        case description
+        case bondHeight = "bond_height"
+        case unbondingHeight = "unbonding_height"
+        case unbondingTime = "unbonding_time"
+        case commission
+        case minSelfDelegation = "min_self_delegation"
+    }
+}
+
+public struct ValidatorComissionV2Res: Codable {
+    
+    public let commissionRates: ValidatorComissionV2?
+    public let updateTime: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case commissionRates = "commission_rates"
+        case updateTime = "update_time"
+    }
+}
+
+public struct ValidatorComissionV2: Codable {
+    
+    public let rate: String?
+    public let maxRate: String?
+    public let maxChangeRate: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case rate
+        case maxRate = "max_rate"
+        case maxChangeRate = "max_change_rate"
     }
 }
 
@@ -1118,12 +1173,14 @@ public struct ValidatorDesc: Codable {
     public let moniker: String?
     public let identity: String?
     public let website: String?
+    public let securityContact: String?
     public let details: String?
     
     enum CodingKeys : String, CodingKey {
         case moniker
         case identity
         case website
+        case securityContact = "security_contact"
         case details
     }
 }

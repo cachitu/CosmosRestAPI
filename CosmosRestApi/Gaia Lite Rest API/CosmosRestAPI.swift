@@ -166,6 +166,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
+    public func getStakeValidatorV2(for valAddress: String, completion: ((RestResult<[DelegatorValidatorV2]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func getStakeValidatorDelegations(for valAddress: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)/delegations", delegate: self, singleItemResponse: false, completion: completion)
     }

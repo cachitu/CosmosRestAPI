@@ -105,8 +105,13 @@ public class GaiaLocalClient {
                     restApi.broadcastV2(transferData: bcData) { result in
                         switch result {
                         case .success(let data):
-                            let resp = TransferResponse(v2: data.first!)
-                            DispatchQueue.main.async { completion?(resp, nil) }
+                            if data.first?.logs?.first?.success == true {
+                                let resp = TransferResponse(v2: data.first!)
+                                DispatchQueue.main.async { completion?(resp, nil) }
+                            } else {
+                                print(" -> [FAIL] - Broadcast", data.first?.logs?.first?.log ?? "", ", code: ", -1)
+                                DispatchQueue.main.async { completion?(nil, data.first?.logs?.first?.log ?? "Unknown") }
+                            }
                         case .failure(let error):
                             print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }

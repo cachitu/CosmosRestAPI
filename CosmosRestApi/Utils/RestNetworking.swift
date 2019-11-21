@@ -52,7 +52,7 @@ extension RestNetworking {
         delegate: URLSessionDelegate? = nil,
         reqMethod: String = "GET",
         singleItemResponse: Bool = false,
-        timeout: Double = 20,
+        timeout: Double = 60,
         queryItems: [URLQueryItem]? = nil,
         completion: ((RestResult<[Resp]>) -> Void)?)
     {
