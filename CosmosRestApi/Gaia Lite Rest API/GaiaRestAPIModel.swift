@@ -405,6 +405,7 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     public let proposer: String?
     public let voter: String?
     public let option: String?
+    public let content: ProposalContent?
     public let initialDeposit: [TxFeeAmount]?
     public let delegation: TxFeeAmount?
     public let amount: DynamicAmount?
@@ -459,6 +460,7 @@ public struct TxMsgVal: Codable, PropertyLoopable {
         case proposer
         case voter
         case option
+        case content
         case initialDeposit = "initial_deposit"
         case delegation
         case amount
