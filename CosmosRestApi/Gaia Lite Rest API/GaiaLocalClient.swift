@@ -30,6 +30,8 @@ public protocol KeysClientDelegate: AnyObject {
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
     func deleteKey(with name: String, password: String) -> NSError?
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
+    func signIris(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
+
 }
 
 public class GaiaLocalClient {
@@ -73,13 +75,26 @@ public class GaiaLocalClient {
     
     public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, completion: ((SignedTx?, String?) -> ())?) {
         
-        delegate?.sign(transferData: tx, account: account, node: node) { response in
-            switch response {
-            case .success(let data):
-                completion?(SignedTx(tx: data.first), nil)
-            case .failure(let error):
-                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                completion?(nil, error.localizedDescription)
+        switch node.type {
+        case .iris:
+            delegate?.signIris(transferData: tx, account: account, node: node) { response in
+                switch response {
+                case .success(let data):
+                    completion?(SignedTx(tx: data.first), nil)
+                case .failure(let error):
+                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                    completion?(nil, error.localizedDescription)
+                }
+            }
+        default:
+            delegate?.sign(transferData: tx, account: account, node: node) { response in
+                switch response {
+                case .success(let data):
+                    completion?(SignedTx(tx: data.first), nil)
+                case .failure(let error):
+                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                    completion?(nil, error.localizedDescription)
+                }
             }
         }
     }
