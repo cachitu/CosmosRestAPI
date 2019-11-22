@@ -104,7 +104,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
                     }
                 }
             }
-        case .iris: getIrisAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+        case .iris:
+            getIrisAccount(node: node, gaiaKey: gaiaKey, completion: completion)
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccountV2(address: self.address) { [weak self] result in
@@ -151,7 +152,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
-                    let message = error.code == 204 ? nil : error.localizedDescription
+                    let message = error.code == 204 ? "Account not found" : error.localizedDescription
                     completion?(nil, message)
                 }
             }
@@ -660,6 +661,22 @@ public class GaiaProposal {
         self.proposalId  = proposal.proposalId ?? "0"
         let depAmount = proposal.totalDeposit?.first?.amount ?? "0"
         let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
+        self.totalDepopsit = "\(depAmount) \(depDenom)"
+    }
+
+    public init(proposal: IrisProposal) {
+        let data = proposal.value?.basicProposal
+        self.title       = data?.title ?? "-"
+        self.description = data?.description ?? "-"
+        self.type        = data?.proposaltype ?? ""
+        self.status      = data?.proposalStatus ?? ""
+        self.yes         = data?.tallyResult?.yes ?? "0"
+        self.abstain     = data?.tallyResult?.abstain ?? "0"
+        self.no          = data?.tallyResult?.no ?? "0"
+        self.noWithVeto  = data?.tallyResult?.noWithVeto ?? "0"
+        self.proposalId  = data?.proposalId ?? "0"
+        let depAmount = data?.totalDeposit?.first?.amount ?? "0"
+        let depDenom = data?.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"
     }
 

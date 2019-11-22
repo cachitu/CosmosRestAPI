@@ -349,7 +349,20 @@ extension GaiaGovernaceCapable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .iris: break
+        case .iris:
+            let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getPorposals { result in
+                switch result {
+                case .success(let data):
+                    var gaiaPropsals: [GaiaProposal] = []
+                    for proposal in data {
+                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
+                    }
+                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalsV2 { result in

@@ -100,7 +100,16 @@ public class GaiaLocalClient {
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                         }
                     }
-                    
+                case .iris:
+                    restApi.broadcastIris(transferData: bcData) { result in
+                        switch result {
+                        case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
+                        case .failure(let error):
+                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
+
                 default:
                     restApi.broadcastV2(transferData: bcData) { result in
                         switch result {

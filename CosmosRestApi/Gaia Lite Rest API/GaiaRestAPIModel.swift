@@ -1422,17 +1422,20 @@ public struct ProposalDepositPostData: Codable {
 public struct ProposalVotePostData: Codable {
     
     public let baseReq: TransferBaseReq?
+    public let baseTx: IrisBaseReq?
     public let voter: String?
     public var option: String?
-    
+
     public init(keyName: String, memo: String, chain: String, accNum: String, sequence: String, voter: String, option: String, fees: [TxFeeAmount]?) {
         self.baseReq = TransferBaseReq(name: keyName, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
+        self.baseTx = IrisBaseReq(chainId: chain, gas: "20000", fee: "0.4iris", memo: memo)
         self.voter = voter
         self.option = option
     }
     
     enum CodingKeys : String, CodingKey {
         case baseReq = "base_req"
+        case baseTx = "base_tx"
         case voter
         case option
     }
