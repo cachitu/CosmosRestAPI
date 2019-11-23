@@ -43,7 +43,7 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, completion: completion)
     }
 
-    public func getValidatorRewards(from validator: String, completion:((RestResult<[IrisRewards]>) -> Void)?) {
+    public func getRewards(from validator: String, completion:((RestResult<[IrisRewards]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/\(validator)/rewards", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
     }
     

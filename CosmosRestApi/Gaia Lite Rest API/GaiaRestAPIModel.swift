@@ -922,6 +922,17 @@ public struct DelegationsResult: Codable {
     }
 }
 
+public struct DelegationResult: Codable {
+    
+    public let result: [Delegation]?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case result
+        case height
+    }
+}
+
 public struct Delegation: Codable {
     
     public let delegatorAddr: String?
@@ -967,7 +978,7 @@ public struct UnbondingDelegation: Codable {
     public let balance: TxFeeAmount?
     public let initialBalance: TxFeeAmount?
     public let minTime: String?
-
+    
     enum CodingKeys : String, CodingKey {
         case delegatorAddr = "delegator_addr"
         case validatorAddr = "validator_addr"
