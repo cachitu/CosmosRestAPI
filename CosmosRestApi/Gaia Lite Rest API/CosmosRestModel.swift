@@ -402,11 +402,11 @@ public class GaiaKey: CustomStringConvertible, Codable {
         }
     }
     
-    public func queryDelegationRewards(node: TDMNode, delegator: String, completion: @escaping ((_ delegations: Int?, _ message: String?) -> ())) {
+    public func queryDelegationRewards(node: TDMNode, validatorAddr: String, completion: @escaping ((_ delegations: Int?, _ message: String?) -> ())) {
         switch node.type {
         case .cosmos:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getDelegatorReward(for: self.address, fromValidator: validator) { result in
+            restApi.getDelegatorReward(for: self.address, fromValidator: validatorAddr) { result in
                 switch result {
                 case .success(let rewards):
                     let amount = rewards.first?.amount?.split(separator: ".").first
@@ -420,7 +420,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
             
         case .terra:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getDelegatorReward(for: self.address, fromValidator: validator) { result in
+            restApi.getDelegatorReward(for: self.address, fromValidator: validatorAddr) { result in
                 switch result {
                 case .success(let rewards):
                     let amount = rewards.filter { $0.denom ==  "uluna" }.first?.amount?.split(separator: ".").first
@@ -432,7 +432,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
             }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getDelegatorRewardV2(for: self.address, fromValidator: validator) { result in
+            restApi.getDelegatorRewardV2(for: self.address, fromValidator: validatorAddr) { result in
                 switch result {
                 case .success(let rewards):
                     let amount = rewards.first?.result?.first?.amount?.split(separator: ".").first
