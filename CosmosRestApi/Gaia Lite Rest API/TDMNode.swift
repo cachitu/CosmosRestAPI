@@ -31,7 +31,7 @@ public class TDMNode: Codable {
     public var name: String
     public var scheme: String
     public var host: String
-    public var rcpPort: Int
+    public var rcpPort: Int?
     public var network: String = ""
     public var nodeID: String = ""
     public var version: String = ""

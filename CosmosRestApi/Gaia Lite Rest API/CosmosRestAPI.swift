@@ -21,7 +21,7 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     let connectData: ConnectData
     
-    public init(scheme: String = "https", host: String = "localhost", port: Int = 1317) {
+    public init(scheme: String = "https", host: String = "localhost", port: Int? = nil) {
         connectData = ConnectData(scheme: scheme, host: host, port: port)
         super.init()
     }

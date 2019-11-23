@@ -14,7 +14,7 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     let connectData: ConnectData
     
-    public init(scheme: String = "http", host: String = "localhost", port: Int = 1327) {
+    public init(scheme: String = "http", host: String = "localhost", port: Int? = nil) {
         connectData = ConnectData(scheme: scheme, host: host, port: port)
         super.init()
     }
