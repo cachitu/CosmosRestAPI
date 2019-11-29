@@ -20,6 +20,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case iris = "Iris Network"
     case terra = "Terra Money"
     case terra_118 = "Terra Old HD"
+    case terraTestnet = "Terra Testnet"
     case kava = "Kava Network"
     case cosmosTestnet = "Cosmos Testnet"
     case bitsong = "Bitsong Testnet"

@@ -582,7 +582,8 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         switch type {
         case .cosmos, .cosmosTestnet: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Atom")
         case .iris: return String.localizedStringWithFormat("%.2f %@", amount / (1000000000000000000), "Iris")
-        case .terra, .terra_118: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Luna")
+        case .terra, .terra_118, .terraTestnet:
+            return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Luna")
         case .kava: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Kava")
         case .bitsong: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Btsg")
         }
