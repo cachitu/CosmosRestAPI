@@ -19,6 +19,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case cosmos = "Cosmos Hub"
     case iris = "Iris Network"
     case terra = "Terra Money"
+    case terra_118 = "Terra Old HD"
     case kava = "Kava Network"
     case cosmosTestnet = "Cosmos Testnet"
     case bitsong = "Bitsong Testnet"
@@ -69,7 +70,7 @@ public class TDMNode: Codable {
     
     public func getNodeInfo(completion: (() -> ())?) {
         switch type {
-        case .cosmos, .terra:
+        case .cosmos, .terra, .terra_118:
             CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
                 switch result {
                 case .success(let data):
@@ -117,7 +118,7 @@ public class TDMNode: Codable {
     
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
         switch self.type {
-        case .cosmos, .terra:
+        case .cosmos, .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
             restApi.getStakeParameters() { [weak self] result in
                 var denom: String? = nil

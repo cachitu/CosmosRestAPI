@@ -78,7 +78,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
     
     public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .cosmos, .terra:
+        case .cosmos, .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccount(address: self.address) { [weak self] result in
                 switch result {
@@ -161,7 +161,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
 
     private func getVestedAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .cosmos, .terra:
+        case .cosmos, .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getVestedAccount(address: self.address) { result in
                 switch result {
@@ -296,7 +296,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
 
     public func getDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         switch node.type {
-        case .cosmos, .terra:
+        case .cosmos, .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegations(for: self.address) { result in
                 switch result {
@@ -359,7 +359,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .terra:
+        case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getValidatorRewards(from: validator) { result in
                 switch result {
@@ -418,7 +418,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
             }
         case .iris:  DispatchQueue.main.async { completion(0, nil) }
             
-        case .terra:
+        case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegatorReward(for: self.address, fromValidator: validatorAddr) { result in
                 switch result {
@@ -582,7 +582,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         switch type {
         case .cosmos, .cosmosTestnet: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Atom")
         case .iris: return String.localizedStringWithFormat("%.2f %@", amount / (1000000000000000000), "Iris")
-        case .terra: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Luna")
+        case .terra, .terra_118: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Luna")
         case .kava: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Kava")
         case .bitsong: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Btsg")
         }
