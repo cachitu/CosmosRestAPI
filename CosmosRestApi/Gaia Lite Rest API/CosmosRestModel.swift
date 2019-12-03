@@ -51,6 +51,10 @@ public class GaiaKey: CustomStringConvertible, Codable {
     public let pubValidator: String
     public let nodeId: String
     
+    public var identifier: String {
+        return name + type + address + nodeId
+    }
+    
     public var password: String {
         return getPassFromKeychain() ?? ""
     }
@@ -104,7 +108,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
                     }
                 }
             }
-        case .iris:
+        case .iris, .iris_fuxi:
             getIrisAccount(node: node, gaiaKey: gaiaKey, completion: completion)
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
@@ -219,7 +223,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
     }
     
     public func deleteKey(node: TDMNode, clientDelegate: KeysClientDelegate, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
-        let kdata = KeyPostData(name: self.address, pass: password, seed: nil)
+        let kdata = KeyPostData(name: self.name, address: self.address, pass: password, seed: nil)
         
         GaiaLocalClient(delegate: clientDelegate).deleteKey(keyData: kdata, completion: { result in
             switch result {
@@ -310,7 +314,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
                 case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .iris: getIrisDelegations(node: node, completion: completion)
+        case .iris, .iris_fuxi:
+            getIrisDelegations(node: node, completion: completion)
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegationsV2(for: self.address) { result in
@@ -371,7 +376,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .iris:
+        case .iris, .iris_fuxi:
             let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getRewards(from: self.address) { result in
                 switch result {
@@ -416,7 +421,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .iris:  DispatchQueue.main.async { completion(0, nil) }
+        case .iris, .iris_fuxi:
+            DispatchQueue.main.async { completion(0, nil) }
             
         case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
@@ -446,27 +452,27 @@ public class GaiaKey: CustomStringConvertible, Codable {
     }
 
     public func savePassToKeychain(pass: String) {
-        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-password-\(address)-\(name)")
+        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-password-\(address)-\(name)-\(nodeId)")
     }
     
     public func getPassFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-password-\(address)-\(name)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-password-\(address)-\(name)-\(nodeId)")
     }
 
     public func forgetPassFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-password-\(address)-\(name)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-password-\(address)-\(name)-\(nodeId)")
     }
 
     public func saveMnemonicToKeychain(seed: String) {
-        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-mnemonic-\(address)-\(name)")
+        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-mnemonic-\(address)-\(name)-\(nodeId)")
     }
     
     public func getMnemonicFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-mnemonic-\(address)-\(name)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-mnemonic-\(address)-\(name)-\(nodeId)")
     }
     
     public func forgetMnemonicFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-mnemonic-\(address)-\(name)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-mnemonic-\(address)-\(name)-\(nodeId)")
     }
 
     public var description: String {
@@ -580,8 +586,10 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     
     public func firendlyAmountAndDenom(for type: TDMNodeType) -> String {
         switch type {
-        case .cosmos, .cosmosTestnet: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Atom")
-        case .iris: return String.localizedStringWithFormat("%.2f %@", amount / (1000000000000000000), "Iris")
+        case .cosmos, .cosmosTestnet:
+            return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Atom")
+        case .iris, .iris_fuxi:
+            return String.localizedStringWithFormat("%.2f %@", amount / (1000000000000000000), "Iris")
         case .terra, .terra_118, .terraTestnet:
             return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Luna")
         case .kava: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Kava")

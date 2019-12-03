@@ -28,7 +28,7 @@ public protocol KeysClientDelegate: AnyObject {
     func getSavedKeys() -> [GaiaKey]
     func generateMnemonic() -> String
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
-    func deleteKey(with name: String, password: String) -> NSError?
+    func deleteKey(with name: String, address: String, password: String) -> NSError?
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
     func signIris(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
 
@@ -62,7 +62,7 @@ public class GaiaLocalClient {
     }
     
     public func deleteKey(keyData: KeyPostData, completion:((RestResult<[String]>) -> Void)?) {
-        if let error = delegate?.deleteKey(with: keyData.name, password: keyData.password ?? "") {
+        if let error = delegate?.deleteKey(with: keyData.name, address: keyData.address, password: keyData.password ?? "") {
             completion?(.failure(error))
         } else {
             completion?(.success(["Key \(keyData.name) deleted"]))
@@ -76,7 +76,7 @@ public class GaiaLocalClient {
     public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, completion: ((SignedTx?, String?) -> ())?) {
         
         switch node.type {
-        case .iris:
+        case .iris, .iris_fuxi:
             delegate?.signIris(transferData: tx, account: account, node: node) { response in
                 switch response {
                 case .success(let data):
@@ -115,7 +115,7 @@ public class GaiaLocalClient {
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                         }
                     }
-                case .iris:
+                case .iris, .iris_fuxi:
                     restApi.broadcastIris(transferData: bcData) { result in
                         switch result {
                         case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }

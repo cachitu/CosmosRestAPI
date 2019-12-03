@@ -244,7 +244,7 @@ extension GaiaKeysManagementCapable {
     }
     
     func createGaiaKey(clientDelegate: KeysClientDelegate, name: String, pass: String, seed: String, completion: @escaping (_ data: TDMKey?, _ seed: String?, _ errMsg: String?)->()) {
-        let kdata = KeyPostData(name: name, pass: pass, seed: seed)
+        let kdata = KeyPostData(name: name, address: "", pass: pass, seed: seed)
         GaiaLocalClient(delegate: clientDelegate).recoverKey(keyData: kdata, completion: { result in
             switch result {
             case .success(let data):
@@ -283,7 +283,8 @@ extension GaiaValidatorsCapable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .iris: retrieveIrisValidators(node: node, completion: completion)
+        case .iris, .iris_fuxi:
+            retrieveIrisValidators(node: node, completion: completion)
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
              restApi.getStakeValidatorsV2 { result in
@@ -349,7 +350,7 @@ extension GaiaGovernaceCapable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .iris:
+        case .iris, .iris_fuxi:
             let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposals { result in
                 switch result {

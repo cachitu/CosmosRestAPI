@@ -561,17 +561,20 @@ public struct Keys: PersistCodable {
 public struct KeyPostData: Codable {
     
     public let name: String
+    public let address: String
     public let password: String?
     public let mnemonic: String?
     
-    public init(name: String, pass: String?, seed: String?) {
+    public init(name: String, address: String, pass: String?, seed: String?) {
         self.name = name
+        self.address = address
         self.password  = pass
         self.mnemonic = seed
     }
     
     enum CodingKeys : String, CodingKey {
         case name
+        case address
         case password
         case mnemonic
     }

@@ -18,6 +18,7 @@ public enum TDMNodeState: String, Codable {
 public enum TDMNodeType: String, Codable, CaseIterable {
     case cosmos = "Cosmos Hub"
     case iris = "Iris Network"
+    case iris_fuxi = "Iris Fuxi Testnet"
     case terra = "Terra Money"
     case terra_118 = "Terra Old HD"
     case terraTestnet = "Terra Testnet"
@@ -42,7 +43,7 @@ public class TDMNode: Codable {
     public var defaultTxFee: String = "0"
     public var defaultMemo: String = "kytzu's iOS Wallet"
 
-    public init(name: String = "Gaia Node", type: TDMNodeType = .cosmos, scheme: String = "https", host: String = "localhost", rcpPort: Int = 1317) {
+    public init(name: String = "Gaia Node", type: TDMNodeType = .cosmos, scheme: String = "https", host: String = "localhost", rcpPort: Int? = 1317) {
         self.type = type
         self.name = name
         self.scheme = scheme
@@ -85,7 +86,7 @@ public class TDMNode: Codable {
                     completion?()
                 }
             }
-        case .iris:
+        case .iris, .iris_fuxi:
             IrisRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
                 switch result {
                 case .success(let data):
