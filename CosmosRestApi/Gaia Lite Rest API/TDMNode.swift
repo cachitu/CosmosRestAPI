@@ -27,6 +27,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case bitsong = "Bitsong Testnet"
 }
 
+
 public class TDMNode: Codable {
     
     public var state: TDMNodeState = .unknown
@@ -43,6 +44,17 @@ public class TDMNode: Codable {
     public var defaultTxFee: String = "0"
     public var defaultMemo: String = "kytzu's iOS Wallet"
 
+    public var adddressPrefix: String {
+        switch type {
+        case .cosmos, .cosmosTestnet: return "cosmos"
+        case .iris: return "iaa"
+        case .iris_fuxi: return "faa"
+        case .kava: return "kava"
+        case .terra, .terraTestnet, .terra_118: return "terra"
+        case .bitsong: return "bitsong"
+        }
+    }
+    
     public init(name: String = "Gaia Node", type: TDMNodeType = .cosmos, scheme: String = "https", host: String = "localhost", rcpPort: Int? = 1317) {
         self.type = type
         self.name = name
