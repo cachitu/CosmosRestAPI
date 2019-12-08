@@ -42,8 +42,12 @@ public class TDMNode: Codable {
     public var stakeDenom: String = "stake"
     public var knownValidators: [String : String] = [:]
     public var defaultTxFee: String = "0"
-    public var defaultMemo: String = "kytzu's iOS Wallet"
-
+    public var defaultMemo: String = "Syncnode's iOS Wallet"
+    
+    public var isReadOnly: Bool {
+        return type == .iris || type == .iris_fuxi
+    }
+    
     public var adddressPrefix: String {
         switch type {
         case .cosmos, .cosmosTestnet: return "cosmos"
