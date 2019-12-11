@@ -82,7 +82,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
     
     public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .cosmos, .terra, .terra_118:
+        case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccount(address: self.address) { [weak self] result in
                 switch result {
@@ -165,7 +165,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
 
     private func getVestedAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .cosmos, .terra, .terra_118:
+        case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getVestedAccount(address: self.address) { result in
                 switch result {
@@ -300,7 +300,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
 
     public func getDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         switch node.type {
-        case .cosmos, .terra, .terra_118:
+        case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegations(for: self.address) { result in
                 switch result {
@@ -352,18 +352,6 @@ public class GaiaKey: CustomStringConvertible, Codable {
     public func queryValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: Int?, _ message: String?) -> ())) {
 
         switch node.type {
-        case .cosmos:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getValidatorRewards(from: validator) { result in
-                switch result {
-                case .success(let rewards):
-                    let amount = rewards.first?.valCommission?.first?.amount?.split(separator: ".").first
-                    let val = Int(amount ?? "0") ?? 0
-                    DispatchQueue.main.async { completion(val, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
         case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getValidatorRewards(from: validator) { result in
@@ -409,18 +397,6 @@ public class GaiaKey: CustomStringConvertible, Codable {
     
     public func queryDelegationRewards(node: TDMNode, validatorAddr: String, completion: @escaping ((_ delegations: Int?, _ message: String?) -> ())) {
         switch node.type {
-        case .cosmos:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getDelegatorReward(for: self.address, fromValidator: validatorAddr) { result in
-                switch result {
-                case .success(let rewards):
-                    let amount = rewards.first?.amount?.split(separator: ".").first
-                    let val = Int(amount ?? "0") ?? 0
-                    DispatchQueue.main.async { completion(val, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
         case .iris, .iris_fuxi:
             DispatchQueue.main.async { completion(0, nil) }
             
@@ -634,7 +610,7 @@ public class GaiaValidator {
     public func getValidatorDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         
         switch node.type {
-        case .cosmos, .terra:
+        case .terra:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getStakeValidatorDelegations(for: self.validator) { result in
                 switch result {

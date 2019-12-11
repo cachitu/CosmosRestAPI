@@ -287,7 +287,7 @@ extension GaiaValidatorsCapable {
     
     public func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .cosmos, .terra, .terra_118:
+        case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
              restApi.getStakeValidators { result in
                 switch result {
@@ -354,20 +354,6 @@ extension GaiaGovernaceCapable {
     
     public func retrieveAllPropsals(node: TDMNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .cosmos:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getPorposals { result in
-                switch result {
-                case .success(let data):
-                    var gaiaPropsals: [GaiaProposal] = []
-                    for proposal in data {
-                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
-                    }
-                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
         case .iris, .iris_fuxi:
             let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposals { result in
@@ -402,30 +388,7 @@ extension GaiaGovernaceCapable {
     public func getPropsalDetails(node: TDMNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->()) {
         
         switch node.type {
-        case .cosmos:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getPorposalTally(forId: proposal.proposalId) { result in
-                switch result {
-                case .success(let data):
-                    if let tally = data.first {
-                        proposal.yes = tally.yes ?? "0"
-                        proposal.no = tally.no ?? "0"
-                        proposal.abstain = tally.abstain ?? "0"
-                        proposal.noWithVeto = tally.noWithVeto ?? "0"
-                    }
-                    restApi.getPorposalVotes(forId: proposal.proposalId) { result in
-                        switch result {
-                        case .success(let data):
-                            proposal.votes = data
-                            DispatchQueue.main.async { completion(proposal, nil) }
-                        case .failure(let error):
-                            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                        }
-                    }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
+        //case .iris, .iris_fuxi: break
 
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)

@@ -118,7 +118,7 @@ public class GaiaLocalClient {
             //DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
             if let bcData = signed {
                 switch node.type {
-                case .cosmos, .terra, .terra_118:
+                case .terra, .terra_118:
                     restApi.broadcast(transferData: bcData) { result in
                         switch result {
                         case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }

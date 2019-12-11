@@ -88,7 +88,7 @@ public class TDMNode: Codable {
     
     public func getNodeInfo(completion: (() -> ())?) {
         switch type {
-        case .cosmos, .terra, .terra_118:
+        case .terra, .terra_118:
             CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
                 switch result {
                 case .success(let data):
@@ -130,13 +130,12 @@ public class TDMNode: Codable {
                     completion?()
                 }
             }
-            
         }
     }
     
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
         switch self.type {
-        case .cosmos, .terra, .terra_118:
+        case .terra, .terra_118:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
             restApi.getStakeParameters() { [weak self] result in
                 var denom: String? = nil
