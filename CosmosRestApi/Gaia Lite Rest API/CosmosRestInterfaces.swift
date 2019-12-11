@@ -471,7 +471,7 @@ extension GaiaGovernaceCapable {
                     print("\n... Submit vote id \(proposal) ...")
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         DispatchQueue.main.async { completion?(nil, error.localizedDescription) }

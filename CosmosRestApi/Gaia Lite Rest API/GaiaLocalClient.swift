@@ -73,17 +73,29 @@ public class GaiaLocalClient {
         completion?(.success(["OK"]))
     }
     
-    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, completion: ((SignedTx?, String?) -> ())?) {
+    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, irisSpaghetti: Bool, completion: ((SignedTx?, String?) -> ())?) {
         
         switch node.type {
         case .iris, .iris_fuxi:
-            delegate?.signIris(transferData: tx, account: account, node: node) { response in
-                switch response {
-                case .success(let data):
-                    completion?(SignedTx(tx: data.first), nil)
-                case .failure(let error):
-                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                    completion?(nil, error.localizedDescription)
+            if irisSpaghetti {
+               delegate?.signIris(transferData: tx, account: account, node: node) { response in
+                   switch response {
+                   case .success(let data):
+                       completion?(SignedTx(tx: data.first), nil)
+                   case .failure(let error):
+                       print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                       completion?(nil, error.localizedDescription)
+                   }
+               }
+            } else {
+                delegate?.sign(transferData: tx, account: account, node: node) { response in
+                    switch response {
+                    case .success(let data):
+                        completion?(SignedTx(tx: data.first), nil)
+                    case .failure(let error):
+                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                        completion?(nil, error.localizedDescription)
+                    }
                 }
             }
         default:
@@ -99,9 +111,9 @@ public class GaiaLocalClient {
         }
     }
     
-    public func handleSignAndBroadcast(restApi: CosmosRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: TDMNode, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func handleSignAndBroadcast(restApi: CosmosRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: TDMNode, irisSpaghetti: Bool = false, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         
-        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node) { signed, err in
+        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node, irisSpaghetti: irisSpaghetti) { signed, err in
             
             //DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
             if let bcData = signed {
