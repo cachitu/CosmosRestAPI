@@ -8,6 +8,19 @@
 
 import Foundation
 
+public struct IrisWithdrawData: Codable {
+    
+    public let baseTx: IrisBaseReq?
+    public let validatorAddress: String?
+    public let isValidator: Bool? = false
+
+    enum CodingKeys : String, CodingKey {
+        case baseTx = "base_tx"
+        case validatorAddress = "validator_address"
+        case isValidator = "is_validator"
+     }
+}
+
 public struct IrisBaseReq: Codable {
     
     public let chainId: String?

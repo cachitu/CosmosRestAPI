@@ -47,6 +47,10 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/\(validator)/rewards", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
     }
     
+    public func withdrawReward(to address: String, transferData: IrisWithdrawData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/\(address)/rewards/withdraw", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     public func getPorposals(completion: ((RestResult<[IrisProposal]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: false, completion: completion)
     }

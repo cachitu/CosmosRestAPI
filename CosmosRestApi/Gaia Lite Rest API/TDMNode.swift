@@ -45,7 +45,7 @@ public class TDMNode: Codable {
     public var defaultMemo: String = "Syncnode's iOS Wallet"
     
     public var isReadOnly: Bool {
-        return type == .iris || type == .iris_fuxi
+        return false//type == .iris || type == .iris_fuxi
     }
     
     public var adddressPrefix: String {

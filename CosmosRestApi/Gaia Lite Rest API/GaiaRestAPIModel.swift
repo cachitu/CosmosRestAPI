@@ -390,6 +390,8 @@ public struct TxValueMsg: Codable {
 
 public struct TxMsgVal: Codable, PropertyLoopable {
     
+    public let delegatorAddress: String?
+    public let validatorAddress: String?
     public let delegatorAddr: String?
     public let validatorAddr: String?
     public let validatorSrcAddr: String?
@@ -445,8 +447,10 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     }
     
     enum CodingKeys : String, CodingKey {
-        case delegatorAddr = "delegator_address"
-        case validatorAddr = "validator_address"
+        case delegatorAddress = "delegator_address"
+        case validatorAddress = "validator_address"
+        case delegatorAddr = "delegator_addr"
+        case validatorAddr = "validator_addr"
         case validatorSrcAddr = "validator_src_address"
         case validatorDstAddr = "validator_dst_address"
         case sharesAmount = "shares_amount"
