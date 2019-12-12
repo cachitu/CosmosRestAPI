@@ -21,27 +21,46 @@ public protocol GaiaKeysManagementCapable {
 
 extension GaiaKeysManagementCapable {
     
-
+    
     public func sendAssets(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
-                let data = TransferPostData(name: key.address,
-                                            memo: node.defaultMemo,
-                                            chain: node.network,
-                                            amount: amount,
-                                            denom: denom,
-                                            accNum: gaiaAcc.accNumber,
-                                            sequence:gaiaAcc.accSequence,
-                                            fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
-                restApi.bankTransfer(to: toAddress, transferData: data) { result in
-                    print("\n... Transfered \(amount) \(denom) ...")
-                    switch result {
-                    case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                    case .failure(let error):
-                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                switch node.type {
+                case .iris, .iris_fuxi:
+                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.4iris", memo: node.defaultMemo)
+                    let data = IrisBankSendData(baseTx: req, recipient: toAddress, amount: amount + "iris")
+                    irisApi.bankTransfer(from: key.address, transferData: data) { result in
+                        print("\n... Transfered \(amount) \(denom) ...")
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                        
+                    }
+                    
+                default:
+                    let data = TransferPostData(name: key.address,
+                                                memo: node.defaultMemo,
+                                                chain: node.network,
+                                                amount: amount,
+                                                denom: denom,
+                                                accNum: gaiaAcc.accNumber,
+                                                sequence:gaiaAcc.accSequence,
+                                                fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                    restApi.bankTransfer(to: toAddress, transferData: data) { result in
+                        print("\n... Transfered \(amount) \(denom) ...")
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
                     }
                 }
             } else {
@@ -59,7 +78,7 @@ extension GaiaKeysManagementCapable {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                     let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.4iris", memo: node.defaultMemo)
-                    let data = IrisWithdrawData(baseTx: req, validatorAddress: validator)
+                    let data = IrisWithdrawData(baseTx: req, validatorAddress: validator, isValidator: false)
                     irisApi.withdrawReward(to: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -97,20 +116,38 @@ extension GaiaKeysManagementCapable {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
-                let data = TransferPostData(name: key.address,
-                                            memo: node.defaultMemo,
-                                            chain: node.network,
-                                            accNum: gaiaAcc.accNumber,
-                                            sequence: gaiaAcc.accSequence,
-                                            fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
-                restApi.withdrawComission(from: key.validator, transferData: data) { result in
-                    switch result {
-                    case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                    case .failure(let error):
-                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                switch node.type {
+                case .iris, .iris_fuxi:
+                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.4iris", memo: node.defaultMemo)
+                    let data = IrisWithdrawData(baseTx: req, validatorAddress: nil, isValidator: true)
+                    irisApi.withdrawReward(to: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
                     }
+                    
+                default:
+                    let data = TransferPostData(name: key.address,
+                                                memo: node.defaultMemo,
+                                                chain: node.network,
+                                                accNum: gaiaAcc.accNumber,
+                                                sequence: gaiaAcc.accSequence,
+                                                fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                    restApi.withdrawComission(from: key.validator, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
+                    
                 }
             } else {
                 DispatchQueue.main.async { completion?(nil, errMsg) }
@@ -122,25 +159,41 @@ extension GaiaKeysManagementCapable {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
-                let data = RedelegationPostData(
-                    sourceValidator: fromValidator,
-                    destValidator: toValidator,
-                    delegator: key.address,
-                    name: key.address,
-                    memo: node.defaultMemo,
-                    chain: node.network,
-                    amount: amount,
-                    denom: node.stakeDenom,
-                    accNum: gaiaAcc.accNumber,
-                    sequence: gaiaAcc.accSequence,
-                    fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
-                restApi.redelegation(from: key.address, transferData: data) { result in
-                    switch result {
-                    case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                    case .failure(let error):
-                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                switch node.type {
+                case .iris, .iris_fuxi:
+                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.4iris", memo: node.defaultMemo)
+                    let data = IrisRedelegateData(baseTx: req, redelegate: IrisRedelegateContent(validatorSource: fromValidator, validatorDestination: toValidator, sharesAmount: amount, sharesPercent: nil))
+                    irisApi.redelegation(from: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
+                default:
+                    let data = RedelegationPostData(
+                        sourceValidator: fromValidator,
+                        destValidator: toValidator,
+                        delegator: key.address,
+                        name: key.address,
+                        memo: node.defaultMemo,
+                        chain: node.network,
+                        amount: amount,
+                        denom: node.stakeDenom,
+                        accNum: gaiaAcc.accNumber,
+                        sequence: gaiaAcc.accSequence,
+                        fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                    restApi.redelegation(from: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
                     }
                 }
             } else {
@@ -148,30 +201,47 @@ extension GaiaKeysManagementCapable {
             }
         }
     }
-
+    
     public func delegateStake(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
-                let data = DelegationPostData(
-                    validator: toValidator,
-                    delegator: key.address,
-                    name: key.address,
-                    memo: node.defaultMemo,
-                    pass: key.getPassFromKeychain() ?? "",
-                    chain: node.network,
-                    amount: amount,
-                    denom: denom,
-                    accNum: gaiaAcc.accNumber,
-                    sequence: gaiaAcc.accSequence,
-                    fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
-                restApi.delegation(from: key.address, transferData: data) { result in
-                    switch result {
-                    case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                    case .failure(let error):
-                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                switch node.type {
+                case .iris, .iris_fuxi:
+                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.4iris", memo: node.defaultMemo)
+                    let data = IrisDelegateData(baseTx: req, delegate: IrisDelegateContent(delegation: amount + "iris", validatorAddr: toValidator))
+                    irisApi.delegation(from: key.address, transferData: data) { result in
+ 
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
+                default:
+                    let data = DelegationPostData(
+                        validator: toValidator,
+                        delegator: key.address,
+                        name: key.address,
+                        memo: node.defaultMemo,
+                        pass: key.getPassFromKeychain() ?? "",
+                        chain: node.network,
+                        amount: amount,
+                        denom: denom,
+                        accNum: gaiaAcc.accNumber,
+                        sequence: gaiaAcc.accSequence,
+                        fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                    restApi.delegation(from: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
                     }
                 }
 
@@ -180,29 +250,46 @@ extension GaiaKeysManagementCapable {
             }
         }
     }
-
+    
     public func unbondStake(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, fromValidator: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
-                let data = UnbondingDelegationPostData(
-                    validator: fromValidator,
-                    delegator: key.address,
-                    name: key.address,
-                    memo: node.defaultMemo,
-                    chain: node.network,
-                    amount: amount,
-                    denom: node.stakeDenom,
-                    accNum: gaiaAcc.accNumber,
-                    sequence: gaiaAcc.accSequence,
-                    fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
-                restApi.unbonding(from: key.address, transferData: data) { result in
-                    switch result {
-                    case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                    case .failure(let error):
-                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                switch node.type {
+                case .iris, .iris_fuxi:
+                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.4iris", memo: node.defaultMemo)
+                    let data = IrisUnbondData(baseTx: req, unbond: IrisUnbondContent(sharesAmount: amount, sharesPercent: nil, validatorAddr: fromValidator))
+                    irisApi.unbonding(from: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
+                    
+                default:
+                    let data = UnbondingDelegationPostData(
+                        validator: fromValidator,
+                        delegator: key.address,
+                        name: key.address,
+                        memo: node.defaultMemo,
+                        chain: node.network,
+                        amount: amount,
+                        denom: node.stakeDenom,
+                        accNum: gaiaAcc.accNumber,
+                        sequence: gaiaAcc.accSequence,
+                        fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                    restApi.unbonding(from: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
                     }
                 }
             } else {

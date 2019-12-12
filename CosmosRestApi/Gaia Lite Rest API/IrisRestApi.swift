@@ -47,8 +47,24 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/\(validator)/rewards", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
     }
     
+    public func delegation(from address: String, transferData: IrisDelegateData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func redelegation(from address: String, transferData: IrisRedelegateData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func unbonding(from address: String, transferData: IrisUnbondData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/unbonding-delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     public func withdrawReward(to address: String, transferData: IrisWithdrawData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/\(address)/rewards/withdraw", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func bankTransfer(from address: String, transferData: IrisBankSendData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/bank/accounts/\(address)/send", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
     public func getPorposals(completion: ((RestResult<[IrisProposal]>) -> Void)?) {

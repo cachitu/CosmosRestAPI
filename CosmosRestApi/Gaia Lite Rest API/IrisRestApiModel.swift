@@ -8,11 +8,110 @@
 
 import Foundation
 
+
+
+public struct IrisRedelegateData: Codable {
+    
+    public let baseTx: IrisBaseReq?
+    public let redelegate: IrisRedelegateContent?
+
+    enum CodingKeys : String, CodingKey {
+        case baseTx = "base_tx"
+        case redelegate
+     }
+}
+
+public struct IrisRedelegateContent: Codable {
+    
+    public let validatorSource: String?
+    public let validatorDestination: String?
+    public let sharesAmount: String?
+    public let sharesPercent: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case validatorSource = "validator_src_addr"
+        case validatorDestination = "validator_dst_addr"
+        case sharesAmount = "shares_amount"
+        case sharesPercent = "shares_percent"
+    }
+}
+
+public struct IrisUnbondData: Codable {
+    
+    public let baseTx: IrisBaseReq?
+    public let unbond: IrisUnbondContent?
+
+    enum CodingKeys : String, CodingKey {
+        case baseTx = "base_tx"
+        case unbond
+     }
+}
+
+public struct IrisUnbondContent: Codable {
+    
+    public let sharesAmount: String?
+    public let sharesPercent: String?
+    public let validatorAddr: String?
+
+    enum CodingKeys : String, CodingKey {
+        case sharesAmount = "shares_amount"
+        case sharesPercent = "shares_percent"
+        case validatorAddr = "validator_addr"
+     }
+}
+
+public struct IrisDelegateData: Codable {
+    
+    public let baseTx: IrisBaseReq?
+    public let delegate: IrisDelegateContent?
+
+    enum CodingKeys : String, CodingKey {
+        case baseTx = "base_tx"
+        case delegate
+     }
+}
+
+public struct IrisDelegateContent: Codable {
+    
+    public let delegation: String?
+    public let validatorAddr: String?
+
+    enum CodingKeys : String, CodingKey {
+        case delegation
+        case validatorAddr = "validator_addr"
+     }
+}
+
+
+public struct IrisTxInputOutpt: Codable {
+    
+    public let address: String?
+    public let coins: [TxFeeAmount]?
+    
+    enum CodingKeys : String, CodingKey {
+        case address
+        case coins
+    }
+}
+
+public struct IrisBankSendData: Codable {
+    
+    public let baseTx: IrisBaseReq?
+    public let recipient: String?
+    public let amount: String?
+
+    enum CodingKeys : String, CodingKey {
+        case baseTx = "base_tx"
+        case recipient
+        case amount
+     }
+}
+
 public struct IrisWithdrawData: Codable {
     
     public let baseTx: IrisBaseReq?
     public let validatorAddress: String?
-    public let isValidator: Bool? = false
+    public let isValidator: Bool?
 
     enum CodingKeys : String, CodingKey {
         case baseTx = "base_tx"

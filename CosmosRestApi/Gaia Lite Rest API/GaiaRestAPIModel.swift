@@ -390,10 +390,16 @@ public struct TxValueMsg: Codable {
 
 public struct TxMsgVal: Codable, PropertyLoopable {
     
+    //iris
+    public let inputs: [IrisTxInputOutpt]?
+    public let outputs: [IrisTxInputOutpt]?
+    
     public let delegatorAddress: String?
     public let validatorAddress: String?
     public let delegatorAddr: String?
     public let validatorAddr: String?
+    public let validatorSrcAddress: String?
+    public let validatorDstAddress: String?
     public let validatorSrcAddr: String?
     public let validatorDstAddr: String?
     public let sharesAmount: String?
@@ -447,12 +453,16 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     }
     
     enum CodingKeys : String, CodingKey {
+        case inputs
+        case outputs
         case delegatorAddress = "delegator_address"
         case validatorAddress = "validator_address"
         case delegatorAddr = "delegator_addr"
         case validatorAddr = "validator_addr"
-        case validatorSrcAddr = "validator_src_address"
-        case validatorDstAddr = "validator_dst_address"
+        case validatorSrcAddress = "validator_src_address"
+        case validatorDstAddress = "validator_dst_address"
+        case validatorSrcAddr = "validator_src_addr"
+        case validatorDstAddr = "validator_dst_addr"
         case sharesAmount = "shares_amount"
         case fromAddr = "from_address"
         case toAddr = "to_address"
