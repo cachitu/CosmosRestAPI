@@ -88,20 +88,6 @@ public class TDMNode: Codable {
     
     public func getNodeInfo(completion: (() -> ())?) {
         switch type {
-        case .terra, .terra_118:
-            CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
-                switch result {
-                case .success(let data):
-                    self?.network = data.first?.network ?? ""
-                    self?.nodeID = data.first?.id ?? ""
-                    self?.version = data.first?.version ?? ""
-                case .failure(_):
-                    self?.state = .unknown
-                }
-                DispatchQueue.main.async {
-                    completion?()
-                }
-            }
         case .iris, .iris_fuxi:
             IrisRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
                 switch result {
@@ -135,21 +121,6 @@ public class TDMNode: Codable {
     
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
         switch self.type {
-        case .terra, .terra_118:
-            let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
-            restApi.getStakeParameters() { [weak self] result in
-                var denom: String? = nil
-                switch result {
-                case .success(let data):
-                    denom = data.first?.bondDenom
-                    self?.stakeDenom = denom ?? "stake"
-                case .failure(_): break
-                }
-                DispatchQueue.main.async {
-                    completion?(denom)
-                }
-            }
-            
         default:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
             restApi.getStakeParametersV2() { [weak self] result in

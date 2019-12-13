@@ -374,20 +374,6 @@ extension GaiaValidatorsCapable {
     
     public func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .terra, .terra_118:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-             restApi.getStakeValidators { result in
-                switch result {
-                case .success(let data):
-                    var gaiaValidators: [GaiaValidator] = []
-                    for validator in data {
-                        gaiaValidators.append(GaiaValidator(validator: validator))
-                    }
-                    DispatchQueue.main.async { completion(gaiaValidators, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
         case .iris, .iris_fuxi:
             retrieveIrisValidators(node: node, completion: completion)
         default:

@@ -82,32 +82,6 @@ public class GaiaKey: CustomStringConvertible, Codable {
     
     public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .terra, .terra_118:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getAccount(address: self.address) { [weak self] result in
-                switch result {
-                case .success(let data):
-                    if let item = data.first, let type = item.type {
-                        if type.contains("VestingAccount") {
-                            self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
-                        } else {
-                            let gaiaAcc = GaiaAccount(accountValue: item.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
-                            DispatchQueue.main.async {
-                                completion?(gaiaAcc, nil)
-                            }
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            completion?(nil, "Request OK but no data")
-                        }
-                    }
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        let message = error.code == 204 ? nil : error.localizedDescription
-                        completion?(nil, message)
-                    }
-                }
-            }
         case .iris, .iris_fuxi:
             getIrisAccount(node: node, gaiaKey: gaiaKey, completion: completion)
         default:
@@ -165,29 +139,6 @@ public class GaiaKey: CustomStringConvertible, Codable {
 
     private func getVestedAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .terra, .terra_118:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getVestedAccount(address: self.address) { result in
-                switch result {
-                case .success(let data):
-                    if let item = data.first?.value?.baseVestingAccount?.baseAccount {
-                        let gaiaAcc = GaiaAccount(accountValue: item, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
-                        DispatchQueue.main.async {
-                            completion?(gaiaAcc, nil)
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            completion?(nil, "Request OK but no data")
-                        }
-                    }
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        let message = error.code == 204 ? nil : error.localizedDescription
-                        completion?(nil, message)
-                    }
-                }
-            }
-            
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getVestedAccountV2(address: self.address) { result in
@@ -300,20 +251,6 @@ public class GaiaKey: CustomStringConvertible, Codable {
 
     public func getDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         switch node.type {
-        case .terra, .terra_118:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getDelegations(for: self.address) { result in
-                switch result {
-                case .success(let delegations):
-                    var gaiaDelegations: [GaiaDelegation] = []
-                    for delegation in delegations {
-                        let gaiaDelegation = GaiaDelegation(delegation: delegation)
-                        gaiaDelegations.append(gaiaDelegation)
-                    }
-                    DispatchQueue.main.async { completion(gaiaDelegations, nil) }
-                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
         case .iris, .iris_fuxi:
             getIrisDelegations(node: node, completion: completion)
         default:
@@ -352,18 +289,6 @@ public class GaiaKey: CustomStringConvertible, Codable {
     public func queryValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: Int?, _ message: String?) -> ())) {
 
         switch node.type {
-        case .terra, .terra_118:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getValidatorRewards(from: validator) { result in
-                switch result {
-                case .success(let rewards):
-                    let amount = rewards.first?.valCommission?.filter { $0.denom == "uluna" }.first?.amount?.split(separator: ".").first
-                    let val = Int(amount ?? "0") ?? 0
-                    DispatchQueue.main.async { completion(val, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
         case .iris, .iris_fuxi:
             let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getRewards(from: self.address) { result in
@@ -400,18 +325,6 @@ public class GaiaKey: CustomStringConvertible, Codable {
         case .iris, .iris_fuxi:
             DispatchQueue.main.async { completion(0, nil) }
             
-        case .terra, .terra_118:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getDelegatorReward(for: self.address, fromValidator: validatorAddr) { result in
-                switch result {
-                case .success(let rewards):
-                    let amount = rewards.filter { $0.denom ==  "uluna" }.first?.amount?.split(separator: ".").first
-                    let val = Int(amount ?? "0") ?? 0
-                    DispatchQueue.main.async { completion(val, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegatorRewardV2(for: self.address, fromValidator: validatorAddr) { result in

@@ -118,15 +118,6 @@ public class GaiaLocalClient {
             //DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
             if let bcData = signed {
                 switch node.type {
-                case .terra, .terra_118:
-                    restApi.broadcast(transferData: bcData) { result in
-                        switch result {
-                        case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
-                        case .failure(let error):
-                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
                 case .iris, .iris_fuxi:
                     restApi.broadcastIris(transferData: bcData) { result in
                         switch result {
