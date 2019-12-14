@@ -18,12 +18,10 @@ public enum TDMNodeState: String, Codable {
 public enum TDMNodeType: String, Codable, CaseIterable {
     case cosmos = "Cosmos Hub"
     case iris = "Iris Network"
-    case iris_fuxi = "Iris Fuxi Testnet"
+    case iris_fuxi = "Iris Fuxi & Nyan"
     case terra = "Terra Money"
     case terra_118 = "Terra Old HD"
-    case terraTestnet = "Terra Testnet"
     case kava = "Kava Network"
-    case cosmosTestnet = "Cosmos Testnet"
     case bitsong = "Bitsong Testnet"
 }
 
@@ -50,11 +48,11 @@ public class TDMNode: Codable {
     
     public var adddressPrefix: String {
         switch type {
-        case .cosmos, .cosmosTestnet: return "cosmos"
+        case .cosmos: return "cosmos"
         case .iris: return "iaa"
         case .iris_fuxi: return "faa"
         case .kava: return "kava"
-        case .terra, .terraTestnet, .terra_118: return "terra"
+        case .terra, .terra_118: return "terra"
         case .bitsong: return "bitsong"
         }
     }

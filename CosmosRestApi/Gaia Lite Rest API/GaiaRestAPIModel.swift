@@ -393,6 +393,7 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     //iris
     public let inputs: [IrisTxInputOutpt]?
     public let outputs: [IrisTxInputOutpt]?
+    public let params: [IrisProposalParams]?
     
     public let delegatorAddress: String?
     public let validatorAddress: String?
@@ -455,6 +456,7 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     enum CodingKeys : String, CodingKey {
         case inputs
         case outputs
+        case params
         case delegatorAddress = "delegator_address"
         case validatorAddress = "validator_address"
         case delegatorAddr = "delegator_addr"
@@ -1456,7 +1458,7 @@ public struct ProposalVotePostData: Codable {
 
     public init(keyName: String, memo: String, chain: String, accNum: String, sequence: String, voter: String, option: String, fees: [TxFeeAmount]?) {
         self.baseReq = TransferBaseReq(name: keyName, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
-        self.baseTx = IrisBaseReq(chainId: chain, gas: "20000", fee: "0.4iris", memo: memo)
+        self.baseTx = IrisBaseReq(chainId: chain, gas: "20000", fee: "0.41iris", memo: memo)
         self.voter = voter
         self.option = option
     }

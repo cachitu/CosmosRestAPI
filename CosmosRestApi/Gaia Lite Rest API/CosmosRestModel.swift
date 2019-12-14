@@ -475,11 +475,11 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     
     public func firendlyAmountAndDenom(for type: TDMNodeType) -> String {
         switch type {
-        case .cosmos, .cosmosTestnet:
+        case .cosmos:
             return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Atom")
         case .iris, .iris_fuxi:
             return String.localizedStringWithFormat("%.2f %@", amount / (1000000000000000000), "Iris")
-        case .terra, .terra_118, .terraTestnet:
+        case .terra, .terra_118:
             return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Luna")
         case .kava: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Kava")
         case .bitsong: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Btsg")
@@ -523,9 +523,9 @@ public class GaiaValidator {
     public func getValidatorDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         
         switch node.type {
-        case .terra:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getStakeValidatorDelegations(for: self.validator) { result in
+        case .iris, .iris_fuxi:
+            let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            irisApi.getStakeValidatorDelegations(for: self.validator) { result in
                 switch result {
                 case .success(let delegations):
                     var gaiaDelegations: [GaiaDelegation] = []
@@ -537,7 +537,6 @@ public class GaiaValidator {
                 case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-            
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getStakeValidatorDelegationsV2(for: self.validator) { result in
@@ -560,18 +559,34 @@ public class GaiaValidator {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
-                let baseReq = UnjailPostData(name: key.address,
-                                             memo: node.defaultMemo,
-                                             chain: node.network,
-                                             accNum: gaiaAcc.accNumber,
-                                             sequence: gaiaAcc.accSequence,
-                                             fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
-                restApi.unjail(validator: self.validator, transferData: baseReq) { result in
-                    switch result {
-                    case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                    case .failure(let error):
-                        completion?(nil, error.localizedDescription)
+                switch node.type {
+                case .iris, .iris_fuxi:
+                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let data = IrisUnjailData(baseTx: req)
+                    irisApi.unjail(validator: key.validator, transferData: data) { result in
+                        
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            completion?(nil, error.localizedDescription)
+                        }
+                    }
+                default:
+                    let baseReq = UnjailPostData(name: key.address,
+                                                 memo: node.defaultMemo,
+                                                 chain: node.network,
+                                                 accNum: gaiaAcc.accNumber,
+                                                 sequence: gaiaAcc.accSequence,
+                                                 fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                    restApi.unjail(validator: self.validator, transferData: baseReq) { result in
+                        switch result {
+                        case .success(let data):
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            completion?(nil, error.localizedDescription)
+                        }
                     }
                 }
 

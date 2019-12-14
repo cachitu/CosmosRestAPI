@@ -55,6 +55,10 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
+    public func getStakeValidatorDelegations(for valAddress: String, completion: ((RestResult<[IrisDelegation]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators/\(valAddress)/delegations", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
     public func unbonding(from address: String, transferData: IrisUnbondData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/stake/delegators/\(address)/unbonding-delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
@@ -69,6 +73,18 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
 
     public func getPorposals(completion: ((RestResult<[IrisProposal]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: false, completion: completion)
+    }
+
+    public func submitProposal(transferData: IrisProposeData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func depositToProposal(id: String, transferData: IrisProposalDepositData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/gov/proposals/\(id)/deposits", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func unjail(validator valAddr: String, transferData: IrisUnjailData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/slashing/validators/\(valAddr)/unjail", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
     public func broadcast(transferData: SignedTx, completion:((RestResult<[TransferResponse]>) -> Void)?) {

@@ -8,17 +8,58 @@
 
 import Foundation
 
-
-
-public struct IrisRedelegateData: Codable {
+public struct IrisUnjailData: Codable {
     
     public let baseTx: IrisBaseReq?
-    public let redelegate: IrisRedelegateContent?
 
     enum CodingKeys : String, CodingKey {
         case baseTx = "base_tx"
-        case redelegate
      }
+}
+
+public struct IrisProposalDepositData: Codable {
+    
+    public let baseTx: IrisBaseReq?
+    public let depositor: String?
+    public let amount: String?
+
+    enum CodingKeys : String, CodingKey {
+        case baseTx = "base_tx"
+        case depositor
+        case amount
+     }
+}
+
+public struct IrisProposeData: Codable {
+    
+    public let baseTx: IrisBaseReq?
+    public let title: String?
+    public let description: String?
+    public let proposer: String?
+    public let proposalType: String?
+    public let initialDeposit: String?
+
+    enum CodingKeys : String, CodingKey {
+        case baseTx = "base_tx"
+        case title
+        case description
+        case proposer
+        case proposalType = "proposal_type"
+        case initialDeposit = "initial_deposit"
+     }
+}
+
+public struct IrisProposalParams: Codable {
+    
+    public let subspace: String?
+    public let key: String?
+    public let value: String?
+
+    enum CodingKeys : String, CodingKey {
+        case subspace
+        case key
+        case value
+    }
 }
 
 public struct IrisRedelegateContent: Codable {
@@ -35,6 +76,18 @@ public struct IrisRedelegateContent: Codable {
         case sharesPercent = "shares_percent"
     }
 }
+
+public struct IrisRedelegateData: Codable {
+    
+    public let baseTx: IrisBaseReq?
+    public let redelegate: IrisRedelegateContent?
+
+    enum CodingKeys : String, CodingKey {
+        case baseTx = "base_tx"
+        case redelegate
+     }
+}
+
 
 public struct IrisUnbondData: Codable {
     

@@ -30,7 +30,7 @@ public protocol KeysClientDelegate: AnyObject {
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
     func deleteKey(with name: String, address: String, password: String) -> NSError?
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
-    func signIris(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
+    func signIris(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, renameShares: Bool, completion:((RestResult<[TransactionTx]>) -> Void)?)
 
 }
 
@@ -73,12 +73,12 @@ public class GaiaLocalClient {
         completion?(.success(["OK"]))
     }
     
-    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, irisSpaghetti: Bool, completion: ((SignedTx?, String?) -> ())?) {
+    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, irisSpaghetti: Bool, irisRenameShares: Bool = false, completion: ((SignedTx?, String?) -> ())?) {
         
         switch node.type {
         case .iris, .iris_fuxi:
             if irisSpaghetti {
-               delegate?.signIris(transferData: tx, account: account, node: node) { response in
+               delegate?.signIris(transferData: tx, account: account, node: node, renameShares: irisRenameShares) { response in
                    switch response {
                    case .success(let data):
                        completion?(SignedTx(tx: data.first), nil)
@@ -111,9 +111,9 @@ public class GaiaLocalClient {
         }
     }
     
-    public func handleSignAndBroadcast(restApi: CosmosRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: TDMNode, irisSpaghetti: Bool = false, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func handleSignAndBroadcast(restApi: CosmosRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: TDMNode, irisSpaghetti: Bool = false, irisRenameShares: Bool = false, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         
-        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node, irisSpaghetti: irisSpaghetti) { signed, err in
+        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node, irisSpaghetti: irisSpaghetti, irisRenameShares: irisRenameShares) { signed, err in
             
             //DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
             if let bcData = signed {
