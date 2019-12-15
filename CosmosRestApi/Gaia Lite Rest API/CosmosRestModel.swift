@@ -188,64 +188,26 @@ public class GaiaKey: CustomStringConvertible, Codable {
         })
     }
     
-    public func getTransactions(node: TDMNode, completion: @escaping ((_ delegations: [GaiaTransaction]?, _ message: String?) -> ())) {
+    public func getTransactions(node: TDMNode, page: Int, limit: Int, completion: @escaping ((_ transactions: [GaiaTransaction]?, _ totalItems: String?, _ message: String?) -> ())) {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        restApi.getSentTransactions(by: self.address) { result in
+        restApi.getSentTransactions(by: self.address, page: "\(page)", limit: "\(limit)") { result in
             switch result {
-            case .success(let outTransactions):
+            case .success(let transactions):
                 var gaiaTransactions: [GaiaTransaction] = []
-                for transaction in outTransactions {
-                    var amount = ""
-                    var denom = ""
-                    if let amountData = transaction.tx?.value?.msg?.first?.value?.amount {
-                        switch amountData {
-                        case .amount(let single):
-                            amount = single.amount ?? "-"
-                            denom = single.denom ?? "-"
-                        case .amounts(let multiple):
-                            amount = multiple.first?.amount ?? "-"
-                            denom  = multiple.first?.denom ?? "-"
-                        }
-                    }
+                for transaction in transactions.first?.txs ?? [] {
                     let gaiaTransaction = GaiaTransaction(
-                        sender: transaction.tx?.value?.msg?.first?.value?.fromAddr ?? "-",
-                        receiver: transaction.tx?.value?.msg?.first?.value?.toAddr ?? "-",
+                        type: transaction.tx?.value?.msg?.first?.type ?? "No type",
+                        gas: transaction.gasUsed ?? "-",
                         height: transaction.height ?? "0",
                         hash: transaction.hash ?? "-",
-                        amount: "\(amount) \(denom)")
+                        time: transaction.timestamp ?? "",
+                        log: transaction.log ?? transaction.hash ?? "-")
                     gaiaTransactions.append(gaiaTransaction)
                 }
-                restApi.getReceivedTransactions(by: self.address) { result in
-                    switch result {
-                    case .success(let inTransactions):
-                        for transaction in inTransactions {
-                            var amount = ""
-                            var denom = ""
-                            if let amountData = transaction.tx?.value?.msg?.first?.value?.amount {
-                                switch amountData {
-                                case .amount(let single):
-                                    amount = single.amount ?? "-"
-                                    denom = single.denom ?? "-"
-                                case .amounts(let multiple):
-                                    amount = multiple.first?.amount ?? "-"
-                                    denom  = multiple.first?.denom ?? "-"
-                                }
-                            }
-                            let gaiaTransaction = GaiaTransaction(
-                                sender: transaction.tx?.value?.msg?.first?.value?.fromAddr ?? "-",
-                                receiver: transaction.tx?.value?.msg?.first?.value?.toAddr ?? "-",
-                                height: transaction.height ?? "0",
-                                hash: transaction.hash ?? "-",
-                                amount: "\(amount) \(denom)")
-                            gaiaTransactions.append(gaiaTransaction)
-                        }
-                        DispatchQueue.main.async {
-                            completion(gaiaTransactions, nil)
-                        }
-                    case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                    }
+                DispatchQueue.main.async {
+                    completion(gaiaTransactions, transactions.first?.totalCount, nil)
                 }
-            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, nil, error.localizedDescription) }
             }
         }
     }
@@ -373,18 +335,20 @@ public class GaiaKey: CustomStringConvertible, Codable {
 
 public class GaiaTransaction {
     
-    public let sender: String
-    public let receiver: String
+    public let type: String
+    public let gas: String
     public let height: Int
     public let hash: String
-    public let amount: String
-
-    public init(sender: String, receiver: String, height: String, hash: String, amount: String) {
-        self.sender = sender
-        self.receiver = receiver
+    public let time: String
+    public let rawLog: String
+    
+    public init(type: String, gas: String, height: String, hash: String, time: String, log: String) {
+        self.type = type
+        self.gas = gas
         self.height = Int(height) ?? 0
         self.hash = hash
-        self.amount = amount
+        self.time = time
+        self.rawLog = log
     }
 }
 

@@ -266,26 +266,104 @@ public struct Validator: Codable {
     }
 }
 
-public struct Transaction: Codable {
+public struct TransactionsHistory: Codable {
+    
+    public let totalCount: String?
+    public let pageCount: String?
+    public let pageNumber: String?
+    public let pageTotal: String?
+    public let limit: String?
+    public let txs: [TransactionData]?
+
+    enum CodingKeys : String, CodingKey {
+        case totalCount = "total_count"
+        case pageCount = "count"
+        case pageNumber = "page_number"
+        case pageTotal = "page_total"
+        case limit
+        case txs
+    }
+}
+
+public struct TransactionData: Codable {
     
     public let hash: String?
     public let height: String?
     public let log: String?
     public let gasWanted: String?
     public let gasUsed: String?
-    public let tags: [TrResultTag]?
-    public let tx: TransactionTx?
-    public let result: TransactionResult?
-
+    public let tx: HistoryTx?
+    public let timestamp: String?
+    
     enum CodingKeys : String, CodingKey {
         case hash = "txhash"
         case height
-        case log
+        case log = "raw_log"
         case gasWanted = "gas_wanted"
         case gasUsed = "gas_used"
-        case tags
         case tx
-        case result
+        case timestamp
+    }
+}
+
+public struct HistoryTx: Codable {
+    
+    public let type: String?
+    public var value: HistoryTxValue?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct HistoryTxValue: Codable {
+    
+    public let msg: [HistoryTxValueMsg]?
+
+    enum CodingKeys : String, CodingKey {
+        case msg
+    }
+}
+
+public struct HistoryTxValueMsg: Codable {
+    
+    public let type: String?
+    public let value: HistoryTxMsgVal?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct HistoryTxMsgVal: Codable {
+    
+    public let delegatorAddress: String?
+    public let validatorAddress: String?
+    public let delegatorAddr: String?
+    public let validatorAddr: String?
+    public let validatorSrcAddress: String?
+    public let validatorDstAddress: String?
+    public let validatorSrcAddr: String?
+    public let validatorDstAddr: String?
+    public let sharesAmount: String?
+    public let fromAddr: String?
+    public let toAddr: String?
+    
+    
+    enum CodingKeys : String, CodingKey {
+        case delegatorAddress = "delegator_address"
+        case validatorAddress = "validator_address"
+        case delegatorAddr = "delegator_addr"
+        case validatorAddr = "validator_addr"
+        case validatorSrcAddress = "validator_src_address"
+        case validatorDstAddress = "validator_dst_address"
+        case validatorSrcAddr = "validator_src_addr"
+        case validatorDstAddr = "validator_dst_addr"
+        case sharesAmount = "shares_amount"
+        case fromAddr = "from_address"
+        case toAddr = "to_address"
     }
 }
 

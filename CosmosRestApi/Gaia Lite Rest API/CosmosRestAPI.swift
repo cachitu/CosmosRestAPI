@@ -62,16 +62,12 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/validatorsets/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getTransaction(by hash: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
+    public func getTransaction(by hash: String, completion: ((RestResult<[TransactionData]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs/\(hash)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getSentTransactions(by address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "sender", value: "\(address)"), URLQueryItem(name: "limit", value: "9999")], completion: completion)
-    }
-    
-    public func getReceivedTransactions(by address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, queryItems: [URLQueryItem(name: "recipient", value: "\(address)"), URLQueryItem(name: "limit", value: "9999")], completion: completion)
+    public func getSentTransactions(by address: String, page: String, limit: String, completion: ((RestResult<[TransactionsHistory]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, singleItemResponse: true, queryItems: [URLQueryItem(name: "message.sender", value: "\(address)"), URLQueryItem(name: "page", value: page), URLQueryItem(name: "limit", value: limit)], completion: completion)
     }
 
     public func broadcast(transferData: SignedTx, completion:((RestResult<[TransferResponse]>) -> Void)?) {
@@ -157,10 +153,6 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     public func getDelegatorValidator(for address: String,  validator: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/validators/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
-    }
-    
-    public func getStakingTxs(for address: String, completion: ((RestResult<[Transaction]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/txs", delegate: self, singleItemResponse: false, completion: completion)
     }
     
     public func getStakeValidators(completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
