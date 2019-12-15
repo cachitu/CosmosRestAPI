@@ -93,7 +93,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
                         if type.contains("VestingAccount") {
                             self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
                         } else {
-                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                            let denom: String? = (node.type == .terra || node.type == .terra_118) ? "ukrw" : nil
+                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom, hardcodedFeeDenom: denom)
                             DispatchQueue.main.async {
                                 completion?(gaiaAcc, nil)
                             }
@@ -425,7 +426,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     public let noFeeToken: Bool
     public var isValidator: Bool = false
 
-    init(accountValue: AccountValue?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
+    init(accountValue: AccountValue?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String, hardcodedFeeDenom: String? = nil) {
         self.accNumber = accountValue?.accountNumber ?? "0"
         self.accSequence = accountValue?.sequence ?? "0"
         self.address = accountValue?.address ?? "="
@@ -444,18 +445,12 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
                 self.denom = coin.denom ?? stakeDenom
             } else {
                 assets.insert(coin, at: assets.count)
-                self.feeAmount = Double(coin.amount ?? "0.0") ?? 0.0
-                self.feeDenom = coin.denom ?? "photin"
             }
         }
-        var noFeeToken = false
-        //TODO: as multiple fees are possible, this should be refactored
-        //if let coins = accountValue?.coins, coins.count == 1 {
-            self.feeAmount = 0.0
-            self.feeDenom = stakeDenom
-            noFeeToken = true
-        //}
-        self.noFeeToken = noFeeToken
+        self.feeAmount = 0.0
+        self.feeDenom = hardcodedFeeDenom ?? stakeDenom
+        
+        self.noFeeToken = true
     }
     
     init(irisAccount: IrisAccount, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {

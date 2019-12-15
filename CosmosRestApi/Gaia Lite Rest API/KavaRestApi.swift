@@ -18,8 +18,4 @@ public class KavaRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         connectData = ConnectData(scheme: scheme, host: host, port: port)
         super.init()
     }
-    
-    public func getNodeInfo(completion: ((RestResult<[KavaNodeInfo]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node_info", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
-    }
 }

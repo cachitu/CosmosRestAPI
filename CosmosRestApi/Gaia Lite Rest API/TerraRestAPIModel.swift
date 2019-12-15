@@ -10,18 +10,22 @@ import Foundation
 
 public struct Actives: Codable {
     
-    public let actives: [String]?
+    public let height: String?
+    public let result: [String]?
     
     enum CodingKeys : String, CodingKey {
-        case actives
+        case height
+        case result
     }
 }
 
 public struct Price: Codable {
     
-    public let price: String?
+    public let height: String?
+    public let result: String?
     
     enum CodingKeys : String, CodingKey {
-        case price
+        case height
+        case result
     }
 }

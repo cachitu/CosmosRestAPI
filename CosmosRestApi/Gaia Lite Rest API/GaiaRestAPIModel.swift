@@ -25,6 +25,15 @@ public struct NodeInfoParent: Codable {
 
 public struct NodeInfo: Codable {
     
+    public let nodeInfo: NodeInfoData?
+    
+    enum CodingKeys : String, CodingKey {
+        case nodeInfo = "node_info"
+    }
+}
+
+public struct NodeInfoData: Codable {
+    
     public let protocolVersion: ProtocolVersion?
     public let id: String?
     public let listenAddr: String?

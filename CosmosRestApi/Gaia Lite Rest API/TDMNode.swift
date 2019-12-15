@@ -101,7 +101,7 @@ public class TDMNode: Codable {
                 }
             }
         default:
-            KavaRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
+            CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfoV2 { [weak self] result in
                 switch result {
                 case .success(let data):
                     self?.network = data.first?.nodeInfo?.network ?? ""
@@ -119,6 +119,11 @@ public class TDMNode: Codable {
     
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
         switch self.type {
+        case .iris, .iris_fuxi:
+            stakeDenom = "iris"
+            DispatchQueue.main.async {
+                completion?("iris")
+            }
         default:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
             restApi.getStakeParametersV2() { [weak self] result in

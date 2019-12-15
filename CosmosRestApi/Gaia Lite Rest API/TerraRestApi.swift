@@ -32,7 +32,7 @@ public class TerraRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
     
     public func getPrice(for denom:String, completion: ((RestResult<[Price]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/oracle/denoms/\(denom)/price", delegate: self, singleItemResponse: true, completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/oracle/denoms/\(denom)/exchange_rate", delegate: self, singleItemResponse: true, completion: completion)
     }
 
     public func swapActive(transferData: SwapPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {

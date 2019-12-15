@@ -33,10 +33,15 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     
     //ICS0 - endermint APIs, such as query blocks, transactions and validatorset
     
-    public func getNodeInfo(completion: ((RestResult<[NodeInfo]>) -> Void)?) {
+    public func getNodeInfo(completion: ((RestResult<[NodeInfoData]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node_info", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
     }
     
+    
+    public func getNodeInfoV2(completion: ((RestResult<[NodeInfo]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node_info", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
+    }
+
     public func getSyncingInfo(completion: ((RestResult<[String]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/syncing", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
     }

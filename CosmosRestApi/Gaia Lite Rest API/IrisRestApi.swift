@@ -23,7 +23,7 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         completionHandler(URLSession.AuthChallengeDisposition.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))
     }
     
-    public func getNodeInfo(completion: ((RestResult<[NodeInfo]>) -> Void)?) {
+    public func getNodeInfo(completion: ((RestResult<[NodeInfoData]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node-info", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
     }
     

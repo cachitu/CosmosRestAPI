@@ -24,7 +24,7 @@ extension TerraOraclesCapable {
         restApi.getActives { result in
             switch result {
             case .success(let actives): DispatchQueue.main.async {
-                completion(actives.first?.actives, nil)
+                completion(actives.first?.result, nil)
                 }
             case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
             }
@@ -38,7 +38,7 @@ extension TerraOraclesCapable {
         restApi.getPrice(for: active) { result in
             switch result {
             case .success(let price): DispatchQueue.main.async {
-                completion(price.first?.price, nil)
+                completion(price.first?.result, nil)
                 }
             case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
             }

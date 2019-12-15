@@ -9,11 +9,3 @@
 import Foundation
 
 
-public struct KavaNodeInfo: Codable {
-    
-    public let nodeInfo: NodeInfo?
-    
-    enum CodingKeys : String, CodingKey {
-        case nodeInfo = "node_info"
-    }
-}
