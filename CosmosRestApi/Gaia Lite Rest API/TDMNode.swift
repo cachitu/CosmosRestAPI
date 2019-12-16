@@ -25,6 +25,11 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case bitsong = "Bitsong Testnet"
 }
 
+public enum BroadcastMode: String, Codable {
+    case block
+    case sync
+    case async
+}
 
 public class TDMNode: Codable {
     
@@ -41,6 +46,7 @@ public class TDMNode: Codable {
     public var knownValidators: [String : String] = [:]
     public var defaultTxFee: String = "0"
     public var defaultMemo: String = "Syncnode's iOS Wallet"
+    public var broadcastMode: BroadcastMode = .sync
     
     public var isReadOnly: Bool {
         return false//type == .iris || type == .iris_fuxi

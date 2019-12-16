@@ -882,22 +882,39 @@ public struct TransferBaseReq: Codable {
     }
 }
 
+public struct TransferRawLog: Codable {
+    
+    public let codespace: String?
+    public let code: Int?
+    public let message: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case codespace
+        case code
+        case message
+    }
+}
+
 public struct TransferResponseV2: Codable {
     
     public let height: String?
     public let hash: String?
+    public let irisHash: String?
     public let gasWanted: String?
     public let gasUsed: String?
     public let logs: [RespLogV2]?
     public let tags: [TrResultTag]?
-
+    public let rawLog: String?
+    
     enum CodingKeys : String, CodingKey {
-        case hash = "txhash"
         case height
+        case hash = "txhash"
+        case irisHash = "hash"
         case gasWanted = "gas_used"
         case gasUsed = "gas_wanted"
         case logs
         case tags = "events"
+        case rawLog = "raw_log"
     }
 }
 
@@ -907,10 +924,12 @@ public struct TransferResponse: Codable {
     //public let checkTx: TransferCheckTx?
     //public let deliverTx: TransferDeliverTx?
     public let hash: String?
+    public let irisHash: String?
     public let gasWanted: String?
     public let gasUsed: String?
     public let logs: [RespLog]?
     public let tags: [TrResultTag]?
+    public let rawLog: String?
 
     init(v2: TransferResponseV2) {
         self.height = v2.height
@@ -919,17 +938,21 @@ public struct TransferResponse: Codable {
         self.gasUsed = v2.gasUsed
         self.logs = nil//v2.logs
         self.tags = v2.tags
+        self.irisHash = v2.irisHash
+        self.rawLog = v2.rawLog
     }
     
     enum CodingKeys : String, CodingKey {
         //case checkTx = "check_tx"
         //case deliverTx =  "deliver_tx"
         case hash = "txhash"
+        case irisHash = "hash"
         case height
         case gasWanted = "gas_used"
         case gasUsed = "gas_wanted"
         case logs
         case tags
+        case rawLog = "raw_log"
     }
 }
 

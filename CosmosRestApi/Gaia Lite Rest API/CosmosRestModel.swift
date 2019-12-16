@@ -425,10 +425,22 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         let amountString = irisAccount.value?.coins?.first?.amount ?? "0"
         self.amount = Double(amountString) ?? 0.0
         self.denom = irisAccount.value?.coins?.first?.denom ?? stakeDenom
+        
+        self.assets = []
+        for coin in irisAccount.value?.coins ?? [] {
+            if coin.denom == stakeDenom {
+                self.assets.insert(coin, at: 0)
+                self.amount = Double(coin.amount ?? "0.0") ?? 0.0
+                self.denom = coin.denom ?? stakeDenom
+            } else {
+                self.assets.insert(coin, at: assets.count)
+            }
+        }
+
         self.feeAmount = 0.0
-        self.feeDenom = irisAccount.value?.coins?.first?.denom ?? "fee token?"
+        self.feeDenom = "iris"
         self.gaiaKey = gaiaKey
-        self.assets = irisAccount.value?.coins ?? [Coin(amount: amountString, denom: "iris-atto")]
+        //self.assets = irisAccount.value?.coins ?? [Coin(amount: amountString, denom: "iris-atto")]
         self.noFeeToken = true
     }
     

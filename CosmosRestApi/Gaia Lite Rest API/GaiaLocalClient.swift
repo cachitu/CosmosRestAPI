@@ -12,10 +12,11 @@ import Foundation
 public struct SignedTx: Codable {
     
     public var tx: TxValue?
-    public let returnType: String = "block"
+    public let returnType: String
 
-    public init(tx: TransactionTx?) {
+    public init(tx: TransactionTx?, mode: String) {
         self.tx = tx?.value
+        self.returnType = mode
     }
     
     enum CodingKeys : String, CodingKey {
@@ -81,7 +82,7 @@ public class GaiaLocalClient {
                delegate?.signIris(transferData: tx, account: account, node: node, renameShares: irisRenameShares) { response in
                    switch response {
                    case .success(let data):
-                       completion?(SignedTx(tx: data.first), nil)
+                    completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil)
                    case .failure(let error):
                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                        completion?(nil, error.localizedDescription)
@@ -91,7 +92,7 @@ public class GaiaLocalClient {
                 delegate?.sign(transferData: tx, account: account, node: node) { response in
                     switch response {
                     case .success(let data):
-                        completion?(SignedTx(tx: data.first), nil)
+                        completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         completion?(nil, error.localizedDescription)
@@ -102,7 +103,7 @@ public class GaiaLocalClient {
             delegate?.sign(transferData: tx, account: account, node: node) { response in
                 switch response {
                 case .success(let data):
-                    completion?(SignedTx(tx: data.first), nil)
+                    completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil)
                 case .failure(let error):
                     print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                     completion?(nil, error.localizedDescription)
@@ -115,13 +116,13 @@ public class GaiaLocalClient {
         
         generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node, irisSpaghetti: irisSpaghetti, irisRenameShares: irisRenameShares) { signed, err in
             
-            //DispatchQueue.main.async { completion?(nil, "Broadcast blocked") }
             if let bcData = signed {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     restApi.broadcastIris(transferData: bcData) { result in
                         switch result {
-                        case .success(let data): DispatchQueue.main.async { completion?(data.first, nil) }
+                        case .success(let data):
+                            DispatchQueue.main.async { completion?(data.first, data.first?.irisHash) }
                         case .failure(let error):
                             print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
@@ -134,10 +135,11 @@ public class GaiaLocalClient {
                         case .success(let data):
                             if data.first?.logs?.first?.success == true {
                                 let resp = TransferResponse(v2: data.first!)
-                                DispatchQueue.main.async { completion?(resp, nil) }
+                                DispatchQueue.main.async { completion?(resp, data.first?.hash) }
                             } else {
                                 print(" -> [FAIL] - Broadcast", data.first?.logs?.first?.log ?? "", ", code: ", -1)
-                                DispatchQueue.main.async { completion?(nil, data.first?.logs?.first?.log ?? "Unknown") }
+                                DispatchQueue.main.async { completion?(nil, data.first?.logs?.first?.log ?? data.first?.rawLog ?? "Unknown") }
+
                             }
                         case .failure(let error):
                             print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)

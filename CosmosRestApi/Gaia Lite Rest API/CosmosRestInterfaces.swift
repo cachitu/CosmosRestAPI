@@ -30,7 +30,7 @@ extension GaiaKeysManagementCapable {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                     let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
-                    let data = IrisBankSendData(baseTx: req, recipient: toAddress, amount: amount + "iris")
+                    let data = IrisBankSendData(baseTx: req, recipient: toAddress, amount: amount + denom)
                     irisApi.bankTransfer(from: key.address, transferData: data) { result in
                         print("\n... Transfered \(amount) \(denom) ...")
                         switch result {
