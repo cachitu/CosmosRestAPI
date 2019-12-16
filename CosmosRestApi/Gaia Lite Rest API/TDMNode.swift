@@ -45,7 +45,7 @@ public class TDMNode: Codable {
     public var stakeDenom: String = "stake"
     public var knownValidators: [String : String] = [:]
     public var defaultTxFee: String = "0"
-    public var defaultMemo: String = "Syncnode's iOS Wallet"
+    public var defaultMemo: String = "Syncnode's iOS Wallet 🙀"
     public var broadcastMode: BroadcastMode = .sync
     
     public var isReadOnly: Bool {
