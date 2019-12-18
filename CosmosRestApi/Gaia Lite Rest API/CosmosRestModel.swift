@@ -188,20 +188,32 @@ public class GaiaKey: CustomStringConvertible, Codable {
         })
     }
     
-    public func getTransactions(node: TDMNode, page: Int, limit: Int, completion: @escaping ((_ transactions: [GaiaTransaction]?, _ totalItems: String?, _ message: String?) -> ())) {
+    public func getSentTransactions(node: TDMNode, page: Int, limit: Int, completion: @escaping ((_ transactions: [GaiaTransaction]?, _ totalItems: String?, _ message: String?) -> ())) {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         restApi.getSentTransactions(by: self.address, page: "\(page)", limit: "\(limit)") { result in
             switch result {
             case .success(let transactions):
                 var gaiaTransactions: [GaiaTransaction] = []
                 for transaction in transactions.first?.txs ?? [] {
-                    let gaiaTransaction = GaiaTransaction(
-                        type: transaction.tx?.value?.msg?.first?.type ?? "No type",
-                        gas: transaction.gasUsed ?? "-",
-                        height: transaction.height ?? "0",
-                        hash: transaction.hash ?? "-",
-                        time: transaction.timestamp ?? "",
-                        log: transaction.log ?? transaction.hash ?? "-")
+                    let gaiaTransaction = GaiaTransaction(transaction, keyAddress: self.address)
+                    gaiaTransactions.append(gaiaTransaction)
+                }
+                DispatchQueue.main.async {
+                    completion(gaiaTransactions, transactions.first?.totalCount, nil)
+                }
+            case .failure(let error): DispatchQueue.main.async { completion(nil, nil, error.localizedDescription) }
+            }
+        }
+    }
+
+    public func getReceivedTransactions(node: TDMNode, page: Int, limit: Int, completion: @escaping ((_ transactions: [GaiaTransaction]?, _ totalItems: String?, _ message: String?) -> ())) {
+        let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+        restApi.getReceivedTransactions(by: self.address, page: "\(page)", limit: "\(limit)") { result in
+            switch result {
+            case .success(let transactions):
+                var gaiaTransactions: [GaiaTransaction] = []
+                for transaction in transactions.first?.txs ?? [] {
+                    let gaiaTransaction = GaiaTransaction(transaction, keyAddress: self.address)
                     gaiaTransactions.append(gaiaTransaction)
                 }
                 DispatchQueue.main.async {
@@ -333,7 +345,19 @@ public class GaiaKey: CustomStringConvertible, Codable {
     
 }
 
-public class GaiaTransaction {
+public class GaiaTransaction: Codable, /*Equatable,*/ Hashable {
+    
+    public static func == (lhs: GaiaTransaction, rhs: GaiaTransaction) -> Bool {
+        return lhs.hash == rhs.hash
+    }
+    
+//    public var hashValue: Int {
+//        return hash.hashValue ^ time.hashValue &* 16777619
+//    }
+    
+    public func hash(into hasher: inout Hasher) {
+        return hasher.combine(hash.hashValue)
+    }
     
     public let type: String
     public let gas: String
@@ -342,14 +366,38 @@ public class GaiaTransaction {
     public let time: String
     public let rawLog: String
     
-    public init(type: String, gas: String, height: String, hash: String, time: String, log: String) {
-        self.type = type
-        self.gas = gas
-        self.height = Int(height) ?? 0
-        self.hash = hash
-        self.time = time
-        self.rawLog = log
+    public let sender: String
+    public let recipient: String
+    public let amount: String
+    public let isSender: Bool
+    
+    public init(_ transaction: TransactionHistoryData, keyAddress: String) {
+        self.type = transaction.tx?.value?.msg?.first?.type ?? ""
+        self.gas  = transaction.gasUsed ?? ""
+        self.height = Int(transaction.height ?? "0") ?? 0
+        self.hash = transaction.hash ?? ""
+        self.time = transaction.timestamp ?? ""
+        self.rawLog = transaction.log ?? transaction.hash ?? "-"
+        let messages = transaction.events?.filter() { $0.type == "message" }
+        let transfers = transaction.events?.filter() { $0.type == "transfer" }
+        if let message = messages?.first {
+            let sender = message.attributes?.filter() { $0.key == "sender" }
+            self.sender = sender?.first?.value ?? ""
+        } else {
+            self.sender = ""
+        }
+        if let transfer = transfers?.first {
+            let recipient = transfer.attributes?.filter() { $0.key == "recipient" }
+            self.recipient = recipient?.first?.value ?? ""
+            let amount = transfer.attributes?.filter() { $0.key == "amount" }
+            self.amount = amount?.first?.value ?? ""
+        } else {
+            self.recipient = ""
+            self.amount = ""
+        }
+        self.isSender = keyAddress == self.sender
     }
+
 }
 
 public class GaiaDelegation {

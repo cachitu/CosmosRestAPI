@@ -62,12 +62,24 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/validatorsets/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getTransaction(by hash: String, completion: ((RestResult<[TransactionData]>) -> Void)?) {
+    public func getTransaction(by hash: String, completion: ((RestResult<[TransactionHistoryData]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs/\(hash)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func getSentTransactions(by address: String, page: String, limit: String, completion: ((RestResult<[TransactionsHistory]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, singleItemResponse: true, queryItems: [URLQueryItem(name: "message.sender", value: "\(address)"), URLQueryItem(name: "page", value: page), URLQueryItem(name: "limit", value: limit)], completion: completion)
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, singleItemResponse: true, queryItems: [
+            URLQueryItem(name: "message.action", value: "send"),
+            URLQueryItem(name: "message.sender", value: "\(address)"),
+            URLQueryItem(name: "page", value: page),
+            URLQueryItem(name: "limit", value: limit)], completion: completion)
+    }
+
+    public func getReceivedTransactions(by address: String, page: String, limit: String, completion: ((RestResult<[TransactionsHistory]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs", delegate: self, singleItemResponse: true, queryItems: [
+            URLQueryItem(name: "message.action", value: "send"),
+            URLQueryItem(name: "transfer.recipient", value: "\(address)"),
+            URLQueryItem(name: "page", value: page),
+            URLQueryItem(name: "limit", value: limit)], completion: completion)
     }
 
     public func broadcast(transferData: SignedTx, completion:((RestResult<[TransferResponse]>) -> Void)?) {

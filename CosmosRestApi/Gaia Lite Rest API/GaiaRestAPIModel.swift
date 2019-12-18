@@ -273,7 +273,7 @@ public struct TransactionsHistory: Codable {
     public let pageNumber: String?
     public let pageTotal: String?
     public let limit: String?
-    public let txs: [TransactionData]?
+    public let txs: [TransactionHistoryData]?
 
     enum CodingKeys : String, CodingKey {
         case totalCount = "total_count"
@@ -285,7 +285,7 @@ public struct TransactionsHistory: Codable {
     }
 }
 
-public struct TransactionData: Codable {
+public struct TransactionHistoryData: Codable {
     
     public let hash: String?
     public let height: String?
@@ -293,6 +293,7 @@ public struct TransactionData: Codable {
     public let gasWanted: String?
     public let gasUsed: String?
     public let tx: HistoryTx?
+    public let events: [HistoryEvents]?
     public let timestamp: String?
     
     enum CodingKeys : String, CodingKey {
@@ -302,7 +303,30 @@ public struct TransactionData: Codable {
         case gasWanted = "gas_wanted"
         case gasUsed = "gas_used"
         case tx
+        case events
         case timestamp
+    }
+}
+
+public struct HistoryEvents: Codable {
+    
+    public let type: String?
+    public var attributes: [HistoryTxAttribute]?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case attributes
+    }
+}
+
+public struct HistoryTxAttribute: Codable {
+    
+    public let key: String?
+    public let value: String?
+
+    enum CodingKeys : String, CodingKey {
+        case key
+        case value
     }
 }
 
