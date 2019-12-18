@@ -31,6 +31,14 @@ public enum BroadcastMode: String, Codable {
     case async
 }
 
+public enum CoinLogos {
+    static let atom: UIImage? = UIImage(named: "atom")
+    static let iris: UIImage? = UIImage(named: "iris")
+    static let kava: UIImage? = UIImage(named: "kava")
+    static let luna: UIImage? = UIImage(named: "luna")
+    static let bitsong: UIImage? = UIImage(named: "bitsong")
+}
+
 public class TDMNode: Codable {
     
     public var state: TDMNodeState = .unknown
@@ -52,6 +60,16 @@ public class TDMNode: Codable {
         return false//type == .iris || type == .iris_fuxi
     }
     
+    public var nodeLogo: UIImage? {
+        switch type {
+        case .cosmos:    return CoinLogos.atom
+        case .iris:      return CoinLogos.iris
+        case .iris_fuxi: return CoinLogos.iris
+        case .kava:      return CoinLogos.kava
+        case .terra, .terra_118: return CoinLogos.luna
+        case .bitsong:   return CoinLogos.bitsong
+        }
+    }
     public var adddressPrefix: String {
         switch type {
         case .cosmos: return "cosmos"
@@ -144,7 +162,6 @@ public class TDMNode: Codable {
                     completion?(denom)
                 }
             }
-            
         }
     }
 }
