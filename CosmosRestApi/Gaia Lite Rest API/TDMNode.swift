@@ -33,6 +33,7 @@ public enum BroadcastMode: String, Codable {
 
 public enum CoinLogos {
     static let atom: UIImage? = UIImage(named: "atom")
+    static let atomWhite: UIImage? = UIImage(named: "atom-2")
     static let iris: UIImage? = UIImage(named: "iris")
     static let kava: UIImage? = UIImage(named: "kava")
     static let luna: UIImage? = UIImage(named: "luna")
@@ -70,6 +71,14 @@ public class TDMNode: Codable {
         case .bitsong:   return CoinLogos.bitsong
         }
     }
+    
+    public var nodeLogoWhite: UIImage? {
+        switch type {
+        case .cosmos:    return CoinLogos.atomWhite
+        default: return nodeLogo
+        }
+    }
+
     public var adddressPrefix: String {
         switch type {
         case .cosmos: return "cosmos"
