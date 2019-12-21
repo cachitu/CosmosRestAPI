@@ -50,6 +50,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
     public let validator: String
     public let pubValidator: String
     public let nodeId: String
+    public let watchMode: Bool
     
     public var identifier: String {
         return name + type + address + nodeId
@@ -62,8 +63,21 @@ public class GaiaKey: CustomStringConvertible, Codable {
         return getMnemonicFromKeychain() ?? ""
     }
 
+    public init(name: String, address: String, valAddress: String?, nodeType: TDMNodeType, nodeId: String) {
+        
+        self.watchMode = true
+        self.nodeId = nodeId
+        self.name = name
+        self.type = nodeType.rawValue
+        self.address = address
+        self.pubAddress = ""
+        self.validator = valAddress ?? ""
+        self.pubValidator = valAddress ?? ""
+    }
+
     public init(data: TDMKey, nodeId: String) {
         
+        self.watchMode = false
         self.nodeId = nodeId
         self.name = data.name ?? "-"
         self.type = data.type?.rawValue ?? "-"
