@@ -41,7 +41,12 @@ public class GaiaAddressBookItem: PersistCodable, Equatable {
 }
 
 
-public class GaiaKey: CustomStringConvertible, Codable {
+public class GaiaKey: CustomStringConvertible, Codable, Equatable {
+    
+    public static func == (lhs: GaiaKey, rhs: GaiaKey) -> Bool {
+        lhs.address == rhs.address && lhs.name == rhs.name && lhs.watchMode == rhs.watchMode
+    }
+    
     
     public let name: String
     public let type: String
@@ -90,7 +95,7 @@ public class GaiaKey: CustomStringConvertible, Codable {
             savePassToKeychain(pass: pass)
         }
         if let validMnemonic = data.mnemonic {
-            saveMnemonicToKeychain(seed: validMnemonic)
+            saveMnemonicToKeychain(mnemonic: validMnemonic)
         }
     }
     
@@ -178,28 +183,6 @@ public class GaiaKey: CustomStringConvertible, Codable {
             }
             
         }
-    }
-    
-    public func unlockKey(node: TDMNode, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
-        if self.password == password {
-            DispatchQueue.main.async { completion(true, nil) }
-        } else {
-            DispatchQueue.main.async { completion(false, "Wrong password") }
-        }
-    }
-    
-    public func deleteKey(node: TDMNode, clientDelegate: KeysClientDelegate, password: String, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
-        let kdata = KeyPostData(name: self.name, address: self.address, pass: password, seed: nil)
-        
-        GaiaLocalClient(delegate: clientDelegate).deleteKey(keyData: kdata, completion: { result in
-            switch result {
-            case .success(_):
-                let _ = self.forgetPassFromKeychain()
-                let _ = self.forgetMnemonicFromKeychain()
-                DispatchQueue.main.async { completion(true, nil) }
-            case .failure(let error): DispatchQueue.main.async { completion(false, error.localizedDescription) }
-            }
-        })
     }
     
     public func getSentTransactions(node: TDMNode, page: Int, limit: Int, completion: @escaping ((_ transactions: [GaiaTransaction]?, _ totalItems: String?, _ message: String?) -> ())) {
@@ -341,8 +324,8 @@ public class GaiaKey: CustomStringConvertible, Codable {
         return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-password-\(address)-\(name)-\(nodeId)")
     }
 
-    public func saveMnemonicToKeychain(seed: String) {
-        KeychainWrapper.setString(value: seed, forKey: "GaiaKey-mnemonic-\(address)-\(name)-\(nodeId)")
+    public func saveMnemonicToKeychain(mnemonic: String) {
+        KeychainWrapper.setString(value: mnemonic, forKey: "GaiaKey-mnemonic-\(address)-\(name)-\(nodeId)")
     }
     
     public func getMnemonicFromKeychain() -> String? {

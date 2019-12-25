@@ -29,7 +29,6 @@ public protocol KeysClientDelegate: AnyObject {
     func getSavedKeys() -> [GaiaKey]
     func generateMnemonic() -> String
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
-    func deleteKey(with name: String, address: String, password: String) -> NSError?
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
     func signIris(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, renameShares: Bool, completion:((RestResult<[TransactionTx]>) -> Void)?)
 
@@ -60,14 +59,6 @@ public class GaiaLocalClient {
     public func createSeed(completion: ((RestResult<[String]>) -> Void)?) {
         let seed = delegate?.generateMnemonic() ?? ""
         completion?(.success([seed]))
-    }
-    
-    public func deleteKey(keyData: KeyPostData, completion:((RestResult<[String]>) -> Void)?) {
-        if let error = delegate?.deleteKey(with: keyData.name, address: keyData.address, password: keyData.password ?? "") {
-            completion?(.failure(error))
-        } else {
-            completion?(.success(["Key \(keyData.name) deleted"]))
-        }
     }
     
     public class func changeKeyPassword(keyData: KeyPasswordData, completion:((RestResult<[String]>) -> Void)?) {

@@ -692,11 +692,11 @@ public struct KeyPostData: Codable {
     public let password: String?
     public let mnemonic: String?
     
-    public init(name: String, address: String, pass: String?, seed: String?) {
+    public init(name: String, address: String, pass: String?, mnemonic: String?) {
         self.name = name
         self.address = address
         self.password  = pass
-        self.mnemonic = seed
+        self.mnemonic = mnemonic
     }
     
     enum CodingKeys : String, CodingKey {

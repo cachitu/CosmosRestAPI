@@ -56,6 +56,7 @@ public class TDMNode: Codable {
     public var defaultTxFee: String = "0"
     public var defaultMemo: String = "Syncnode's iOS Wallet 🙀"
     public var broadcastMode: BroadcastMode = .sync
+    public var appleKeyCreated: Bool = false
     
     public var isReadOnly: Bool {
         return false//type == .iris || type == .iris_fuxi
