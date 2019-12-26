@@ -26,7 +26,6 @@ public struct SignedTx: Codable {
 }
 
 public protocol KeysClientDelegate: AnyObject {
-    func getSavedKeys() -> [GaiaKey]
     func generateMnemonic() -> String
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
@@ -40,11 +39,6 @@ public class GaiaLocalClient {
     
     public init(delegate: KeysClientDelegate) {
         self.delegate = delegate
-    }
-    
-    public func getKeys(completion: ((RestResult<[GaiaKey]>) -> Void)?) {
-        let keys: [GaiaKey] = delegate?.getSavedKeys() ?? []
-        completion?(.success(keys))
     }
     
     public func recoverKey(keyData: KeyPostData, completion:((RestResult<[Any]>) -> Void)?) {

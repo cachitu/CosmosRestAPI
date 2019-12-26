@@ -12,7 +12,6 @@ import Foundation
 // Keys management
 
 public protocol GaiaKeysManagementCapable {
-    func retrieveAllKeys(node: TDMNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
     func createKey(node: TDMNode, clientDelegate: KeysClientDelegate, name: String, pass: String, mnemonic: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
     func sendAssets(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
 }
@@ -296,17 +295,6 @@ extension GaiaKeysManagementCapable {
         }
     }
 
-    public func retrieveAllKeys(node: TDMNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->()) {
-        
-        GaiaLocalClient(delegate: clientDelegate).getKeys { result in
-            switch result {
-            case .success(let data):
-                DispatchQueue.main.async { completion(data, nil) }
-            case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-             }
-        }
-    }
-    
     public func createKey(node: TDMNode, clientDelegate: KeysClientDelegate, name: String, pass: String, mnemonic: String? = nil, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->()) {
         if let validMnemonic = mnemonic {
             createGaiaKey(clientDelegate: clientDelegate, name: name, pass: pass, mnemonic: validMnemonic) { rawkey, seed, errMessage in

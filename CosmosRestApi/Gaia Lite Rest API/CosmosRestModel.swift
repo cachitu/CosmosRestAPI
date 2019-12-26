@@ -58,7 +58,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     public let watchMode: Bool
     
     public var identifier: String {
-        return name + type + address + nodeId
+        return name + type + address + nodeId + "\(watchMode)"
     }
     
     public var password: String {
@@ -311,29 +311,33 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
             }
         }
     }
+    
+    private var uniqueID: String {
+        return "\(address)-\(name)-\(nodeId)"
+    }
 
     public func savePassToKeychain(pass: String) {
-        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-password-\(address)-\(name)-\(nodeId)")
+        KeychainWrapper.setString(value: pass, forKey: "GaiaKey-password-\(uniqueID)")
     }
     
     public func getPassFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-password-\(address)-\(name)-\(nodeId)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-password-\(uniqueID)")
     }
 
     public func forgetPassFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-password-\(address)-\(name)-\(nodeId)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-password-\(uniqueID)")
     }
 
     public func saveMnemonicToKeychain(mnemonic: String) {
-        KeychainWrapper.setString(value: mnemonic, forKey: "GaiaKey-mnemonic-\(address)-\(name)-\(nodeId)")
+        KeychainWrapper.setString(value: mnemonic, forKey: "GaiaKey-mnemonic-\(uniqueID)")
     }
     
     public func getMnemonicFromKeychain() -> String? {
-        return KeychainWrapper.stringForKey(keyName: "GaiaKey-mnemonic-\(address)-\(name)-\(nodeId)")
+        return KeychainWrapper.stringForKey(keyName: "GaiaKey-mnemonic-\(uniqueID)")
     }
     
     public func forgetMnemonicFromKeychain() -> Bool {
-        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-mnemonic-\(address)-\(name)-\(nodeId)")
+        return KeychainWrapper.removeObjectForKey(keyName: "GaiaKey-mnemonic-\(uniqueID)")
     }
 
     public var description: String {
