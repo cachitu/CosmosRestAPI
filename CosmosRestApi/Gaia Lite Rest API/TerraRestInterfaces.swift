@@ -9,8 +9,6 @@
 import Foundation
 
 public protocol TerraOraclesCapable {
-    
-    var node: TDMNode? { get set }
     func retrieveAllActives(node: TDMNode, completion: @escaping (_ data: [String]?, _ errMsg: String?)->())
     func retrievePrice(node: TDMNode, active: String, completion: @escaping (_ data: String?, _ errMsg: String?)->())
 }

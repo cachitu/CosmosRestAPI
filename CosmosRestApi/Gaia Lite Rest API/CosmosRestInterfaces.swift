@@ -12,8 +12,6 @@ import Foundation
 // Keys management
 
 public protocol GaiaKeysManagementCapable {
-    
-    var node: TDMNode? { get set }
     func retrieveAllKeys(node: TDMNode, clientDelegate: KeysClientDelegate, completion: @escaping (_ data: [GaiaKey]?, _ errMsg: String?)->())
     func createKey(node: TDMNode, clientDelegate: KeysClientDelegate, name: String, pass: String, mnemonic: String?, completion: @escaping (_ data: GaiaKey?, _ errMsg: String?)->())
     func sendAssets(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, toAddress: String, amount: String, denom: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
@@ -364,8 +362,6 @@ extension GaiaKeysManagementCapable {
 }
 
 public protocol GaiaValidatorsCapable {
-    
-    var node: TDMNode? { get set }
     func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
     func retrieveIrisValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
 }
@@ -413,9 +409,6 @@ extension GaiaValidatorsCapable {
 }
 
 public protocol GaiaGovernaceCapable {
-    
-    var node: TDMNode? { get set }
-    
     func retrieveAllPropsals(node: TDMNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->())
     func getPropsalDetails(node: TDMNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->())
     func vote(for proposal: String, option: String, node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?)
