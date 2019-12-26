@@ -99,6 +99,31 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
         }
     }
     
+    public func getHash(node: TDMNode, gaiaKey: GaiaKey, hash: String, completion: ((_ data: GaiaTransaction?, _ errMsg: String?) -> ())?) {
+        switch node.type {
+        case .iris, .iris_fuxi:
+            completion?(nil, nil)
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            
+            restApi.getTransactionBy(hash: hash) { [weak self] result in
+                switch result {
+                case .success(let transaction):
+                    if let tx = transaction.first, let address = self?.address {
+                        let gaiaTransaction = GaiaTransaction(tx, keyAddress: address)
+                        DispatchQueue.main.async {
+                            completion?(gaiaTransaction, nil)
+                        }
+                    } else {
+                        DispatchQueue.main.async { completion?(nil, "Success, but not able to extract the data") }
+                    }
+
+                case .failure(let error): DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                }
+            }
+        }
+    }
+
     public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
         case .iris, .iris_fuxi:

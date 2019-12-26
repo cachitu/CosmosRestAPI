@@ -62,7 +62,7 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/validatorsets/\(height)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getTransaction(by hash: String, completion: ((RestResult<[TransactionHistoryData]>) -> Void)?) {
+    public func getTransactionBy(hash: String, completion: ((RestResult<[TransactionHistoryData]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs/\(hash)", delegate: self, singleItemResponse: true, completion: completion)
     }
     

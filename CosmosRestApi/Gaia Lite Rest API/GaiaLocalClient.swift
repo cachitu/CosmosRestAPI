@@ -26,6 +26,7 @@ public struct SignedTx: Codable {
 }
 
 public protocol KeysClientDelegate: AnyObject {
+    func storeHash(_ hash: String)
     func generateMnemonic() -> String
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
@@ -99,6 +100,8 @@ public class GaiaLocalClient {
     
     public func handleSignAndBroadcast(restApi: CosmosRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: TDMNode, irisSpaghetti: Bool = false, irisRenameShares: Bool = false, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         
+        guard let kdelegate = delegate else { return }
+        
         generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node, irisSpaghetti: irisSpaghetti, irisRenameShares: irisRenameShares) { signed, err in
             
             if let bcData = signed {
@@ -107,6 +110,9 @@ public class GaiaLocalClient {
                     restApi.broadcastIris(transferData: bcData) { result in
                         switch result {
                         case .success(let data):
+                            if let hash = data.first?.irisHash {
+                                kdelegate.storeHash(hash)
+                            }
                             DispatchQueue.main.async { completion?(data.first, data.first?.irisHash) }
                         case .failure(let error):
                             print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
@@ -120,6 +126,9 @@ public class GaiaLocalClient {
                         case .success(let data):
                             if data.first?.logs?.first?.success == true {
                                 let resp = TransferResponse(v2: data.first!)
+                                if let hash = data.first?.hash {
+                                    kdelegate.storeHash(hash)
+                                }
                                 DispatchQueue.main.async { completion?(resp, data.first?.hash) }
                             } else {
                                 print(" -> [FAIL] - Broadcast", data.first?.logs?.first?.log ?? "", ", code: ", -1)
