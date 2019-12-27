@@ -28,7 +28,7 @@ public class GaiaAddressBook: PersistCodable, CustomStringConvertible {
 public class GaiaAddressBookItem: PersistCodable, Equatable {
     
     public static func == (lhs: GaiaAddressBookItem, rhs: GaiaAddressBookItem) -> Bool {
-        return lhs.address == rhs.address
+        return lhs.address == rhs.address && lhs.name == rhs.name
     }
     
     public var name: String

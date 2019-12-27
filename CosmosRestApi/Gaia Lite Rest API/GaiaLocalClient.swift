@@ -9,6 +9,12 @@
 import Foundation
 
 
+public struct PersitsableHash: Codable, Equatable {
+    public let hash: String
+    public let date: Date
+    public let height: String
+}
+
 public struct SignedTx: Codable {
     
     public var tx: TxValue?
@@ -26,7 +32,7 @@ public struct SignedTx: Codable {
 }
 
 public protocol KeysClientDelegate: AnyObject {
-    func storeHash(_ hash: String)
+    func storeHash(_ hash: PersitsableHash)
     func generateMnemonic() -> String
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
@@ -111,7 +117,8 @@ public class GaiaLocalClient {
                         switch result {
                         case .success(let data):
                             if let hash = data.first?.irisHash {
-                                kdelegate.storeHash(hash)
+                                let persistable = PersitsableHash(hash: hash, date: Date(), height: "0")
+                                kdelegate.storeHash(persistable)
                             }
                             DispatchQueue.main.async { completion?(data.first, data.first?.irisHash) }
                         case .failure(let error):
@@ -127,7 +134,8 @@ public class GaiaLocalClient {
                             if data.first?.logs?.first?.success == true {
                                 let resp = TransferResponse(v2: data.first!)
                                 if let hash = data.first?.hash {
-                                    kdelegate.storeHash(hash)
+                                    let persistable = PersitsableHash(hash: hash, date: Date(), height: "0")
+                                    kdelegate.storeHash(persistable)
                                 }
                                 DispatchQueue.main.async { completion?(resp, data.first?.hash) }
                             } else {
