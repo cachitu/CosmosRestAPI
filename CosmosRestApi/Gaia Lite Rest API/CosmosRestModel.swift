@@ -528,6 +528,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
             return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Luna")
         case .kava: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Kava")
         case .bitsong: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Btsg")
+        case .emoney: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "E-Money")
         }
     }
 //    public var description: String {

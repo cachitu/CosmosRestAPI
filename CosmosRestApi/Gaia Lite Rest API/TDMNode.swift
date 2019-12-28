@@ -23,6 +23,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case terra_118 = "Terra Old HD"
     case kava = "Kava Network"
     case bitsong = "Bitsong Testnet"
+    case emoney = "E-money Testnet"
 }
 
 public enum BroadcastMode: String, Codable {
@@ -38,6 +39,7 @@ public enum CoinLogos {
     static let kava: UIImage? = UIImage(named: "kava")
     static let luna: UIImage? = UIImage(named: "luna")
     static let bitsong: UIImage? = UIImage(named: "bitsong")
+    static let emoney: UIImage? = UIImage(named: "e-money")
 }
 
 public class TDMNode: Codable {
@@ -70,6 +72,7 @@ public class TDMNode: Codable {
         case .kava:      return CoinLogos.kava
         case .terra, .terra_118: return CoinLogos.luna
         case .bitsong:   return CoinLogos.bitsong
+        case .emoney:    return CoinLogos.emoney
         }
     }
     
@@ -88,6 +91,7 @@ public class TDMNode: Codable {
         case .kava: return "kava"
         case .terra, .terra_118: return "terra"
         case .bitsong: return "bitsong"
+        case .emoney: return "emoney"
         }
     }
     
