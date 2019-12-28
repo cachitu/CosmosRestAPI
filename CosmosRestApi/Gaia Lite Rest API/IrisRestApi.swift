@@ -31,6 +31,10 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/syncing", delegate: self, singleItemResponse: true, timeout: 3, completion: completion)
     }
 
+    public func getTransactionBy(hash: String, completion: ((RestResult<[String]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/txs/\(hash)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func getAccount(address: String, completion: ((RestResult<[IrisAccount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/bank/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }

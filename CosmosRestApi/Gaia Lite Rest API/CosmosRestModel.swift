@@ -102,7 +102,18 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     public func getHash(node: TDMNode, gaiaKey: GaiaKey, hash: String, completion: ((_ data: GaiaTransaction?, _ errMsg: String?) -> ())?) {
         switch node.type {
         case .iris, .iris_fuxi:
-            completion?(nil, nil)
+            let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getTransactionBy(hash: hash) { result in
+                switch result {
+                case .success(let transactionString):
+                    let gaiaTransaction = GaiaTransaction(irisString: transactionString.first ?? "", keyAddress: gaiaKey.address, hash: hash)
+                    DispatchQueue.main.async {
+                        completion?(gaiaTransaction, nil)
+                    }
+
+                case .failure(let error): DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                }
+            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             
@@ -397,6 +408,19 @@ public class GaiaTransaction: Codable, /*Equatable,*/ Hashable {
     public let amount: String
     public let isSender: Bool
     
+    public init(irisString: String, keyAddress: String, hash: String) {
+        self.type = "iris"
+        self.gas  = ""
+        self.height = 0
+        self.hash = hash
+        self.time = ""
+        self.rawLog = irisString
+        self.sender = ""
+        self.recipient = ""
+        self.amount = ""
+        self.isSender = true
+    }
+
     public init(_ transaction: TransactionHistoryData, keyAddress: String) {
         self.type = transaction.tx?.value?.msg?.first?.type ?? ""
         self.gas  = transaction.gasUsed ?? ""
