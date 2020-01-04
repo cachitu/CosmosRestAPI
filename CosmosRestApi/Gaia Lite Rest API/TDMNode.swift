@@ -59,6 +59,7 @@ public class TDMNode: Codable {
     public var defaultMemo: String = "Syncnode's iOS Wallet 🙀"
     public var broadcastMode: BroadcastMode = .sync
     public var appleKeyCreated: Bool = false
+    public var secured: Bool
     
     public var isReadOnly: Bool {
         return false//type == .iris || type == .iris_fuxi
@@ -95,14 +96,38 @@ public class TDMNode: Codable {
         }
     }
     
-    public init(name: String = "Gaia Node", type: TDMNodeType = .cosmos, scheme: String = "https", host: String = "localhost", rcpPort: Int? = 1317) {
+    public var uniqueID: String {
+        return "\(nodeID)-\(name)-\(type.rawValue)"
+    }
+
+    
+    public init(
+        name: String = "Gaia Node",
+        type: TDMNodeType = .cosmos,
+        scheme: String = "https",
+        host: String = "localhost",
+        rcpPort: Int? = 1317,
+        secured: Bool) {
         self.type = type
         self.name = name
         self.scheme = scheme
         self.host = host
         self.rcpPort = rcpPort
+        self.secured = secured
     }
     
+    public func deletePinFromKeychain() {
+        let _ = KeychainWrapper.removeObjectForKey(keyName: "TDMNode-pin-\(uniqueID)")
+    }
+
+    public func savePinToKeychain(pin: String) {
+        KeychainWrapper.setString(value: pin, forKey: "TDMNode-pin-\(uniqueID)")
+    }
+    
+    public func getPinFromKeychain() -> String? {
+        return KeychainWrapper.stringForKey(keyName: "TDMNode-pin-\(uniqueID)")
+    }
+
     public func getStatus(completion: (() -> ())?) {
         let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
         restApi.getSyncingInfo { [weak self] result in
