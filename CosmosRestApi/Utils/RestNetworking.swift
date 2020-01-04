@@ -128,7 +128,7 @@ extension RestNetworking {
                         return
                     }
                     let httpResponse = response as! HTTPURLResponse
-                    if httpResponse.statusCode == 200 {
+                    if (200...204).contains(httpResponse.statusCode) {
                         
                         if Resp.self is String.Type, let data = rsData as? Resp {
                             completion?(.success([data]))
@@ -147,8 +147,9 @@ extension RestNetworking {
                                 completion?(.success(decoded))
                             }
                         } catch {
-                            let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : "Resp 200 but no data.Assuming OK"])
-                            completion?(.failure(derror))
+                            //let derror = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : "Resp 200 but no data.Assuming OK"])
+                            //completion?(.failure(derror))
+                            completion?(.success([]))
                         }
                     } else {
                         let error = NSError(domain: "", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey : rsData ?? "Unknown error"])

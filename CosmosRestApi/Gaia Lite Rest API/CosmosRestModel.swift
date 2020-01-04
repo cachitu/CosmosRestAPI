@@ -156,13 +156,13 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                         }
                     } else {
                         DispatchQueue.main.async {
-                            completion?(nil, "Request OK but no data")
+                            completion?(nil, nil)
                         }
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        let message = error.code == 204 ? nil : error.localizedDescription
-                        completion?(nil, message)
+                        //let message = error.code == 204 ? nil : error.localizedDescription
+                        completion?(nil, error.localizedDescription)
                     }
                 }
             }
@@ -181,13 +181,13 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                     }
                 } else {
                     DispatchQueue.main.async {
-                        completion?(nil, "Request OK but no data")
+                        completion?(nil, nil)
                     }
                 }
             case .failure(let error):
                 DispatchQueue.main.async {
-                    let message = error.code == 204 ? "Account not found" : error.localizedDescription
-                    completion?(nil, message)
+                    //let message = error.code == 204 ? "Account not found" : error.localizedDescription
+                    completion?(nil, error.localizedDescription)
                 }
             }
         }
@@ -207,13 +207,13 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                         }
                     } else {
                         DispatchQueue.main.async {
-                            completion?(nil, "Request OK but no data")
+                            completion?(nil, nil)
                         }
                     }
                 case .failure(let error):
                     DispatchQueue.main.async {
-                        let message = error.code == 204 ? nil : error.localizedDescription
-                        completion?(nil, message)
+                        //let message = error.code == 204 ? nil : error.localizedDescription
+                        completion?(nil, error.localizedDescription)
                     }
                 }
             }
