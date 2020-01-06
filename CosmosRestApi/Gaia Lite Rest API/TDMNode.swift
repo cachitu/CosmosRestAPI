@@ -96,6 +96,18 @@ public class TDMNode: Codable {
         }
     }
     
+    public var digits: Double {
+        switch type {
+        case .cosmos: return 6
+        case .iris: return 18
+        case .iris_fuxi: return 18
+        case .kava: return 6
+        case .terra, .terra_118: return 6
+        case .bitsong: return 6
+        case .emoney: return 6
+        }
+    }
+
     public var uniqueID: String {
         return "\(nodeID)-\(name)-\(type.rawValue)"
     }
