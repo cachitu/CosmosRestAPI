@@ -60,8 +60,9 @@ public class TDMNode: Codable {
     public var defaultMemo: String = "Syncnode's iOS Wallet 🙀"
     public var broadcastMode: BroadcastMode = .sync
     public var appleKeyCreated: Bool = false
-    public var secured: Bool
-    
+    public var securedNodeAccess: Bool
+    public var securedSigning: Bool = false
+
     public var isReadOnly: Bool {
         return false//type == .iris || type == .iris_fuxi
     }
@@ -97,7 +98,7 @@ public class TDMNode: Codable {
         }
     }
     
-    public var digits: Double {
+    public var decimals: Double {
         switch type {
         case .cosmos: return 6
         case .iris: return 18
@@ -126,7 +127,7 @@ public class TDMNode: Codable {
         self.scheme = scheme
         self.host = host
         self.rcpPort = rcpPort
-        self.secured = secured
+        self.securedNodeAccess = secured
     }
     
     public func deletePinFromKeychain() {

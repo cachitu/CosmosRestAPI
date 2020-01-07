@@ -158,9 +158,11 @@ extension GaiaKeysManagementCapable {
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
                 case .iris, .iris_fuxi:
+                    let damount = Double(amount) ?? 0
+                    let corrected = "\(damount / pow(10, node.decimals))"
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                     let req = IrisBaseReq(chainId: node.network, gas: "25000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisRedelegateData(baseTx: req, redelegate: IrisRedelegateContent(validatorSource: fromValidator, validatorDestination: toValidator, sharesAmount: amount, sharesPercent: nil))
+                    let data = IrisRedelegateData(baseTx: req, redelegate: IrisRedelegateContent(validatorSource: fromValidator, validatorDestination: toValidator, sharesAmount: corrected, sharesPercent: nil))
                     irisApi.redelegation(from: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -207,7 +209,7 @@ extension GaiaKeysManagementCapable {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                     let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisDelegateData(baseTx: req, delegate: IrisDelegateContent(delegation: amount + "iris", validatorAddr: toValidator))
+                    let data = IrisDelegateData(baseTx: req, delegate: IrisDelegateContent(delegation: amount + denom, validatorAddr: toValidator))
                     irisApi.delegation(from: key.address, transferData: data) { result in
  
                         switch result {
@@ -254,9 +256,11 @@ extension GaiaKeysManagementCapable {
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
                 case .iris, .iris_fuxi:
+                    let damount = Double(amount) ?? 0
+                    let corrected = "\(damount / pow(10, node.decimals))"
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                     let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisUnbondData(baseTx: req, unbond: IrisUnbondContent(sharesAmount: amount, sharesPercent: nil, validatorAddr: fromValidator))
+                    let data = IrisUnbondData(baseTx: req, unbond: IrisUnbondContent(sharesAmount: corrected, sharesPercent: nil, validatorAddr: fromValidator))
                     irisApi.unbonding(from: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -517,7 +521,7 @@ extension GaiaGovernaceCapable {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                     let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisProposeData(baseTx: req, title: title, description: description, proposer: key.address, proposalType: "PlainText", initialDeposit: deposit + "iris")
+                    let data = IrisProposeData(baseTx: req, title: title, description: description, proposer: key.address, proposalType: "PlainText", initialDeposit: deposit + node.stakeDenom)
                     irisApi.submitProposal(transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -565,7 +569,7 @@ extension GaiaGovernaceCapable {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                     let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisProposalDepositData(baseTx: req, depositor: key.address, amount: amount + "iris")
+                    let data = IrisProposalDepositData(baseTx: req, depositor: key.address, amount: amount + node.stakeDenom)
                     irisApi.depositToProposal(id: proposalId, transferData: data) { result in
                         switch result {
                         case .success(let data):
