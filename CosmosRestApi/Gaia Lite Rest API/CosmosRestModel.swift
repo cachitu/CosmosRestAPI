@@ -175,7 +175,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
             switch result {
             case .success(let data):
                 if let item = data.first {
-                    let gaiaAcc = GaiaAccount(irisAccount: item, gaiaKey: gaiaKey, stakeDenom: "iris-atto")
+                    let gaiaAcc = GaiaAccount(irisAccount: item, gaiaKey: gaiaKey, stakeDenom: "iris-atto", hardcodedFeeDenom: "iris-atto")
                     DispatchQueue.main.async {
                         completion?(gaiaAcc, nil)
                     }
@@ -515,7 +515,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.noFeeToken = true
     }
     
-    init(irisAccount: IrisAccount, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
+    init(irisAccount: IrisAccount, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String, hardcodedFeeDenom: String?) {
         self.accNumber = irisAccount.value?.accountNumber ?? "0"
         self.accSequence = irisAccount.value?.sequence ?? "0"
         self.address = irisAccount.value?.address ?? "="
@@ -536,7 +536,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         }
 
         self.feeAmount = 0.0
-        self.feeDenom = "iris"
+        self.feeDenom = hardcodedFeeDenom ?? "iris"
         self.gaiaKey = gaiaKey
         //self.assets = irisAccount.value?.coins ?? [Coin(amount: amountString, denom: "iris-atto")]
         self.noFeeToken = true
