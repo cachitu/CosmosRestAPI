@@ -58,7 +58,7 @@ extension TerraOraclesCapable {
                                           askDenom: askDenom,
                                           accNum: gaiaAcc.accNumber,
                                           sequence: gaiaAcc.accSequence,
-                                          fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                                          fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                 restApi.swapActive(transferData: swData) { result in
                     switch result {
                     case .success(let data):

@@ -26,7 +26,7 @@ extension GaiaKeysManagementCapable {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisBankSendData(baseTx: req, recipient: toAddress, amount: amount + denom)
                     irisApi.bankTransfer(from: key.address, transferData: data) { result in
                         print("\n... Transfered \(amount) \(denom) ...")
@@ -48,7 +48,7 @@ extension GaiaKeysManagementCapable {
                                                 denom: denom,
                                                 accNum: gaiaAcc.accNumber,
                                                 sequence:gaiaAcc.accSequence,
-                                                fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                                                fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.bankTransfer(to: toAddress, transferData: data) { result in
                         print("\n... Transfered \(amount) \(denom) ...")
                         switch result {
@@ -74,7 +74,7 @@ extension GaiaKeysManagementCapable {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisWithdrawData(baseTx: req, validatorAddress: validator, isValidator: false)
                     irisApi.withdrawReward(to: key.address, transferData: data) { result in
                         switch result {
@@ -91,7 +91,7 @@ extension GaiaKeysManagementCapable {
                                                 chain: node.network,
                                                 accNum: gaiaAcc.accNumber,
                                                 sequence: gaiaAcc.accSequence,
-                                                fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                                                fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.withdrawReward(to: gaiaAcc.address, fromValidator: validator, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -116,7 +116,7 @@ extension GaiaKeysManagementCapable {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisWithdrawData(baseTx: req, validatorAddress: nil, isValidator: true)
                     irisApi.withdrawReward(to: key.address, transferData: data) { result in
                         switch result {
@@ -134,7 +134,7 @@ extension GaiaKeysManagementCapable {
                                                 chain: node.network,
                                                 accNum: gaiaAcc.accNumber,
                                                 sequence: gaiaAcc.accSequence,
-                                                fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                                                fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.withdrawComission(from: key.validator, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -159,7 +159,7 @@ extension GaiaKeysManagementCapable {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "25000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "25000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisRedelegateData(baseTx: req, redelegate: IrisRedelegateContent(validatorSource: fromValidator, validatorDestination: toValidator, sharesAmount: amount, sharesPercent: nil))
                     irisApi.redelegation(from: key.address, transferData: data) { result in
                         switch result {
@@ -182,7 +182,7 @@ extension GaiaKeysManagementCapable {
                         denom: node.stakeDenom,
                         accNum: gaiaAcc.accNumber,
                         sequence: gaiaAcc.accSequence,
-                        fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                        fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.redelegation(from: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -206,7 +206,7 @@ extension GaiaKeysManagementCapable {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisDelegateData(baseTx: req, delegate: IrisDelegateContent(delegation: amount + "iris", validatorAddr: toValidator))
                     irisApi.delegation(from: key.address, transferData: data) { result in
  
@@ -230,7 +230,7 @@ extension GaiaKeysManagementCapable {
                         denom: denom,
                         accNum: gaiaAcc.accNumber,
                         sequence: gaiaAcc.accSequence,
-                        fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                        fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.delegation(from: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -255,7 +255,7 @@ extension GaiaKeysManagementCapable {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisUnbondData(baseTx: req, unbond: IrisUnbondContent(sharesAmount: amount, sharesPercent: nil, validatorAddr: fromValidator))
                     irisApi.unbonding(from: key.address, transferData: data) { result in
                         switch result {
@@ -278,7 +278,7 @@ extension GaiaKeysManagementCapable {
                         denom: node.stakeDenom,
                         accNum: gaiaAcc.accNumber,
                         sequence: gaiaAcc.accSequence,
-                        fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                        fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.unbonding(from: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -492,7 +492,7 @@ extension GaiaGovernaceCapable {
                                                 sequence: gaiaAcc.accSequence,
                                                 voter: key.address,
                                                 option: option,
-                                                fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                                                fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                 restApi.voteProposal(id: proposal, transferData: data) { result in
                     print("\n... Submit vote id \(proposal) ...")
                     switch result {
@@ -516,7 +516,7 @@ extension GaiaGovernaceCapable {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisProposeData(baseTx: req, title: title, description: description, proposer: key.address, proposalType: "PlainText", initialDeposit: deposit + "iris")
                     irisApi.submitProposal(transferData: data) { result in
                         switch result {
@@ -540,7 +540,7 @@ extension GaiaGovernaceCapable {
                         description: description,
                         proposalType: type,
                         proposer: key.address,
-                        fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                        fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.submitProposal(transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -564,7 +564,7 @@ extension GaiaGovernaceCapable {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisProposalDepositData(baseTx: req, depositor: key.address, amount: amount + "iris")
                     irisApi.depositToProposal(id: proposalId, transferData: data) { result in
                         switch result {
@@ -585,7 +585,7 @@ extension GaiaGovernaceCapable {
                         accNum: gaiaAcc.accNumber,
                         sequence: gaiaAcc.accSequence,
                         depositor: key.address,
-                        fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                        fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.depositToProposal(id: proposalId, transferData: data) { result in
                         switch result {
                         case .success(let data):

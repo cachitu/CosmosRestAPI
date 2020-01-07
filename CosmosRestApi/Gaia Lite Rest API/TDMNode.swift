@@ -55,7 +55,8 @@ public class TDMNode: Codable {
     public var version: String = ""
     public var stakeDenom: String = "stake"
     public var knownValidators: [String : String] = [:]
-    public var defaultTxFee: String = "0"
+    public var feeAmount: String = "0"
+    public var feeDenom: String = ""
     public var defaultMemo: String = "Syncnode's iOS Wallet 🙀"
     public var broadcastMode: BroadcastMode = .sync
     public var appleKeyCreated: Bool = false
@@ -195,9 +196,9 @@ public class TDMNode: Codable {
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
         switch self.type {
         case .iris, .iris_fuxi:
-            stakeDenom = "iris"
+            stakeDenom = "iris-atto"
             DispatchQueue.main.async {
-                completion?("iris")
+                completion?("iris-atto")
             }
         default:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
@@ -207,6 +208,9 @@ public class TDMNode: Codable {
                 case .success(let data):
                     denom = data.first?.result?.bondDenom
                     self?.stakeDenom = denom ?? "stake"
+                    if self?.feeDenom == "" {
+                        self?.feeDenom = denom ?? ""
+                    }
                 case .failure(_): break
                 }
                 DispatchQueue.main.async {

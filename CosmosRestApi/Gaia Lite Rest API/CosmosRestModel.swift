@@ -149,7 +149,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                             self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
                         } else {
                             let denom: String? = (node.type == .terra || node.type == .terra_118) ? "ukrw" : nil
-                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom, hardcodedFeeDenom: denom)
+                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
                             DispatchQueue.main.async {
                                 completion?(gaiaAcc, nil)
                             }
@@ -175,7 +175,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
             switch result {
             case .success(let data):
                 if let item = data.first {
-                    let gaiaAcc = GaiaAccount(irisAccount: item, gaiaKey: gaiaKey, stakeDenom: "iris-atto", hardcodedFeeDenom: "iris-atto")
+                    let gaiaAcc = GaiaAccount(irisAccount: item, gaiaKey: gaiaKey, stakeDenom: "iris-atto")
                     DispatchQueue.main.async {
                         completion?(gaiaAcc, nil)
                     }
@@ -479,8 +479,6 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     public let pubKey: String
     public var amount: Double
     public var denom: String
-    public var feeAmount: Double?
-    public var feeDenom: String?
     public var assets: [Coin]
     public let accNumber: String
     public let accSequence: String
@@ -488,15 +486,13 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     public let noFeeToken: Bool
     public var isValidator: Bool = false
 
-    init(accountValue: AccountValue?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String, hardcodedFeeDenom: String? = nil) {
+    init(accountValue: AccountValue?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
         self.accNumber = accountValue?.accountNumber ?? "0"
         self.accSequence = accountValue?.sequence ?? "0"
         self.address = accountValue?.address ?? "="
         self.pubKey = accountValue?.publicKey?.value ?? "-"
         self.amount = 0.0
         self.denom = stakeDenom
-        self.feeAmount = 0.0
-        self.feeDenom = "fee token?"
         self.gaiaKey = gaiaKey
         self.assets = []
         
@@ -509,13 +505,11 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
                 assets.insert(coin, at: assets.count)
             }
         }
-        self.feeAmount = 0.0
-        self.feeDenom = hardcodedFeeDenom ?? stakeDenom
         
         self.noFeeToken = true
     }
     
-    init(irisAccount: IrisAccount, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String, hardcodedFeeDenom: String?) {
+    init(irisAccount: IrisAccount, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
         self.accNumber = irisAccount.value?.accountNumber ?? "0"
         self.accSequence = irisAccount.value?.sequence ?? "0"
         self.address = irisAccount.value?.address ?? "="
@@ -535,8 +529,6 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
             }
         }
 
-        self.feeAmount = 0.0
-        self.feeDenom = hardcodedFeeDenom ?? "iris"
         self.gaiaKey = gaiaKey
         //self.assets = irisAccount.value?.coins ?? [Coin(amount: amountString, denom: "iris-atto")]
         self.noFeeToken = true
@@ -625,14 +617,14 @@ public class GaiaValidator {
         }
     }
     
-    public func unjail(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, feeAmount: String, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func unjail(node: TDMNode, clientDelegate: KeysClientDelegate, key: GaiaKey, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
                 case .iris, .iris_fuxi:
                     let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "0.41iris", memo: node.defaultMemo)
+                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
                     let data = IrisUnjailData(baseTx: req)
                     irisApi.unjail(validator: key.validator, transferData: data) { result in
                         
@@ -649,7 +641,7 @@ public class GaiaValidator {
                                                  chain: node.network,
                                                  accNum: gaiaAcc.accNumber,
                                                  sequence: gaiaAcc.accSequence,
-                                                 fees: [TxFeeAmount(amount: feeAmount, denom: gaiaAcc.feeDenom)])
+                                                 fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.unjail(validator: self.validator, transferData: baseReq) { result in
                         switch result {
                         case .success(let data):
