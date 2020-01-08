@@ -820,6 +820,46 @@ public struct Coin: Codable {
     public let amount: String?
     public let denom: String?
 
+    public func deflatedAmount(decimals: Int, displayDecimnals: Int) -> String {
+        guard var validAmount = amount?.split(separator: ".").first else { return "0" }
+        var delta = decimals - validAmount.count
+        while delta >= 0 {
+            validAmount.insert("0", at: validAmount.startIndex)
+            delta -= 1
+        }
+        
+        let tail = String(validAmount[validAmount.index(validAmount.startIndex, offsetBy: validAmount.count - decimals)..<validAmount.endIndex])
+        let head = String(validAmount[validAmount.startIndex..<validAmount.index(validAmount.startIndex, offsetBy: validAmount.count - decimals)])
+        
+        return head + "." + tail[tail.startIndex..<tail.index(validAmount.startIndex, offsetBy: displayDecimnals)]
+    }
+    
+    public var upperDenom: String {
+        guard let validDenom = denom else {
+            return ""
+        }
+        return Self.upperDenomFrom(denom: validDenom)
+    }
+    
+    public static func upperDenomFrom(denom : String) -> String {
+        if denom.contains("-min") {
+            return denom.replacingOccurrences(of: "-min", with: "")
+        }
+        if denom.contains("-atto") {
+            return denom.replacingOccurrences(of: "-atto", with: "")
+        }
+        if denom.starts(with: "u") {
+            return String(denom.dropFirst())
+        }
+        if denom.starts(with: "x") {
+            let nonx = denom.dropFirst()
+            if Int(String(nonx.first ?? Character("."))) != nil {
+                return String(nonx.dropFirst())
+            }
+        }
+
+        return denom
+    }
     
     enum CodingKeys : String, CodingKey {
         case amount

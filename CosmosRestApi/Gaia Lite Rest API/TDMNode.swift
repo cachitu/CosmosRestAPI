@@ -44,6 +44,24 @@ public enum CoinLogos {
 
 public class TDMNode: Codable {
     
+    public init(
+        name: String = "Gaia Node",
+        type: TDMNodeType = .cosmos,
+        scheme: String = "https",
+        host: String = "localhost",
+        rcpPort: Int? = 1317,
+        secured: Bool) {
+        self.type = type
+        self.name = name
+        self.scheme = scheme
+        self.host = host
+        self.rcpPort = rcpPort
+        self.securedNodeAccess = secured
+        if type == .iris || type == .iris_fuxi {
+            self.feeAmount = "300000000000000000"
+        }
+    }
+    
     public var state: TDMNodeState = .unknown
     public var type: TDMNodeType = .cosmos
     public var name: String
@@ -114,21 +132,6 @@ public class TDMNode: Codable {
         return "\(nodeID)-\(name)-\(type.rawValue)"
     }
 
-    
-    public init(
-        name: String = "Gaia Node",
-        type: TDMNodeType = .cosmos,
-        scheme: String = "https",
-        host: String = "localhost",
-        rcpPort: Int? = 1317,
-        secured: Bool) {
-        self.type = type
-        self.name = name
-        self.scheme = scheme
-        self.host = host
-        self.rcpPort = rcpPort
-        self.securedNodeAccess = secured
-    }
     
     public func deletePinFromKeychain() {
         let _ = KeychainWrapper.removeObjectForKey(keyName: "TDMNode-pin-\(uniqueID)")

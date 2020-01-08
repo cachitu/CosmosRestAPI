@@ -148,7 +148,6 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                         if type.contains("VestingAccount") {
                             self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
                         } else {
-                            let denom: String? = (node.type == .terra || node.type == .terra_118) ? "ukrw" : nil
                             let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
                             DispatchQueue.main.async {
                                 completion?(gaiaAcc, nil)
@@ -458,6 +457,20 @@ public class GaiaDelegation {
     public let height: Int
     public var availableReward = ""
     
+    public func availableRewardNormalised(decimals: Int, displayDecimnals: Int) -> String {
+        if availableReward == "" { return "..." }
+        var delta = decimals - availableReward.count
+        while delta >= 0 {
+            availableReward.insert("0", at: availableReward.startIndex)
+            delta -= 1
+        }
+        
+        let tail = String(availableReward[availableReward.index(availableReward.startIndex, offsetBy: availableReward.count - decimals)..<availableReward.endIndex])
+        let head = String(availableReward[availableReward.startIndex..<availableReward.index(availableReward.startIndex, offsetBy: availableReward.count - decimals)])
+        
+        return head + "." + tail[tail.startIndex..<tail.index(availableReward.startIndex, offsetBy: displayDecimnals)]
+    }
+
     public init(delegation: Delegation) {
         self.validatorAddr = delegation.validatorAddr ?? "-"
         self.delegatorAddr = delegation.delegatorAddr ?? "-"
@@ -530,26 +543,9 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         }
 
         self.gaiaKey = gaiaKey
-        //self.assets = irisAccount.value?.coins ?? [Coin(amount: amountString, denom: "iris-atto")]
         self.noFeeToken = true
     }
     
-    public func firendlyAmountAndDenom(for type: TDMNodeType) -> String {
-        switch type {
-        case .cosmos:
-            return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Atom")
-        case .iris, .iris_fuxi:
-            return String.localizedStringWithFormat("%.2f %@", amount / (1000000000000000000), "Iris")
-        case .terra, .terra_118:
-            return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Luna")
-        case .kava: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Kava")
-        case .bitsong: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "Btsg")
-        case .emoney: return String.localizedStringWithFormat("%.2f %@", amount / (1000000), "E-Money")
-        }
-    }
-//    public var description: String {
-//        return "\(address): \(amount) \(denom)"
-//    }
 }
 
 public class GaiaValidator {
