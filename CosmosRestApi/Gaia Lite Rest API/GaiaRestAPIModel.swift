@@ -821,6 +821,17 @@ public struct Coin: Codable {
     public let denom: String?
 
     public func deflatedAmount(decimals: Int, displayDecimnals: Int) -> String {
+        return Self.deflatedAmountFrom(amount: amount, decimals: decimals, displayDecimnals: displayDecimnals)
+    }
+    
+    public var upperDenom: String {
+        guard let validDenom = denom else {
+            return ""
+        }
+        return Self.upperDenomFrom(denom: validDenom)
+    }
+    
+    public static func deflatedAmountFrom(amount : String?, decimals: Int, displayDecimnals: Int) -> String {
         guard var validAmount = amount?.split(separator: ".").first else { return "0" }
         var delta = decimals - validAmount.count
         while delta >= 0 {
@@ -833,14 +844,7 @@ public struct Coin: Codable {
         
         return head + "." + tail[tail.startIndex..<tail.index(validAmount.startIndex, offsetBy: displayDecimnals)]
     }
-    
-    public var upperDenom: String {
-        guard let validDenom = denom else {
-            return ""
-        }
-        return Self.upperDenomFrom(denom: validDenom)
-    }
-    
+
     public static func upperDenomFrom(denom : String) -> String {
         if denom.contains("-min") {
             return denom.replacingOccurrences(of: "-min", with: "")

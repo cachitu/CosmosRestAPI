@@ -498,6 +498,7 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
     public let gaiaKey: GaiaKey
     public let noFeeToken: Bool
     public var isValidator: Bool = false
+    public var isEmpty: Bool = false
 
     init(accountValue: AccountValue?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
         self.accNumber = accountValue?.accountNumber ?? "0"
