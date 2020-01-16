@@ -44,7 +44,7 @@ public class GaiaAddressBookItem: PersistCodable, Equatable {
 public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     
     public static func == (lhs: GaiaKey, rhs: GaiaKey) -> Bool {
-        lhs.address == rhs.address && lhs.name == rhs.name && lhs.watchMode == rhs.watchMode && lhs.networkName == rhs.networkName
+        lhs.address == rhs.address && lhs.name == rhs.name && lhs.watchMode == rhs.watchMode && lhs.nodeId == rhs.nodeId
     }
     
     
