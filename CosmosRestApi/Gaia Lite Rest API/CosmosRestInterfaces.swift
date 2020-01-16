@@ -305,7 +305,7 @@ extension GaiaKeysManagementCapable {
                 if let error = errMessage {
                     DispatchQueue.main.async { completion(nil, error) }
                 } else if let validKey = rawkey {
-                    let gaiaKey = GaiaKey(data: validKey, nodeId: node.nodeID)
+                    let gaiaKey = GaiaKey(data: validKey, nodeId: node.nodeID, networkName: node.network)
                     gaiaKey.savePassToKeychain(pass: pass)
                     DispatchQueue.main.async { completion(gaiaKey, nil) }
                 }
@@ -315,7 +315,7 @@ extension GaiaKeysManagementCapable {
                 if let error = errMessage {
                     DispatchQueue.main.async {completion(nil, error) }
                 } else if let validKey = rawkey {
-                    let gaiaKey = GaiaKey(data: validKey, nodeId: node.nodeID)
+                    let gaiaKey = GaiaKey(data: validKey, nodeId: node.nodeID, networkName: node.network)
                     gaiaKey.savePassToKeychain(pass: pass)
                     DispatchQueue.main.async { completion(gaiaKey, nil) }
                 }

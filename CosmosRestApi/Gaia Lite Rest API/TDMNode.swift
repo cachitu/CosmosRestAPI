@@ -75,7 +75,7 @@ public class TDMNode: Codable {
     public var knownValidators: [String : String] = [:]
     public var feeAmount: String = "0"
     public var feeDenom: String = ""
-    public var defaultMemo: String = "Syncnode's iOS Wallet 🙀"
+    public var defaultMemo: String = ""
     public var broadcastMode: BroadcastMode = .sync
     public var appleKeyCreated: Bool = false
     public var securedNodeAccess: Bool

@@ -44,12 +44,13 @@ public class GaiaAddressBookItem: PersistCodable, Equatable {
 public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     
     public static func == (lhs: GaiaKey, rhs: GaiaKey) -> Bool {
-        lhs.address == rhs.address && lhs.name == rhs.name && lhs.watchMode == rhs.watchMode
+        lhs.address == rhs.address && lhs.name == rhs.name && lhs.watchMode == rhs.watchMode && lhs.networkName == rhs.networkName
     }
     
     
     public let name: String
     public let type: String
+    public let networkName: String
     public let address: String
     public let pubAddress: String
     public let validator: String
@@ -58,7 +59,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     public let watchMode: Bool
     
     public var identifier: String {
-        return name + type + address + nodeId + "\(watchMode)"
+        return name + type + address + nodeId + networkName + "\(watchMode)"
     }
     
     public var password: String {
@@ -68,7 +69,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
         return getMnemonicFromKeychain() ?? ""
     }
 
-    public init(name: String, address: String, valAddress: String?, nodeType: TDMNodeType, nodeId: String) {
+    public init(name: String, address: String, valAddress: String?, nodeType: TDMNodeType, nodeId: String, networkName: String) {
         
         self.watchMode = true
         self.nodeId = nodeId
@@ -78,9 +79,10 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
         self.pubAddress = ""
         self.validator = valAddress ?? ""
         self.pubValidator = valAddress ?? ""
+        self.networkName = networkName
     }
 
-    public init(data: TDMKey, nodeId: String) {
+    public init(data: TDMKey, nodeId: String, networkName: String) {
         
         self.watchMode = false
         self.nodeId = nodeId
@@ -90,7 +92,8 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
         self.pubAddress = data.pubAddress ?? "-"
         self.validator = data.validator ?? "-"
         self.pubValidator = data.pubValidator ?? "-"
-        
+        self.networkName = networkName
+
         if let pass = data.password {
             savePassToKeychain(pass: pass)
         }
