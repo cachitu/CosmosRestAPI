@@ -44,7 +44,7 @@ public class GaiaAddressBookItem: PersistCodable, Equatable {
 public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     
     public static func == (lhs: GaiaKey, rhs: GaiaKey) -> Bool {
-        lhs.address == rhs.address && lhs.name == rhs.name && lhs.watchMode == rhs.watchMode && lhs.nodeId == rhs.nodeId
+        lhs.identifier == rhs.identifier
     }
     
     
@@ -59,7 +59,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     public let watchMode: Bool
     
     public var identifier: String {
-        return name + type + address + nodeId + networkName + "\(watchMode)"
+        return name + type + address + nodeId + "\(watchMode)"
     }
     
     public var password: String {
@@ -672,6 +672,7 @@ public class GaiaProposal {
     public let proposalId: String
     public let totalDepopsit: String
     public var votes: [ProposalVote] = []
+    public var submitTime: String
     
     public init(proposal: Proposal) {
         self.title       = proposal.content?.value?.title ?? "-"
@@ -686,6 +687,7 @@ public class GaiaProposal {
         let depAmount = proposal.totalDeposit?.first?.amount ?? "0"
         let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"
+        self.submitTime = proposal.submitTime ?? ""
     }
     
     public init(proposal: ProposalV2) {
@@ -701,6 +703,7 @@ public class GaiaProposal {
         let depAmount = proposal.totalDeposit?.first?.amount ?? "0"
         let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"
+        self.submitTime = proposal.submitTime ?? ""
     }
 
     public init(proposal: IrisProposal) {
@@ -717,6 +720,7 @@ public class GaiaProposal {
         let depAmount = data?.totalDeposit?.first?.amount ?? "0"
         let depDenom = data?.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"
+        self.submitTime = data?.submitTime ?? ""
     }
 
 }
