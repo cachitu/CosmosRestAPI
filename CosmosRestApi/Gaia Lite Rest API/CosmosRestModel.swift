@@ -38,6 +38,31 @@ public class GaiaAddressBookItem: PersistCodable, Equatable {
         self.name = name
         self.address = address
     }
+    
+    public func validate(node: TDMNode?, completion: ((_ success: Bool) -> ())?) {
+        guard let validNode = node else {
+            completion?(false)
+            return
+        }
+        switch validNode.type {
+        case .iris, .iris_fuxi:
+            let restApi = IrisRestAPI(scheme: validNode.scheme, host: validNode.host, port: validNode.rcpPort)
+            restApi.getAccount(address: self.address) { result in
+                switch result {
+                case .success(_): DispatchQueue.main.async { completion?(true) }
+                case .failure(_): DispatchQueue.main.async { completion?(false) }
+                }
+            }
+        default:
+            let restApi = CosmosRestAPI(scheme: validNode.scheme, host: validNode.host, port: validNode.rcpPort)
+            restApi.getAccountV2(address: self.address) { result in
+                switch result {
+                case .success(_): DispatchQueue.main.async { completion?(true) }
+                case .failure(_): DispatchQueue.main.async { completion?(false) }
+                }
+            }
+        }
+    }
 }
 
 
