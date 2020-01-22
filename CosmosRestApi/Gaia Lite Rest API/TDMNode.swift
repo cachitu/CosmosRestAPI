@@ -60,6 +60,9 @@ public class TDMNode: Codable {
         if type == .iris || type == .iris_fuxi {
             self.feeAmount = "300000000000000000"
         }
+        if type == .emoney {
+            self.feeAmount = "400000"
+        }
     }
     
     public var state: TDMNodeState = .unknown
