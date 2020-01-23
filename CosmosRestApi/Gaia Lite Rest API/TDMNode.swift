@@ -24,6 +24,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case kava = "Kava Network"
     case bitsong = "Bitsong Testnet"
     case emoney = "E-money Testnet"
+    case regen = "Regen Network"
 }
 
 public enum BroadcastMode: String, Codable {
@@ -40,6 +41,7 @@ public enum CoinLogos {
     static let luna: UIImage? = UIImage(named: "luna")
     static let bitsong: UIImage? = UIImage(named: "bitsong")
     static let emoney: UIImage? = UIImage(named: "e-money")
+    static let regen: UIImage? = UIImage(named: "regen")
 }
 
 public class TDMNode: Codable {
@@ -97,6 +99,7 @@ public class TDMNode: Codable {
         case .terra, .terra_118: return CoinLogos.luna
         case .bitsong:   return CoinLogos.bitsong
         case .emoney:    return CoinLogos.emoney
+        case .regen:     return CoinLogos.regen
         }
     }
     
@@ -116,6 +119,7 @@ public class TDMNode: Codable {
         case .terra, .terra_118: return "terra"
         case .bitsong: return "bitsong"
         case .emoney: return "emoney"
+        case .regen: return "xrn:"
         }
     }
     
@@ -128,6 +132,7 @@ public class TDMNode: Codable {
         case .terra, .terra_118: return 6
         case .bitsong: return 6
         case .emoney: return 6
+        case .regen: return 6
         }
     }
 
@@ -183,6 +188,20 @@ public class TDMNode: Codable {
                     completion?()
                 }
             }
+        case .regen:
+            CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
+                switch result {
+                case .success(let data):
+                    self?.network = data.first?.network ?? ""
+                    self?.nodeID = data.first?.id ?? ""
+                    self?.version = data.first?.version ?? ""
+                case .failure(_):
+                    self?.state = .unknown
+                }
+                DispatchQueue.main.async {
+                    completion?()
+                }
+            }
         default:
             CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfoV2 { [weak self] result in
                 switch result {
@@ -206,6 +225,23 @@ public class TDMNode: Codable {
             stakeDenom = "iris-atto"
             DispatchQueue.main.async {
                 completion?("iris-atto")
+            }
+        case .regen:
+            let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
+            restApi.getStakeParameters() { [weak self] result in
+                var denom: String? = nil
+                switch result {
+                case .success(let data):
+                    denom = data.first?.bondDenom
+                    self?.stakeDenom = denom ?? "stake"
+                    if self?.feeDenom == "" {
+                        self?.feeDenom = denom ?? ""
+                    }
+                case .failure(_): break
+                }
+                DispatchQueue.main.async {
+                    completion?(denom)
+                }
             }
         default:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
