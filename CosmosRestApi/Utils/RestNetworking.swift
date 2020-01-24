@@ -102,11 +102,11 @@ extension RestNetworking {
         let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
         
         if debug {
-            print("Req will start: \(url.absoluteString)")
-            print("Req post body ------->")
-            let body = String(data: request.httpBody ?? Data(), encoding: String.Encoding.utf8)
-            print(body ?? "-")
-            print("Req post body <-------")
+//            print("Req will start: \(url.absoluteString)")
+//            print("Req post body ------->")
+//            let body = String(data: request.httpBody ?? Data(), encoding: String.Encoding.utf8)
+//            print(body ?? "-")
+//            print("Req post body <-------")
         }
 
         let task = session.dataTask(with: request) { (responseData, response, responseError) in

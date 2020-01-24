@@ -97,17 +97,17 @@ public class KeychainWrapper {
     ///
     /// - parameter keyName: The key to lookup data for.
     /// - returns: The decoded object associated with the key if it exists. If no data exists, or the data found cannot be decoded, returns nil.
-    public class func objectForKey(keyName: String) -> NSCoding? {
-        let dataValue: NSData? = self.dataForKey(keyName: keyName)
-        
-        var objectValue: NSCoding?
-        
-        if let data = dataValue {
-            objectValue = NSKeyedUnarchiver.unarchiveObject(with: data as Data) as? NSCoding
-        }
-        
-        return objectValue;
-    }
+//    public class func objectForKey(keyName: String) -> NSCoding? {
+//        let dataValue: NSData? = self.dataForKey(keyName: keyName)
+//
+//        var obj: NSCoding?
+//
+//        if let data = dataValue {
+//            obj = try? NSKeyedUnarchiver.unarchivedObject(ofClasses: [NSCoding.self], from: data as Data) as? NSCoding
+//        }
+//
+//        return obj
+//    }
     
     
     /// Returns a NSData object for a specified key.
@@ -152,11 +152,11 @@ public class KeychainWrapper {
     /// - parameter value: The NSCoding compliant object to save.
     /// - parameter forKey: The key to save the object under.
     /// - returns: True if the save was successful, false otherwise.
-    public class func setObject(value: NSCoding, forKey keyName: String) -> Bool {
-        let data = NSKeyedArchiver.archivedData(withRootObject: value)
-        
-        return self.setData(value: data as NSData, forKey: keyName)
-    }
+//    public class func setObject(value: NSCoding, forKey keyName: String) -> Bool {
+//        let data = NSKeyedArchiver.archivedData(withRootObject: value)
+//        
+//        return self.setData(value: data as NSData, forKey: keyName)
+//    }
     
     /// Save a NSData object to the keychain associated with a specified key. If data already exists for the given keyname, the data will be overwritten with the new value.
     ///
