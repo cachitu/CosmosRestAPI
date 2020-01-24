@@ -790,15 +790,15 @@ public class GaiaProposal {
     public var submitTime: String
     
     public init(proposal: Proposal) {
-        self.title       = proposal.content?.value?.title ?? "-"
-        self.description = proposal.content?.value?.description ?? "-"
+        self.title       = proposal.content?.value?.title ?? proposal.contentv1?.value?.title ?? "-"
+        self.description = proposal.content?.value?.description ?? proposal.contentv1?.value?.description ?? "-"
         self.type        = proposal.content?.proposalType ?? ""
         self.status      = proposal.proposalStatus ?? ""
         self.yes         = proposal.tallyResult?.yes ?? "0"
         self.abstain     = proposal.tallyResult?.abstain ?? "0"
         self.no          = proposal.tallyResult?.no ?? "0"
         self.noWithVeto  = proposal.tallyResult?.noWithVeto ?? "0"
-        self.proposalId  = proposal.proposalId ?? "0"
+        self.proposalId  = proposal.proposalId ?? proposal.proposalIdv1 ?? "0"
         let depAmount = proposal.totalDeposit?.first?.amount ?? "0"
         let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"

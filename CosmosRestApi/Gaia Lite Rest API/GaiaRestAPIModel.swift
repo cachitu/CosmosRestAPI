@@ -1510,7 +1510,9 @@ public struct ProposalV2: Codable {
 public struct Proposal: Codable {
     
     public let content: ProposalContent?
+    public let contentv1: ProposalContent?
     public let proposalId: String?
+    public let proposalIdv1: String?
     public let proposalStatus: String?
     public var tallyResult: ProposalTallyData?
     public let submitTime: String?
@@ -1521,7 +1523,9 @@ public struct Proposal: Codable {
 
     enum CodingKeys : String, CodingKey {
         case content = "proposal_content"
+        case contentv1 = "content"
         case proposalId = "proposal_id"
+        case proposalIdv1 = "id"
         case proposalStatus = "proposal_status"
         case tallyResult = "final_tally_result"
         case submitTime = "submit_time"
