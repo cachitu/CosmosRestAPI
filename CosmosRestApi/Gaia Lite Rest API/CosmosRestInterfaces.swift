@@ -355,7 +355,7 @@ extension GaiaKeysManagementCapable {
 
 public protocol GaiaValidatorsCapable {
     func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
-    func retrieveIrisValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
+    func retrieveIrisValidators(node: TDMNode, page: Int, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
 }
 
 extension GaiaValidatorsCapable {
@@ -395,17 +395,27 @@ extension GaiaValidatorsCapable {
         }
     }
     
-    public func retrieveIrisValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
+    public func retrieveIrisValidators(node: TDMNode, page: Int = 1, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
         let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         
-        restApi.getStakeValidators { result in
+        var gaiaValidators: [GaiaValidator] = []
+        restApi.getStakeValidators(page: page) { result in
             switch result {
             case .success(let data):
-                var gaiaValidators: [GaiaValidator] = []
                 for validator in data {
                     gaiaValidators.append(GaiaValidator(validator: validator))
                 }
-                DispatchQueue.main.async { completion(gaiaValidators, nil) }
+                restApi.getStakeValidators(page: 2) { result in
+                    switch result {
+                    case .success(let data):
+                        for validator in data {
+                            gaiaValidators.append(GaiaValidator(validator: validator))
+                        }
+                        DispatchQueue.main.async { completion(gaiaValidators.filter { $0.jailed == false }, nil) }
+                    case .failure(let error):
+                        DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                    }
+                }
             case .failure(let error):
                 DispatchQueue.main.async { completion(nil, error.localizedDescription) }
             }

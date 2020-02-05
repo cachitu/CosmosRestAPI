@@ -39,8 +39,16 @@ public class IrisRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/bank/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
-    public func getStakeValidators(completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/stake/validators", delegate: self, singleItemResponse: false, completion: completion)
+    public func getStakeValidators(page: Int = 1, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
+        genericRequest(
+            bodyData: EmptyBody(),
+            connData: connectData,
+            path: "/stake/validators",
+            delegate: self,
+            singleItemResponse: false, queryItems: [
+            URLQueryItem(name: "page", value: "\(page)"),
+            URLQueryItem(name: "size", value: "100")],
+            completion: completion)
     }
 
     public func getDelegations(for address: String, completion: ((RestResult<[IrisDelegation]>) -> Void)?) {
