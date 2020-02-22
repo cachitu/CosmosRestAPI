@@ -22,6 +22,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case terra = "Terra Money"
     case terra_118 = "Terra Old HD"
     case kava = "Kava Network"
+    case kava_118 = "Kava Old HD"
     case bitsong = "Bitsong Testnet"
     case emoney = "E-money Testnet"
     case regen = "Regen Network"
@@ -95,7 +96,7 @@ public class TDMNode: Codable {
         case .cosmos:    return CoinLogos.atom
         case .iris:      return CoinLogos.iris
         case .iris_fuxi: return CoinLogos.iris
-        case .kava:      return CoinLogos.kava
+        case .kava, .kava_118:      return CoinLogos.kava
         case .terra, .terra_118: return CoinLogos.luna
         case .bitsong:   return CoinLogos.bitsong
         case .emoney:    return CoinLogos.emoney
@@ -115,7 +116,7 @@ public class TDMNode: Codable {
         case .cosmos: return "cosmos"
         case .iris: return "iaa"
         case .iris_fuxi: return "faa"
-        case .kava: return "kava"
+        case .kava, .kava_118: return "kava"
         case .terra, .terra_118: return "terra"
         case .bitsong: return "bitsong"
         case .emoney: return "emoney"
@@ -128,7 +129,7 @@ public class TDMNode: Codable {
         case .cosmos: return 6
         case .iris: return 18
         case .iris_fuxi: return 18
-        case .kava: return 6
+        case .kava, .kava_118: return 6
         case .terra, .terra_118: return 6
         case .bitsong: return 6
         case .emoney: return 6
