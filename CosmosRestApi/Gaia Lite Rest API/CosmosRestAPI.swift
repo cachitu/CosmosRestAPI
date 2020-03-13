@@ -102,6 +102,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
+    public func getAccountV3(address: String, completion: ((RestResult<[TdmAccResultV3]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func getVestedAccount(address: String, completion: ((RestResult<[VestedAccount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }

@@ -726,6 +726,45 @@ public struct KeyPasswordData: Codable {
     }
 }
 
+public struct TdmAccResultV3: Codable {
+    
+    public let result: TdmAccountV3?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case result
+        case height
+    }
+}
+
+public struct TdmAccountV3: Codable {
+    
+    public let type: String?
+    public let value: AccountValueV3?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct AccountValueV3: Codable {
+    
+    public let address: String?
+    public let coins: [Coin]?
+    public let publicKey: String?
+    public let accountNumber: Int?
+    public let sequence: Int?
+
+    enum CodingKeys : String, CodingKey {
+        case address
+        case coins
+        case publicKey = "public_key"
+        case accountNumber = "account_number"
+        case sequence
+    }
+}
+
 public struct TdmAccResult: Codable {
     
     public let result: TdmAccount?
@@ -798,6 +837,7 @@ public struct VestedAccountValue: Codable {
         case value
     }
 }
+
 public struct AccountValue: Codable {
     
     public let address: String?

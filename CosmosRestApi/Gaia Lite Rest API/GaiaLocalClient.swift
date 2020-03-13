@@ -126,25 +126,25 @@ public class GaiaLocalClient {
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                         }
                     }
-                case .regen:
-                    restApi.broadcast(transferData: bcData) { result in
-                        switch result {
-                        case .success(let data):
-                            if let hash = data.first?.hash {
-                                let resp = data.first
-                                let persistable = PersitsableHash(hash: hash, date: Date(), height: "0")
-                                kdelegate.storeHash(persistable)
-                                DispatchQueue.main.async { completion?(resp, data.first?.hash) }
-                            } else {
-                                print(" -> [FAIL] - Broadcast", data.first?.logs?.first?.log ?? "", ", code: ", -1)
-                                DispatchQueue.main.async { completion?(nil, data.first?.logs?.first?.log ?? data.first?.rawLog ?? "Unknown") }
-
-                            }
-                        case .failure(let error):
-                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
+//                case .regen:
+//                    restApi.broadcast(transferData: bcData) { result in
+//                        switch result {
+//                        case .success(let data):
+//                            if let hash = data.first?.hash {
+//                                let resp = data.first
+//                                let persistable = PersitsableHash(hash: hash, date: Date(), height: "0")
+//                                kdelegate.storeHash(persistable)
+//                                DispatchQueue.main.async { completion?(resp, data.first?.hash) }
+//                            } else {
+//                                print(" -> [FAIL] - Broadcast", data.first?.logs?.first?.log ?? "", ", code: ", -1)
+//                                DispatchQueue.main.async { completion?(nil, data.first?.logs?.first?.log ?? data.first?.rawLog ?? "Unknown") }
+//
+//                            }
+//                        case .failure(let error):
+//                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
+//                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+//                        }
+//                    }
                 default:
                     restApi.broadcastV2(transferData: bcData) { result in
                         switch result {

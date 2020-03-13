@@ -189,20 +189,20 @@ public class TDMNode: Codable {
                     completion?()
                 }
             }
-        case .regen:
-            CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
-                switch result {
-                case .success(let data):
-                    self?.network = data.first?.network ?? ""
-                    self?.nodeID = data.first?.id ?? ""
-                    self?.version = data.first?.version ?? ""
-                case .failure(_):
-                    self?.state = .unknown
-                }
-                DispatchQueue.main.async {
-                    completion?()
-                }
-            }
+//        case .regen:
+//            CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
+//                switch result {
+//                case .success(let data):
+//                    self?.network = data.first?.network ?? ""
+//                    self?.nodeID = data.first?.id ?? ""
+//                    self?.version = data.first?.version ?? ""
+//                case .failure(_):
+//                    self?.state = .unknown
+//                }
+//                DispatchQueue.main.async {
+//                    completion?()
+//                }
+//            }
         default:
             CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfoV2 { [weak self] result in
                 switch result {
@@ -227,23 +227,23 @@ public class TDMNode: Codable {
             DispatchQueue.main.async {
                 completion?("iris-atto")
             }
-        case .regen:
-            let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
-            restApi.getStakeParameters() { [weak self] result in
-                var denom: String? = nil
-                switch result {
-                case .success(let data):
-                    denom = data.first?.bondDenom
-                    self?.stakeDenom = denom ?? "stake"
-                    if self?.feeDenom == "" {
-                        self?.feeDenom = denom ?? ""
-                    }
-                case .failure(_): break
-                }
-                DispatchQueue.main.async {
-                    completion?(denom)
-                }
-            }
+//        case .regen:
+//            let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
+//            restApi.getStakeParameters() { [weak self] result in
+//                var denom: String? = nil
+//                switch result {
+//                case .success(let data):
+//                    denom = data.first?.bondDenom
+//                    self?.stakeDenom = denom ?? "stake"
+//                    if self?.feeDenom == "" {
+//                        self?.feeDenom = denom ?? ""
+//                    }
+//                case .failure(_): break
+//                }
+//                DispatchQueue.main.async {
+//                    completion?(denom)
+//                }
+//            }
         default:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
             restApi.getStakeParametersV2() { [weak self] result in
