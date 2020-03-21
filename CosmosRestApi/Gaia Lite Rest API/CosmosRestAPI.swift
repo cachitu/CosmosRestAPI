@@ -90,6 +90,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/txs", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
+    public func broadcastV3(transferData: SignedTx, completion:((RestResult<[TransferResponseV3]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/txs", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     public func broadcastIris(transferData: SignedTx, completion:((RestResult<[TransferResponse]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/tx/broadcast", delegate: self, reqMethod: "POST", singleItemResponse: true, queryItems: [URLQueryItem(name: "async", value: "false"), URLQueryItem(name: "commit", value: "true"), URLQueryItem(name: "simulate", value: "false")], completion: completion)
     }

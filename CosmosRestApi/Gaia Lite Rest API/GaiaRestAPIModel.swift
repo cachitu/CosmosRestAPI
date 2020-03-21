@@ -1003,6 +1003,15 @@ public struct TransferRawLog: Codable {
     }
 }
 
+public struct TransferResponseV3: Codable {
+    
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+    }
+}
+
 public struct TransferResponseV2: Codable {
     
     public let height: String?
@@ -1050,6 +1059,17 @@ public struct TransferResponse: Codable {
         self.rawLog = v2.rawLog
     }
     
+    init(v3: TransferResponseV3) {
+        self.height = v3.height
+        self.hash = "-"
+        self.gasWanted = "-"
+        self.gasUsed = "-"
+        self.logs = nil//v2.logs
+        self.tags = nil
+        self.irisHash = "-"
+        self.rawLog = "-"
+    }
+
     enum CodingKeys : String, CodingKey {
         //case checkTx = "check_tx"
         //case deliverTx =  "deliver_tx"
