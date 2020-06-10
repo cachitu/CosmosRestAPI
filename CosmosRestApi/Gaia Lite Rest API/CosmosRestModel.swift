@@ -201,7 +201,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                    }
 //                }
 //            }
-        case .regen:
+        case .regen, .kava, .kava_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccountV3(address: self.address) { [weak self] result in
                 switch result {
