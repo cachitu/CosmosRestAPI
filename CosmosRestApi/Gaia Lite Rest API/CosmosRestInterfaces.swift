@@ -354,13 +354,13 @@ extension GaiaKeysManagementCapable {
 }
 
 public protocol GaiaValidatorsCapable {
-    func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
+    func retrieveAllValidators(node: TDMNode, status: String, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
     func retrieveIrisValidators(node: TDMNode, page: Int, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
 }
 
 extension GaiaValidatorsCapable {
     
-    public func retrieveAllValidators(node: TDMNode, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
+    public func retrieveAllValidators(node: TDMNode, status: String, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
         switch node.type {
         case .iris, .iris_fuxi:
             retrieveIrisValidators(node: node, completion: completion)
@@ -380,7 +380,7 @@ extension GaiaValidatorsCapable {
 //            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-             restApi.getStakeValidatorsV2 { result in
+            restApi.getStakeValidatorsV2(status: status) { result in
                 switch result {
                 case .success(let data):
                     var gaiaValidators: [GaiaValidator] = []
