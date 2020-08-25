@@ -201,6 +201,42 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                    }
 //                }
 //            }
+            case .microtick:
+                let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+                restApi.getAccountV4(address: self.address) { [weak self] result in
+                    switch result {
+                    case .success(let data):
+                        if let item = data.first, let type = item.result?.type {
+                            if type.contains("VestingAccount") {
+                                self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+                            } else {
+                                restApi.getBalanceV2(address: self?.address ?? "") { result in
+                                    switch result {
+                                    case .success(let data):
+                                        let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                                        gaiaAcc.assets = data.first?.result ?? []
+                                        DispatchQueue.main.async {
+                                            completion?(gaiaAcc, nil)
+                                        }
+
+                                    case .failure(let error):
+                                        print(error)
+                                    }
+                                }
+                            }
+                        } else {
+                            DispatchQueue.main.async {
+                                completion?(nil, nil)
+                            }
+                        }
+                    case .failure(let error):
+                        DispatchQueue.main.async {
+                            //let message = error.code == 204 ? nil : error.localizedDescription
+                            completion?(nil, error.localizedDescription)
+                        }
+                    }
+                }
+
         case .regen, .kava, .kava_118, .certik:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccountV3(address: self.address) { [weak self] result in
@@ -669,6 +705,29 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.noFeeToken = true
     }
     
+    init(accountValue: AccountValueV4?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
+        self.accNumber = accountValue?.accountNumber ?? "0"
+        self.accSequence = accountValue?.sequence ?? "0"
+        self.address = accountValue?.address ?? "="
+        self.pubKey = accountValue?.publicKey ?? "-"
+        self.amount = 0.0
+        self.denom = stakeDenom
+        self.gaiaKey = gaiaKey
+        self.assets = []
+        
+        for coin in accountValue?.coins ?? [] {
+            if coin.denom == stakeDenom {
+                assets.insert(coin, at: 0)
+                self.amount = Double(coin.amount ?? "0.0") ?? 0.0
+                self.denom = coin.denom ?? stakeDenom
+            } else {
+                assets.insert(coin, at: assets.count)
+            }
+        }
+        
+        self.noFeeToken = true
+    }
+
     init(accountValue: AccountValueV3?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
         self.accNumber = "\(accountValue?.accountNumber ?? 0)"
         self.accSequence = "\(accountValue?.sequence ?? 0)"
@@ -870,6 +929,22 @@ public class GaiaProposal {
         let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"
         self.submitTime = proposal.submitTime ?? ""
+    }
+
+    public init(proposal: ProposalV3) {
+        self.title       = proposal.content?.value?.title ?? "-"
+        self.description = proposal.content?.value?.description ?? "-"
+        self.type        = proposal.content?.proposalType ?? ""
+        self.status      = proposal.base?.proposalStatus ?? ""
+        self.yes         = proposal.base?.tallyResult?.yes ?? "0"
+        self.abstain     = proposal.base?.tallyResult?.abstain ?? "0"
+        self.no          = proposal.base?.tallyResult?.no ?? "0"
+        self.noWithVeto  = proposal.base?.tallyResult?.noWithVeto ?? "0"
+        self.proposalId  = proposal.base?.proposalId ?? "0"
+        let depAmount = proposal.base?.totalDeposit?.first?.amount ?? "0"
+        let depDenom = proposal.base?.totalDeposit?.first?.denom ?? "-"
+        self.totalDepopsit = "\(depAmount) \(depDenom)"
+        self.submitTime = proposal.base?.submitTime ?? ""
     }
 
     public init(proposal: IrisProposal) {

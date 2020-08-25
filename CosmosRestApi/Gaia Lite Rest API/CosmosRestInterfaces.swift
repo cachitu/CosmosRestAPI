@@ -48,7 +48,7 @@ extension GaiaKeysManagementCapable {
                                                 denom: denom,
                                                 accNum: gaiaAcc.accNumber,
                                                 sequence:gaiaAcc.accSequence,
-                                                fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
+                                                fees: node.feeAmount != "0" ? [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)] : [])
                     restApi.bankTransfer(to: toAddress, transferData: data) { result in
                         print("\n... Transfered \(amount) \(denom) ...")
                         switch result {
@@ -450,20 +450,20 @@ extension GaiaGovernaceCapable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-//        case .regen:
-//            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-//            restApi.getPorposals { result in
-//                switch result {
-//                case .success(let data):
-//                    var gaiaPropsals: [GaiaProposal] = []
-//                    for proposal in data {
-//                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
-//                    }
-//                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
-//                case .failure(let error):
-//                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-//                }
-//            }
+        case .microtick:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getPorposalsV3 { result in
+                switch result {
+                case .success(let data):
+                    var gaiaPropsals: [GaiaProposal] = []
+                    for proposal in data.first?.result ?? [] {
+                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
+                    }
+                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalsV2 { result in

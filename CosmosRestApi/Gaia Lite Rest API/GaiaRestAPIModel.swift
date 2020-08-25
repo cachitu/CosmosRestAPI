@@ -391,6 +391,17 @@ public struct HistoryTxMsgVal: Codable {
     }
 }
 
+public struct TransactionTxV2: Codable {
+    
+    public let type: String?
+    public var value: TxValueV2?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
 public struct TransactionTx: Codable {
     
     public let type: String?
@@ -414,6 +425,43 @@ public struct TxValue: Codable {
         case fee
         case signatures
         case memo
+    }
+}
+
+public struct TxValueV2: Codable {
+    
+    public let msg: [TxValueMsg]?
+    public let fee: TxValueFee?
+    public var signatures: [TxValueSignatureV2]?
+    public let memo: String?
+
+    enum CodingKeys : String, CodingKey {
+        case msg
+        case fee
+        case signatures
+        case memo
+    }
+}
+
+public struct TxValueSignatureV2: Codable {
+    
+    public let signature: String?
+    public let pubKey: String?
+    //public let accountNumber: String?
+    //public let sequence: String?
+
+    public init(sig: String, value: String, accNum: String, seq: String) {
+        signature = sig
+        pubKey = value
+        //accountNumber = accNum
+        //sequence = seq
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case signature
+        case pubKey = "pub_key"
+        //case accountNumber = "account_number"
+        //case sequence
     }
 }
 
@@ -463,6 +511,17 @@ public struct TxValueFee: Codable {
     enum CodingKeys : String, CodingKey {
         case amount
         case gas
+    }
+}
+
+public struct CoinResult: Codable {
+    
+    public let height: String?
+    public let result: [Coin]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
     }
 }
 
@@ -726,6 +785,44 @@ public struct KeyPasswordData: Codable {
     }
 }
 
+public struct TdmAccResultV4: Codable {
+    
+    public let result: TdmAccountV4?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case result
+        case height
+    }
+}
+
+public struct TdmAccountV4: Codable {
+    
+    public let type: String?
+    public let value: AccountValueV4?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct AccountValueV4: Codable {
+    
+    public let address: String?
+    public let coins: [Coin]?
+    public let publicKey: String?
+    public let accountNumber: String?
+    public let sequence: String?
+
+    enum CodingKeys : String, CodingKey {
+        case address
+        case coins
+        case publicKey = "public_key"
+        case accountNumber = "account_number"
+        case sequence
+    }
+}
 public struct TdmAccResultV3: Codable {
     
     public let result: TdmAccountV3?
@@ -944,6 +1041,15 @@ public struct Response: Codable {
     }
 }
 
+public struct EncodedTx: Codable {
+    
+    public let tx: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case tx
+    }
+}
+
 //ICS20 - Bank TransferPostData
 
 public struct TransferPostData: Codable {
@@ -1006,9 +1112,11 @@ public struct TransferRawLog: Codable {
 public struct TransferResponseV3: Codable {
     
     public let height: String?
-    
+    public let hash: String?
+
     enum CodingKeys : String, CodingKey {
         case height
+        case hash = "txhash"
     }
 }
 
@@ -1061,7 +1169,7 @@ public struct TransferResponse: Codable {
     
     init(v3: TransferResponseV3) {
         self.height = v3.height
-        self.hash = "-"
+        self.hash = v3.hash
         self.gasWanted = "-"
         self.gasUsed = "-"
         self.logs = nil//v2.logs
@@ -1529,6 +1637,51 @@ public struct ProposalObsolete: Codable {
     enum CodingKeys : String, CodingKey {
         case type
         case value
+    }
+}
+
+public struct ProposalResultV3: Codable {
+    public let height: String?
+    public let result: [ProposalV3]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct ProposalV3: Codable {
+    
+    public let content: ProposalContent?
+    public let base: ProposalBase?
+
+    enum CodingKeys : String, CodingKey {
+        case content
+        case base = "ProposalBase"
+   }
+}
+
+public struct ProposalBase: Codable {
+    
+    public let proposalId: String?
+    public let proposalStatus: String?
+    public var tallyResult: ProposalTallyData?
+    public let submitTime: String?
+    public let depositEndTime: String?
+    public let totalDeposit: [TxFeeAmount]?
+    public let votingStartTime: String?
+    public let votingEndTime: String?
+    
+    enum CodingKeys : String, CodingKey {
+        
+        case proposalId = "id"
+        case proposalStatus = "status"
+        case tallyResult = "final_tally_result"
+        case submitTime = "submit_time"
+        case depositEndTime = "deposit_end_time"
+        case totalDeposit = "total_deposit"
+        case votingStartTime = "voting_start_time"
+        case votingEndTime = "voting_end_time"
     }
 }
 

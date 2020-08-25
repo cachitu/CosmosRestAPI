@@ -15,6 +15,22 @@ public struct PersitsableHash: Codable, Equatable {
     public let height: String
 }
 
+public struct SignedTxV2: Codable {
+    
+    public var tx: TxValueV2?
+    public let returnType: String
+
+    public init(tx: TransactionTxV2?, mode: String) {
+        self.tx = tx?.value
+        self.returnType = mode
+    }
+    
+    enum CodingKeys : String, CodingKey {
+        case tx
+        case returnType = "mode"
+    }
+}
+
 public struct SignedTx: Codable {
     
     public var tx: TxValue?
@@ -35,6 +51,7 @@ public protocol KeysClientDelegate: AnyObject {
     func storeHash(_ hash: PersitsableHash)
     func generateMnemonic() -> String
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
+    func signV2(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<TxValueSignatureV2>) -> Void)?)
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
     func signIris(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, renameShares: Bool, completion:((RestResult<[TransactionTx]>) -> Void)?)
 
@@ -66,7 +83,7 @@ public class GaiaLocalClient {
         completion?(.success(["OK"]))
     }
     
-    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, irisSpaghetti: Bool, irisRenameShares: Bool = false, completion: ((SignedTx?, String?) -> ())?) {
+    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, irisSpaghetti: Bool, irisRenameShares: Bool = false, completion: ((SignedTx?, SignedTxV2?, String?) -> ())?) {
         
         switch node.type {
         case .iris, .iris_fuxi:
@@ -74,31 +91,43 @@ public class GaiaLocalClient {
                delegate?.signIris(transferData: tx, account: account, node: node, renameShares: irisRenameShares) { response in
                    switch response {
                    case .success(let data):
-                    completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil)
+                    completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil, nil)
                    case .failure(let error):
                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                       completion?(nil, error.localizedDescription)
+                       completion?(nil, nil, error.localizedDescription)
                    }
                }
             } else {
                 delegate?.sign(transferData: tx, account: account, node: node) { response in
                     switch response {
                     case .success(let data):
-                        completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil)
+                        completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil, nil)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        completion?(nil, error.localizedDescription)
+                        completion?(nil, nil, error.localizedDescription)
                     }
+                }
+            }
+        case .microtick:
+            delegate?.signV2(transferData: tx, account: account, node: node) { response in
+                switch response {
+                case .success(let data):
+                    let txV2 = TransactionTxV2(type: tx?.type, value: TxValueV2(msg: tx?.value?.msg, fee: tx?.value?.fee, signatures: [data], memo: tx?.value?.memo))
+                    let txV2Signed = SignedTxV2(tx: txV2, mode: node.broadcastMode.rawValue)
+                    completion?(nil, txV2Signed, nil)
+                case .failure(let error):
+                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                    completion?(nil, nil, error.localizedDescription)
                 }
             }
         default:
             delegate?.sign(transferData: tx, account: account, node: node) { response in
                 switch response {
                 case .success(let data):
-                    completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil)
+                    completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil, nil)
                 case .failure(let error):
                     print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                    completion?(nil, error.localizedDescription)
+                    completion?(nil, nil, error.localizedDescription)
                 }
             }
         }
@@ -108,7 +137,7 @@ public class GaiaLocalClient {
         
         guard let kdelegate = delegate else { return }
         
-        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node, irisSpaghetti: irisSpaghetti, irisRenameShares: irisRenameShares) { signed, err in
+        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node, irisSpaghetti: irisSpaghetti, irisRenameShares: irisRenameShares) { signed, signedV2, err in
             
             if let bcData = signed {
                 switch node.type {
@@ -131,7 +160,11 @@ public class GaiaLocalClient {
                         switch result {
                         case .success(let data):
                             let resp = TransferResponse(v3: data.first!)
-                            DispatchQueue.main.async { completion?(resp, data.first?.height) }
+                            if let hash = resp.hash {
+                                let persistable = PersitsableHash(hash: hash, date: Date(), height: resp.height ?? "0")
+                                kdelegate.storeHash(persistable)
+                            }
+                            DispatchQueue.main.async { completion?(resp, data.first?.hash) }
                         case .failure(let error):
                             print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
@@ -158,6 +191,26 @@ public class GaiaLocalClient {
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                         }
                     }
+                }
+            } else if let bcData = signedV2 {
+                switch node.type {
+                case .microtick:
+                    restApi.broadcastV4(transferData: bcData) { result in
+                        switch result {
+                        case .success(let data):
+                            let resp = TransferResponse(v3: data.first!)
+                            if let hash = resp.hash {
+                                let persistable = PersitsableHash(hash: hash, date: Date(), height: resp.height ?? "0")
+                                kdelegate.storeHash(persistable)
+                            }
+                            DispatchQueue.main.async { completion?(resp, resp.hash) }
+                        case .failure(let error):
+                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
+                default: break
+                    
                 }
             } else {
                 DispatchQueue.main.async { completion?(nil, "Sign failed") }

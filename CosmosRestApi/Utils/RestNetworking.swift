@@ -58,7 +58,7 @@ extension RestNetworking {
         completion: ((RestResult<[Resp]>) -> Void)?)
     {
         
-        let debug = false
+        let debug = true
         
         var urlComponents = URLComponents()
         urlComponents.scheme = connData.scheme
@@ -102,11 +102,14 @@ extension RestNetworking {
         let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
         
         if debug {
-//            print("Req will start: \(url.absoluteString)")
-//            print("Req post body ------->")
-//            let body = String(data: request.httpBody ?? Data(), encoding: String.Encoding.utf8)
-//            print(body ?? "-")
-//            print("Req post body <-------")
+            print("Req will start: \(url.absoluteString)")
+            print("Req post body ------->")
+            
+            let body = String(data: request.httpBody ?? Data(), encoding: String.Encoding.utf8)
+            debugPrint(body?.data(using: .utf8)!.prettyPrintedJSONString ?? "")
+            
+            //print(body ?? "-")
+            print("Req post body <-------")
         }
 
         let task = session.dataTask(with: request) { (responseData, response, responseError) in
@@ -119,7 +122,8 @@ extension RestNetworking {
                     if debug {
                         print("Req completed \(response?.url?.path ?? "/"): ", Resp.self)
                         print("Resp body ------->")
-                        print(rsData ?? "")
+                        //print(rsData ?? "")
+                        debugPrint(rsData?.data(using: .utf8)!.prettyPrintedJSONString ?? "")
                         print("Resp body <-------")
 
                     }
@@ -169,3 +173,12 @@ extension RestNetworking {
     
 }
 
+extension Data {
+    var prettyPrintedJSONString: NSString? { /// NSString gives us a nice sanitized debugDescription
+        guard let object = try? JSONSerialization.jsonObject(with: self, options: []),
+              let data = try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted]),
+              let prettyPrintedString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) else { return nil }
+
+        return prettyPrintedString
+    }
+}

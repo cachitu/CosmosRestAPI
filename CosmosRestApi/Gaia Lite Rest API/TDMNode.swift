@@ -27,6 +27,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case emoney = "E-money Testnet"
     case regen = "Regen Network"
     case certik = "Certik Testnet"
+    case microtick = "Microtick Network"
 }
 
 public enum BroadcastMode: String, Codable {
@@ -45,6 +46,7 @@ public enum CoinLogos {
     static let emoney: UIImage? = UIImage(named: "e-money")
     static let regen: UIImage? = UIImage(named: "regen")
     static let certik: UIImage? = UIImage(named: "certik")
+    static let microtick: UIImage? = UIImage(named: "microtick")
 }
 
 public class TDMNode: Codable {
@@ -84,7 +86,7 @@ public class TDMNode: Codable {
     public var feeAmount: String = "0"
     public var feeDenom: String = ""
     public var defaultMemo: String = ""
-    public var broadcastMode: BroadcastMode = .sync
+    public var broadcastMode: BroadcastMode = .block
     public var appleKeyCreated: Bool = false
     public var securedNodeAccess: Bool
     public var securedSigning: Bool = false
@@ -104,6 +106,7 @@ public class TDMNode: Codable {
         case .emoney:    return CoinLogos.emoney
         case .regen:     return CoinLogos.regen
         case .certik:    return CoinLogos.certik
+        case .microtick: return CoinLogos.microtick
         }
     }
     
@@ -125,6 +128,7 @@ public class TDMNode: Codable {
         case .emoney: return "emoney"
         case .regen: return "xrn:"
         case .certik: return "certik"
+        case .microtick: return "micro"
         }
     }
     
@@ -139,6 +143,7 @@ public class TDMNode: Codable {
         case .emoney: return 6
         case .regen: return 6
         case .certik: return 6
+        case .microtick: return 6
         }
     }
 

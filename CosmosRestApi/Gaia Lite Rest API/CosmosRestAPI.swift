@@ -90,8 +90,16 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/txs", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
+    public func broadcastV4(transferData: SignedTxV2, completion:((RestResult<[TransferResponseV3]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/txs", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     public func broadcastV3(transferData: SignedTx, completion:((RestResult<[TransferResponseV3]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/txs", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func encodeTx(transferData: SignedTx, completion:((RestResult<[EncodedTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/txs/encode", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
     public func broadcastIris(transferData: SignedTx, completion:((RestResult<[TransferResponse]>) -> Void)?) {
@@ -110,6 +118,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
+    public func getAccountV4(address: String, completion: ((RestResult<[TdmAccResultV4]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func getVestedAccount(address: String, completion: ((RestResult<[VestedAccount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -123,12 +135,15 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/bank/accounts/\(address)/transfers", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
-    
+
     public func getBalance(address: String, completion: ((RestResult<[TxFeeAmount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/bank/balances/\(address)", delegate: self, singleItemResponse: false, completion: completion)
     }
     
-    
+    public func getBalanceV2(address: String, completion: ((RestResult<[CoinResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/bank/balances/\(address)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     // ICS21 - Stake module APIs
     
     public func getDelegations(for address: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
@@ -231,6 +246,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
 
     public func getPorposalsV2(completion: ((RestResult<[ProposalResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getPorposalsV3(completion: ((RestResult<[ProposalResultV3]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: true, completion: completion)
     }
 
