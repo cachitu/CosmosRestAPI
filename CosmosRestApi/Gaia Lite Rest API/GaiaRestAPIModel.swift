@@ -785,6 +785,45 @@ public struct KeyPasswordData: Codable {
     }
 }
 
+public struct TdmAccResultV5: Codable {
+    
+    public let result: TdmAccountV5?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case result
+        case height
+    }
+}
+
+public struct TdmAccountV5: Codable {
+    
+    public let type: String?
+    public let value: AccountValueV5?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct AccountValueV5: Codable {
+    
+    public let address: String?
+    public let coins: [Coin]?
+    public let publicKey: AminoContent?
+    public let accountNumber: String?
+    public let sequence: String?
+
+    enum CodingKeys : String, CodingKey {
+        case address
+        case coins
+        case publicKey = "public_key"
+        case accountNumber = "account_number"
+        case sequence
+    }
+}
+
 public struct TdmAccResultV4: Codable {
     
     public let result: TdmAccountV4?
@@ -823,6 +862,7 @@ public struct AccountValueV4: Codable {
         case sequence
     }
 }
+
 public struct TdmAccResultV3: Codable {
     
     public let result: TdmAccountV3?
@@ -1080,6 +1120,8 @@ public struct TransferBaseReq: Codable {
     public let sequence: String?
     public let gas: String? = "auto"
     public let gasAdjustment: String? = "1.3"
+    //public let gas: String? = nil// = "auto"
+    //public let gasAdjustment: String? = nil// = "1.3"
     public let simulate: Bool = false
     public let fees: [TxFeeAmount]? // = [TxFeeAmount(denom: "photinos", amount: "1000000")]
     
@@ -1276,6 +1318,28 @@ public struct TransferDeliverTx: Codable {
 
 //ICS21 - Stake module APIs
 
+public struct DelegationsStargateResult: Codable {
+    
+    public let result: [DelegationStargate]?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case result
+        case height
+    }
+}
+
+public struct DelegationStargate: Codable {
+    
+    public let delegation: Delegation?
+    public let balance: TxFeeAmount?
+    
+    enum CodingKeys : String, CodingKey {
+        case delegation
+        case balance
+    }
+}
+
 public struct DelegationsResult: Codable {
     
     public let result: [Delegation]?
@@ -1332,6 +1396,45 @@ public struct DelegationPostData: Codable {
         case delegation = "amount"
         case validatorAddr = "validator_address"
         case delegatorAddr = "delegator_address"
+    }
+}
+
+public struct UnbondingDelegationEntries: Codable {
+    
+    public let creationHeight: String?
+    public let completionTime: String?
+    public let initialBalance: String
+    public let balance: String?
+
+    enum CodingKeys : String, CodingKey {
+        case creationHeight = "creation_height"
+        case completionTime = "completion_time"
+        case initialBalance = "initial_balance"
+        case balance
+    }
+}
+
+public struct UnbondingDelegationV2: Codable {
+    
+    public let delegatorAddress: String?
+    public let validatorAddress: String?
+    public let entries: [UnbondingDelegationEntries]?
+    
+    enum CodingKeys : String, CodingKey {
+        case delegatorAddress = "delegator_address"
+        case validatorAddress = "validator_address"
+        case entries
+    }
+}
+
+public struct UnbondingDelegationResult: Codable {
+    
+    public let height: String?
+    public let result: [UnbondingDelegationV2]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
     }
 }
 
@@ -1516,6 +1619,39 @@ public struct DelegatorValidator: Codable {
         case bondHeight = "bond_height"
         case unbondingHeight = "unbonding_height"
         case unbondingTime = "unbonding_time"
+        case commission
+    }
+}
+
+public struct ValidatorRewardsResultStargate: Codable {
+    
+    public let height: String?
+    public let result: ValidatorRewardsStargate?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct ValidatorRewardsStargate: Codable {
+    
+    public let operatorAddress: String?
+    public let selfBondRewards: [TxFeeAmount]?
+    public let valCommission: ValidatorCommitionStargate?
+    
+    enum CodingKeys : String, CodingKey {
+        case operatorAddress = "operator_address"
+        case selfBondRewards = "self_bond_rewards"
+        case valCommission = "val_commission"
+    }
+}
+
+public struct ValidatorCommitionStargate: Codable {
+    
+    public let commission: [TxFeeAmount]?
+    
+    enum CodingKeys : String, CodingKey {
         case commission
     }
 }
@@ -1747,6 +1883,17 @@ public struct Proposal: Codable {
         case votingStartTime = "voting_start_time"
         case votingEndTime = "voting_end_time"
    }
+}
+
+public struct AminoContent: Codable {
+
+    public let type: String?
+    public let value: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
 }
 
 public struct ProposalContent: Codable {

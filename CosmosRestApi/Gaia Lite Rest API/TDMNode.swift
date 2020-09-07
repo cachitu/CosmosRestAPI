@@ -16,6 +16,7 @@ public enum TDMNodeState: String, Codable {
 }
 
 public enum TDMNodeType: String, Codable, CaseIterable {
+    case stargate = "Cosmos Stargate"
     case cosmos = "Cosmos Hub"
     case iris = "Iris Network"
     case iris_fuxi = "Iris Fuxi & Nyan"
@@ -97,7 +98,7 @@ public class TDMNode: Codable {
     
     public var nodeLogo: UIImage? {
         switch type {
-        case .cosmos:    return CoinLogos.atom
+        case .cosmos, .stargate:    return CoinLogos.atom
         case .iris:      return CoinLogos.iris
         case .iris_fuxi: return CoinLogos.iris
         case .kava, .kava_118:      return CoinLogos.kava
@@ -119,7 +120,7 @@ public class TDMNode: Codable {
 
     public var adddressPrefix: String {
         switch type {
-        case .cosmos: return "cosmos"
+        case .cosmos, .stargate: return "cosmos"
         case .iris: return "iaa"
         case .iris_fuxi: return "faa"
         case .kava, .kava_118: return "kava"
@@ -134,16 +135,8 @@ public class TDMNode: Codable {
     
     public var decimals: Double {
         switch type {
-        case .cosmos: return 6
-        case .iris: return 18
-        case .iris_fuxi: return 18
-        case .kava, .kava_118: return 6
-        case .terra, .terra_118: return 6
-        case .bitsong: return 6
-        case .emoney: return 6
-        case .regen: return 6
-        case .certik: return 6
-        case .microtick: return 6
+        case .iris, .iris_fuxi: return 18
+        default: return 6
         }
     }
 

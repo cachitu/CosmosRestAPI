@@ -122,6 +122,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
 
+    public func getAccountV5(address: String, completion: ((RestResult<[TdmAccResultV5]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func getVestedAccount(address: String, completion: ((RestResult<[VestedAccount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -154,6 +158,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, singleItemResponse: true, completion: completion)
     }
 
+    public func getDelegationsStargate(for address: String, completion: ((RestResult<[DelegationsStargateResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
     public func delegation(from address: String, transferData: DelegationPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
@@ -162,8 +170,8 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
     
-    public func getUnbondingDelegations(for address: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations", delegate: self, completion: completion)
+    public func getUnbondingDelegations(for address: String, completion: ((RestResult<[UnbondingDelegationResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations", delegate: self, singleItemResponse: true, completion: completion)
     }
     
     public func unbonding(from address: String, transferData: UnbondingDelegationPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
@@ -328,6 +336,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
 
     public func getValidatorRewardsV2(from validator: String, completion:((RestResult<[ValidatorRewardsResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/validators/\(validator)", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
+    }
+
+    public func getValidatorRewardsStargate(from validator: String, completion:((RestResult<[ValidatorRewardsResultStargate]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/distribution/validators/\(validator)", delegate: self, reqMethod: "GET", singleItemResponse: true, completion: completion)
     }
 

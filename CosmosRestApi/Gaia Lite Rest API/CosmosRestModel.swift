@@ -201,7 +201,34 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                    }
 //                }
 //            }
-            case .microtick:
+        case .certik:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getAccountV5(address: self.address) { [weak self] result in
+                switch result {
+                case .success(let data):
+                    if let item = data.first, let type = item.result?.type {
+                        if type.contains("VestingAccount") {
+                            self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+                        } else {
+                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                            DispatchQueue.main.async {
+                                completion?(gaiaAcc, nil)
+                            }
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            completion?(nil, nil)
+                        }
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        //let message = error.code == 204 ? nil : error.localizedDescription
+                        completion?(nil, error.localizedDescription)
+                    }
+                }
+            }
+
+        case .microtick, .stargate:
                 let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                 restApi.getAccountV4(address: self.address) { [weak self] result in
                     switch result {
@@ -237,7 +264,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                     }
                 }
 
-        case .regen, .kava, .kava_118, .certik:
+        case .regen, .kava, .kava_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccountV3(address: self.address) { [weak self] result in
                 switch result {
@@ -402,6 +429,21 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
         }
     }
 
+    public func getUnbondingDelegations(node: TDMNode, completion: @escaping ((_ delegations: [UnbondingDelegationV2]?, _ message: String?) -> ())) {
+        switch node.type {
+        case .stargate:
+            break
+        default:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getUnbondingDelegations(for: self.address) { result in
+                switch result {
+                case .success(let data): DispatchQueue.main.async { completion(data.first?.result, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
+        }
+    }
+    
     public func getDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         switch node.type {
         case .iris, .iris_fuxi:
@@ -420,6 +462,21 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
 //                }
 //            }
+        case .stargate:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getDelegationsStargate(for: self.address) { result in
+                switch result {
+                case .success(let delegations):
+                    let results: [DelegationStargate] = delegations.first?.result ?? []
+                    var gaiaDelegations: [GaiaDelegation] = []
+                    for delegation in results {
+                        let gaiaDelegation = GaiaDelegation(delegation: delegation.delegation!)
+                        gaiaDelegations.append(gaiaDelegation)
+                    }
+                    DispatchQueue.main.async { completion(gaiaDelegations, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegationsV2(for: self.address) { result in
@@ -483,6 +540,18 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
 //                }
 //            }
+        case .stargate:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getValidatorRewardsStargate(from: validator) { result in
+                switch result {
+                case .success(let rewards):
+                    let amount = rewards.first?.result?.valCommission?.commission?.first?.amount?.split(separator: ".").first
+                    let val = Int(amount ?? "0") ?? 0
+                    DispatchQueue.main.async { completion(val, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getValidatorRewardsV2(from: validator) { result in
@@ -710,6 +779,29 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.accSequence = accountValue?.sequence ?? "0"
         self.address = accountValue?.address ?? "="
         self.pubKey = accountValue?.publicKey ?? "-"
+        self.amount = 0.0
+        self.denom = stakeDenom
+        self.gaiaKey = gaiaKey
+        self.assets = []
+        
+        for coin in accountValue?.coins ?? [] {
+            if coin.denom == stakeDenom {
+                assets.insert(coin, at: 0)
+                self.amount = Double(coin.amount ?? "0.0") ?? 0.0
+                self.denom = coin.denom ?? stakeDenom
+            } else {
+                assets.insert(coin, at: assets.count)
+            }
+        }
+        
+        self.noFeeToken = true
+    }
+
+    init(accountValue: AccountValueV5?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
+        self.accNumber = accountValue?.accountNumber ?? "0"
+        self.accSequence = accountValue?.sequence ?? "0"
+        self.address = accountValue?.address ?? "="
+        self.pubKey = accountValue?.publicKey?.value ?? "-"
         self.amount = 0.0
         self.denom = stakeDenom
         self.gaiaKey = gaiaKey
