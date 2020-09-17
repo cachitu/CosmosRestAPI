@@ -87,7 +87,7 @@ public class TDMNode: Codable {
     public var feeAmount: String = "0"
     public var feeDenom: String = ""
     public var defaultMemo: String = ""
-    public var broadcastMode: BroadcastMode = .block
+    public var broadcastMode: BroadcastMode = .sync
     public var appleKeyCreated: Bool = false
     public var securedNodeAccess: Bool
     public var securedSigning: Bool = false
