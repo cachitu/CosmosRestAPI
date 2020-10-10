@@ -65,8 +65,13 @@ public class TDMNode: Codable {
         self.host = host
         self.rcpPort = rcpPort
         self.securedNodeAccess = secured
+        self.broadcastMode = .async
         if type == .iris || type == .iris_fuxi {
             self.feeAmount = "300000000000000000"
+        }
+        if type == .terra || type == .terra_118 {
+            self.feeAmount = "500000"
+            self.feeDenom  = "ukrw"
         }
         if type == .emoney {
             self.feeAmount = "400000"
@@ -87,7 +92,7 @@ public class TDMNode: Codable {
     public var feeAmount: String = "0"
     public var feeDenom: String = ""
     public var defaultMemo: String = ""
-    public var broadcastMode: BroadcastMode = .sync
+    public var broadcastMode: BroadcastMode = .async
     public var appleKeyCreated: Bool = false
     public var securedNodeAccess: Bool
     public var securedSigning: Bool = false
