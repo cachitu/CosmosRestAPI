@@ -174,7 +174,7 @@ public class GaiaLocalClient {
                     restApi.broadcastV2(transferData: bcData) { result in
                         switch result {
                         case .success(let data):
-                            if data.first?.logs?.first?.success == true {
+                            if data.first?.hash != nil {
                                 let resp = TransferResponse(v2: data.first!)
                                 if let hash = data.first?.hash {
                                     let persistable = PersitsableHash(hash: hash, date: Date(), height: "0")
