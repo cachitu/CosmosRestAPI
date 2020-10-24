@@ -924,6 +924,45 @@ public struct TdmAccount: Codable {
     }
 }
 
+public struct VestedAccountResultV3: Codable {
+    
+    public let height: String?
+    public let result: VestedAccountV3?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct VestedAccountV3: Codable {
+    
+    public let type: String?
+    public let value: VestedAccountValueV3?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct VestedAccountValueV3: Codable {
+    
+    public let address: String?
+    public let coins: [Coin]?
+    public let publicKey: PublicKey?
+    public let accountNumber: String?
+    public let sequence: String?
+
+    enum CodingKeys : String, CodingKey {
+        case address
+        case coins
+        case publicKey = "public_key"
+        case accountNumber = "account_number"
+        case sequence
+    }
+}
+
 public struct VestedAccountResult: Codable {
     
     public let height: String?

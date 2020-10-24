@@ -155,7 +155,7 @@ public class GaiaLocalClient {
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                         }
                     }
-                case .regen, .kava, .kava_118, .certik, .stargate, .terra, .terra_118:
+                case .regen, .kava, .kava_118, .certik, .stargate, .terra, .terra_118, .bitsong:
                     restApi.broadcastV3(transferData: bcData) { result in
                         switch result {
                         case .success(let data):
