@@ -132,7 +132,7 @@ public class TDMNode: Codable {
         case .terra, .terra_118: return "terra"
         case .bitsong: return "bitsong"
         case .emoney: return "emoney"
-        case .regen: return "xrn:"
+        case .regen: return "regen:"
         case .certik: return "certik"
         case .microtick: return "micro"
         }
@@ -197,20 +197,6 @@ public class TDMNode: Codable {
                     completion?()
                 }
             }
-//        case .regen:
-//            CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
-//                switch result {
-//                case .success(let data):
-//                    self?.network = data.first?.network ?? ""
-//                    self?.nodeID = data.first?.id ?? ""
-//                    self?.version = data.first?.version ?? ""
-//                case .failure(_):
-//                    self?.state = .unknown
-//                }
-//                DispatchQueue.main.async {
-//                    completion?()
-//                }
-//            }
         default:
             CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfoV2 { [weak self] result in
                 switch result {
@@ -224,6 +210,18 @@ public class TDMNode: Codable {
                 DispatchQueue.main.async {
                     completion?()
                 }
+            }
+        }
+    }
+    
+    public func getMarkets(completion: ((_ markets: [EmoneyInstruments]?) -> ())?) {
+        let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
+        restApi.getEmoneyInstruments { result in
+            switch result {
+            case .success(let data):
+                completion?(data.first?.result?.instruments)
+            case .failure(_):
+                completion?(nil)
             }
         }
     }

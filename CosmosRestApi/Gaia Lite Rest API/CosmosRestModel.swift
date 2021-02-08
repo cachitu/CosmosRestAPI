@@ -201,6 +201,43 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                    }
 //                }
 //            }
+        
+        case .regen:
+                let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+                restApi.getAccountV5(address: self.address) { [weak self] result in
+                    switch result {
+                    case .success(let data):
+                        if let item = data.first, let type = item.result?.type {
+                            if type.contains("VestingAccount") {
+                                self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+                            } else {
+                                restApi.getBalanceV2(address: self?.address ?? "") { result in
+                                    switch result {
+                                    case .success(let data):
+                                        let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                                        gaiaAcc.assets = data.first?.result ?? []
+                                        DispatchQueue.main.async {
+                                            completion?(gaiaAcc, nil)
+                                        }
+
+                                    case .failure(let error):
+                                        print(error)
+                                    }
+                                }
+                            }
+                        } else {
+                            DispatchQueue.main.async {
+                                completion?(nil, nil)
+                            }
+                        }
+                    case .failure(let error):
+                        DispatchQueue.main.async {
+                            //let message = error.code == 204 ? nil : error.localizedDescription
+                            completion?(nil, error.localizedDescription)
+                        }
+                    }
+                }
+
         case .certik, .kava, .kava_118:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccountV5(address: self.address) { [weak self] result in
@@ -264,32 +301,32 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                     }
                 }
 
-        case .regen:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getAccountV3(address: self.address) { [weak self] result in
-                switch result {
-                case .success(let data):
-                    if let item = data.first, let type = item.result?.type {
-                        if type.contains("VestingAccount") {
-                            self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
-                        } else {
-                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
-                            DispatchQueue.main.async {
-                                completion?(gaiaAcc, nil)
-                            }
-                        }
-                    } else {
-                        DispatchQueue.main.async {
-                            completion?(nil, nil)
-                        }
-                    }
-                case .failure(let error):
-                    DispatchQueue.main.async {
-                        //let message = error.code == 204 ? nil : error.localizedDescription
-                        completion?(nil, error.localizedDescription)
-                    }
-                }
-            }
+//        case .regen:
+//            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+//            restApi.getAccountV3(address: self.address) { [weak self] result in
+//                switch result {
+//                case .success(let data):
+//                    if let item = data.first, let type = item.result?.type {
+//                        if type.contains("VestingAccount") {
+//                            self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
+//                        } else {
+//                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+//                            DispatchQueue.main.async {
+//                                completion?(gaiaAcc, nil)
+//                            }
+//                        }
+//                    } else {
+//                        DispatchQueue.main.async {
+//                            completion?(nil, nil)
+//                        }
+//                    }
+//                case .failure(let error):
+//                    DispatchQueue.main.async {
+//                        //let message = error.code == 204 ? nil : error.localizedDescription
+//                        completion?(nil, error.localizedDescription)
+//                    }
+//                }
+//            }
 
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
@@ -485,7 +522,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
 //                }
 //            }
-        case .stargate:
+        case .stargate, .regen:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegationsStargate(for: self.address) { result in
                 switch result {
@@ -563,7 +600,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
 //                }
 //            }
-        case .stargate:
+        case .stargate, .regen:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getValidatorRewardsStargate(from: validator) { result in
                 switch result {
@@ -942,6 +979,16 @@ public class GaiaValidator {
         self.moniker = validator.description?.moniker ?? "-"
         self.rate = validator.commission?.commissionRates?.rate ?? "0"
         self.jailed = validator.jailed ?? false
+        self.votingPower = Double(self.tokens) ?? 0.0
+    }
+
+    public init(validator: DelegatorValidatorStargate) {
+        self.validator = validator.operatorAddress ?? "-"
+        self.tokens = validator.tokens ?? "0"
+        self.shares = validator.delegatorShares ?? "0"
+        self.moniker = validator.description?.moniker ?? "-"
+        self.rate = validator.commission?.commissionRates?.rate ?? "0"
+        self.jailed = false
         self.votingPower = Double(self.tokens) ?? 0.0
     }
 

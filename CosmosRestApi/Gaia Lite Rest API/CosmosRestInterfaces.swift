@@ -378,7 +378,21 @@ extension GaiaValidatorsCapable {
 //                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
 //                }
 //            }
-        default:
+        case .stargate, .regen:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getStakeValidatorsStargate(status: status) { result in
+                switch result {
+                case .success(let data):
+                    var gaiaValidators: [GaiaValidator] = []
+                    for validator in data.first?.result ?? [] {
+                        gaiaValidators.append(GaiaValidator(validator: validator))
+                    }
+                    DispatchQueue.main.async { completion(gaiaValidators, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
+       default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getStakeValidatorsV2(status: status) { result in
                 switch result {
@@ -450,7 +464,7 @@ extension GaiaGovernaceCapable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .microtick, .stargate:
+        case .microtick, .stargate, .regen:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalsV3 { result in
                 switch result {

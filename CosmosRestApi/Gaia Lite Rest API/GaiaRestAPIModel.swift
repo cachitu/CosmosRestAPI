@@ -1071,6 +1071,9 @@ public struct Coin: Codable {
         if denom.starts(with: "u") {
             return String(denom.dropFirst())
         }
+        if denom.starts(with: "e") {
+            return String(denom.dropFirst())
+        }
         if denom.starts(with: "x") {
             let nonx = denom.dropFirst()
             if Int(String(nonx.first ?? Character("."))) != nil {
@@ -1567,14 +1570,57 @@ public struct RedelegationPostData: Codable {
         case validatorDstAddr = "validator_dst_address"
     }
 }
+
+public struct DelegatorValidatorResultStargate: Codable {
+    
+    public let height: String?
+    public let result: [DelegatorValidatorStargate]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct DelegatorValidatorStargate: Codable {
+    
+    public let operatorAddress: String?
+    public let consensus_pubkey: AminoContent?
+    //public let jailed: Bool?
+    public let status: Int?
+    public let tokens: String?
+    public let delegatorShares: String?
+    public let description: ValidatorDesc?
+    public let bondHeight: String?
+    public let unbondingHeight: String?
+    public let unbondingTime: String?
+    public let commission: ValidatorComissionV2Res?
+    public let minSelfDelegation: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case operatorAddress = "operator_address"
+        case consensus_pubkey = "consensus_pubkey"
+        //case jailed
+        case status
+        case tokens
+        case delegatorShares = "delegator_shares"
+        case description
+        case bondHeight = "bond_height"
+        case unbondingHeight = "unbonding_height"
+        case unbondingTime = "unbonding_time"
+        case commission
+        case minSelfDelegation = "min_self_delegation"
+    }
+}
+
 public struct DelegatorValidatorResult: Codable {
-
-public let height: String?
-public let result: [DelegatorValidatorV2]?
-
-enum CodingKeys : String, CodingKey {
-    case height
-    case result
+    
+    public let height: String?
+    public let result: [DelegatorValidatorV2]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
     }
 }
 
@@ -2124,6 +2170,40 @@ public struct GovVotingParameters: Codable {
     }
 }
 
+public struct EmoneyInstrumentsResponse: Codable {
+    
+    public let height: String?
+    public let result: EmoneyInstrumentsResult?
+
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct EmoneyInstrumentsResult: Codable {
+    
+    public let instruments: [EmoneyInstruments]?
+
+    enum CodingKeys : String, CodingKey {
+        case instruments
+    }
+}
+
+public struct EmoneyInstruments: Codable {
+    
+    public let source: String?
+    public let destination: String?
+    public let lastPrice: String?
+    public let lastTraded: String? //2020-11-04T15:51:23.736078899Z
+
+    enum CodingKeys : String, CodingKey {
+        case source
+        case destination
+        case lastPrice = "last_price"
+        case lastTraded = "last_traded"
+    }
+}
 
 //ICS23 - Slashing
 

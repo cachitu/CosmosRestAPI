@@ -210,6 +210,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators", delegate: self, singleItemResponse: true , queryItems: [URLQueryItem(name: "status", value: status), URLQueryItem(name: "page", value: "1"),URLQueryItem(name: "limit", value: "9999")], completion: completion)
     }
 
+    public func getStakeValidatorsStargate(status: String, completion: ((RestResult<[DelegatorValidatorResultStargate]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators", delegate: self, singleItemResponse: true , queryItems: [/*URLQueryItem(name: "status", value: status), */URLQueryItem(name: "page", value: "1"),URLQueryItem(name: "limit", value: "9999")], completion: completion)
+    }
+
     public func getStakeValidator(for valAddress: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators/\(valAddress)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -371,6 +375,12 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
 
     public func getNodeVersion(completion: ((RestResult<[String]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/node_version", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    // E-Mo0ney
+    
+    public func getEmoneyInstruments(completion: ((RestResult<[EmoneyInstrumentsResponse]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/market/instruments", delegate: self, singleItemResponse: true, completion: completion)
     }
 
 }
