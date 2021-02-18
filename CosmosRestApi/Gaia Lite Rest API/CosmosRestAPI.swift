@@ -211,7 +211,8 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
 
     public func getStakeValidatorsStargate(status: String, completion: ((RestResult<[DelegatorValidatorResultStargate]>) -> Void)?) {
-        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators", delegate: self, singleItemResponse: true , queryItems: [/*URLQueryItem(name: "status", value: status), */URLQueryItem(name: "page", value: "1"),URLQueryItem(name: "limit", value: "9999")], completion: completion)
+        let newStatus = "BOND_STATUS_" + status
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/validators", delegate: self, singleItemResponse: true , queryItems: [URLQueryItem(name: "status", value: newStatus), URLQueryItem(name: "page", value: "1"),URLQueryItem(name: "limit", value: "9999")], completion: completion)
     }
 
     public func getStakeValidator(for valAddress: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
@@ -266,6 +267,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
 
     public func getPorposalsV3(completion: ((RestResult<[ProposalResultV3]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getPorposalsStargate(completion: ((RestResult<[ProposalResultStargate]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals", delegate: self, singleItemResponse: true, completion: completion)
     }
 

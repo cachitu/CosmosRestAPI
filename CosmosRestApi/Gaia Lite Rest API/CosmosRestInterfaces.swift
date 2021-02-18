@@ -464,7 +464,21 @@ extension GaiaGovernaceCapable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-        case .microtick, .stargate, .regen:
+        case .stargate, .regen:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getPorposalsStargate { result in
+                switch result {
+                case .success(let data):
+                    var gaiaPropsals: [GaiaProposal] = []
+                    for proposal in data.first?.result ?? [] {
+                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
+                    }
+                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
+        case .microtick:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalsV3 { result in
                 switch result {

@@ -1861,6 +1861,41 @@ public struct ProposalObsolete: Codable {
     }
 }
 
+public struct ProposalResultStargate: Codable {
+    public let height: String?
+    public let result: [ProposalStargate]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct ProposalStargate: Codable {
+    
+    public let content: ProposalContent?
+    public let proposalId: String?
+    public let proposalStatus: Int?
+    public var tallyResult: ProposalTallyData?
+    public let submitTime: String?
+    public let depositEndTime: String?
+    public let totalDeposit: [TxFeeAmount]?
+    public let votingStartTime: String?
+    public let votingEndTime: String?
+
+    enum CodingKeys : String, CodingKey {
+        case content
+        case proposalId = "id"
+        case proposalStatus = "status"
+        case tallyResult = "final_tally_result"
+        case submitTime = "submit_time"
+        case depositEndTime = "deposit_end_time"
+        case totalDeposit = "total_deposit"
+        case votingStartTime = "voting_start_time"
+        case votingEndTime = "voting_end_time"
+   }
+}
+
 public struct ProposalResultV3: Codable {
     public let height: String?
     public let result: [ProposalV3]?

@@ -202,7 +202,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 //                }
 //            }
         
-        case .regen:
+        case .regen, .stargate:
                 let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                 restApi.getAccountV5(address: self.address) { [weak self] result in
                     switch result {
@@ -265,7 +265,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                 }
             }
 
-        case .microtick, .stargate:
+        case .microtick:
                 let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                 restApi.getAccountV4(address: self.address) { [weak self] result in
                     switch result {
@@ -1130,6 +1130,36 @@ public class GaiaProposal {
         let depDenom = proposal.base?.totalDeposit?.first?.denom ?? "-"
         self.totalDepopsit = "\(depAmount) \(depDenom)"
         self.submitTime = proposal.base?.submitTime ?? ""
+    }
+
+    public init(proposal: ProposalStargate) {
+        var status = "-1"
+        if let intStatus = proposal.proposalStatus {
+            status = GaiaProposal.stringStatus(for: intStatus)
+        }
+        self.title       = proposal.content?.value?.title ?? "-"
+        self.description = proposal.content?.value?.description ?? "-"
+        self.type        = proposal.content?.proposalType ?? ""
+        self.status      = status
+        self.yes         = proposal.tallyResult?.yes ?? "0"
+        self.abstain     = proposal.tallyResult?.abstain ?? "0"
+        self.no          = proposal.tallyResult?.no ?? "0"
+        self.noWithVeto  = proposal.tallyResult?.noWithVeto ?? "0"
+        self.proposalId  = proposal.proposalId ?? "0"
+        let depAmount = proposal.totalDeposit?.first?.amount ?? "0"
+        let depDenom = proposal.totalDeposit?.first?.denom ?? "-"
+        self.totalDepopsit = "\(depAmount) \(depDenom)"
+        self.submitTime = proposal.submitTime ?? ""
+    }
+    
+    private static func stringStatus(for intStatus: Int) -> String {
+        switch intStatus {
+        case 1: return "DepositPeriod"
+        case 2: return "VotingPeriod"
+        case 3: return "Passed"
+        case 4: return "Rejected"
+        default: return "Pu"
+        }
     }
 
     public init(proposal: IrisProposal) {
