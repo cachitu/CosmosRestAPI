@@ -102,10 +102,6 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/txs/encode", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
-    public func broadcastIris(transferData: SignedTx, completion:((RestResult<[TransferResponse]>) -> Void)?) {
-        genericRequest(bodyData: transferData, connData: connectData, path: "/tx/broadcast", delegate: self, reqMethod: "POST", singleItemResponse: true, queryItems: [URLQueryItem(name: "async", value: "false"), URLQueryItem(name: "commit", value: "true"), URLQueryItem(name: "simulate", value: "false")], completion: completion)
-    }
-
     public func getAccount(address: String, completion: ((RestResult<[TdmAccount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }

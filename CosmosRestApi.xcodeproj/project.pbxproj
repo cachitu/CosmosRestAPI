@@ -19,9 +19,6 @@
 		88677FE921E8F62E0022A09E /* CosmosRestInterfaces.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FE821E8F62E0022A09E /* CosmosRestInterfaces.swift */; };
 		88677FED21E903520022A09E /* CosmosRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88677FEC21E903520022A09E /* CosmosRestModel.swift */; };
 		8869755F21E9CC8700044EB8 /* KeychainWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8869755E21E9CC8700044EB8 /* KeychainWrapper.swift */; };
-		88A38F10228FDE4D00F71284 /* IrisRestApi.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A38F0F228FDE4D00F71284 /* IrisRestApi.swift */; };
-		88A38F12228FDEEF00F71284 /* IrisRestApiModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A38F11228FDEEF00F71284 /* IrisRestApiModel.swift */; };
-		88A38F14228FE12300F71284 /* IrisRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88A38F13228FE12300F71284 /* IrisRestModel.swift */; };
 		EEBDFC19237FFB4900079F38 /* TDMNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDFC18237FFB4900079F38 /* TDMNode.swift */; };
 		EEBDFC1D238002F000079F38 /* TDMKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDFC1C238002F000079F38 /* TDMKey.swift */; };
 		EEBDFC1F23801AA600079F38 /* KavaRestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBDFC1E23801AA600079F38 /* KavaRestModel.swift */; };
@@ -43,9 +40,6 @@
 		88677FE821E8F62E0022A09E /* CosmosRestInterfaces.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmosRestInterfaces.swift; sourceTree = "<group>"; };
 		88677FEC21E903520022A09E /* CosmosRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmosRestModel.swift; sourceTree = "<group>"; };
 		8869755E21E9CC8700044EB8 /* KeychainWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainWrapper.swift; sourceTree = "<group>"; };
-		88A38F0F228FDE4D00F71284 /* IrisRestApi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IrisRestApi.swift; path = "../../../CosmosRestApi/CosmosRestApi/Gaia Lite Rest API/IrisRestApi.swift"; sourceTree = "<group>"; };
-		88A38F11228FDEEF00F71284 /* IrisRestApiModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IrisRestApiModel.swift; path = "../../../CosmosRestApi/CosmosRestApi/Gaia Lite Rest API/IrisRestApiModel.swift"; sourceTree = "<group>"; };
-		88A38F13228FE12300F71284 /* IrisRestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = IrisRestModel.swift; path = "../../../CosmosRestApi/CosmosRestApi/Gaia Lite Rest API/IrisRestModel.swift"; sourceTree = "<group>"; };
 		88A8B52A22463984004F0B82 /* CryptoSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = CryptoSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EEBDFC18237FFB4900079F38 /* TDMNode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMNode.swift; sourceTree = "<group>"; };
 		EEBDFC1C238002F000079F38 /* TDMKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TDMKey.swift; sourceTree = "<group>"; };
@@ -102,9 +96,6 @@
 				4600A72C22956F9B00A23B88 /* TerraRestInterfaces.swift */,
 				4600A72A22956EA000A23B88 /* TerraRestApi.swift */,
 				881438BD22DB343000D882CB /* TerraRestAPIModel.swift */,
-				88A38F11228FDEEF00F71284 /* IrisRestApiModel.swift */,
-				88A38F13228FE12300F71284 /* IrisRestModel.swift */,
-				88A38F0F228FDE4D00F71284 /* IrisRestApi.swift */,
 				885CFE2E223429F40037F5DD /* GaiaLocalClient.swift */,
 				88677FE821E8F62E0022A09E /* CosmosRestInterfaces.swift */,
 				88677FEC21E903520022A09E /* CosmosRestModel.swift */,
@@ -213,17 +204,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				88300D8E21DCA76C007B9C43 /* GaiaRestAPIModel.swift in Sources */,
-				88A38F14228FE12300F71284 /* IrisRestModel.swift in Sources */,
 				885CFE2F223429F40037F5DD /* GaiaLocalClient.swift in Sources */,
 				EEBDFC2123801AE200079F38 /* KavaRestApi.swift in Sources */,
 				4600A72D22956F9B00A23B88 /* TerraRestInterfaces.swift in Sources */,
-				88A38F12228FDEEF00F71284 /* IrisRestApiModel.swift in Sources */,
 				88300D8D21DCA76C007B9C43 /* CosmosRestAPI.swift in Sources */,
 				881438BE22DB343000D882CB /* TerraRestAPIModel.swift in Sources */,
 				4600A72B22956EA000A23B88 /* TerraRestApi.swift in Sources */,
 				EEBDFC1D238002F000079F38 /* TDMKey.swift in Sources */,
 				88300D8C21DCA76C007B9C43 /* RestNetworking.swift in Sources */,
-				88A38F10228FDE4D00F71284 /* IrisRestApi.swift in Sources */,
 				88677FED21E903520022A09E /* CosmosRestModel.swift in Sources */,
 				88300D8F21DCA76C007B9C43 /* PersistCodable.swift in Sources */,
 				EEBDFC1F23801AA600079F38 /* KavaRestModel.swift in Sources */,
@@ -379,7 +367,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.16;
+				MARKETING_VERSION = 1.1.17;
 				PRODUCT_BUNDLE_IDENTIFIER = kytzu.CosmosRestApi;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -408,7 +396,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1.16;
+				MARKETING_VERSION = 1.1.17;
 				PRODUCT_BUNDLE_IDENTIFIER = kytzu.CosmosRestApi;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;

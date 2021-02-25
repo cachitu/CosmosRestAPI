@@ -12,7 +12,7 @@ public struct TDMKey: Codable {
     
     public var name: String? = "dummy"
     public var password: String? = "test1234"
-    public var type: TDMNodeType? = .cosmos
+    public var type: TDMNodeType? = .stargate
     public var address: String? = "cosmos1..."
     public var pubAddress: String? = "cosmospub1..."
     public var validator: String? = "cosmosvaloper..."

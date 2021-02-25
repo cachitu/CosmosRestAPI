@@ -53,8 +53,6 @@ public protocol KeysClientDelegate: AnyObject {
     func recoverKey(from mnemonic: String, name: String, password: String) -> TDMKey
     func signV2(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<TxValueSignatureV2>) -> Void)?)
     func sign(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, completion:((RestResult<[TransactionTx]>) -> Void)?)
-    func signIris(transferData: TransactionTx?, account: GaiaAccount, node: TDMNode, renameShares: Bool, completion:((RestResult<[TransactionTx]>) -> Void)?)
-
 }
 
 public class GaiaLocalClient {
@@ -83,31 +81,9 @@ public class GaiaLocalClient {
         completion?(.success(["OK"]))
     }
     
-    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, irisSpaghetti: Bool, irisRenameShares: Bool = false, completion: ((SignedTx?, SignedTxV2?, String?) -> ())?) {
+    public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, completion: ((SignedTx?, SignedTxV2?, String?) -> ())?) {
         
         switch node.type {
-        case .iris, .iris_fuxi:
-            if irisSpaghetti {
-               delegate?.signIris(transferData: tx, account: account, node: node, renameShares: irisRenameShares) { response in
-                   switch response {
-                   case .success(let data):
-                    completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil, nil)
-                   case .failure(let error):
-                       print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                       completion?(nil, nil, error.localizedDescription)
-                   }
-               }
-            } else {
-                delegate?.sign(transferData: tx, account: account, node: node) { response in
-                    switch response {
-                    case .success(let data):
-                        completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil, nil)
-                    case .failure(let error):
-                        print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                        completion?(nil, nil, error.localizedDescription)
-                    }
-                }
-            }
         case .microtick:
             delegate?.signV2(transferData: tx, account: account, node: node) { response in
                 switch response {
@@ -133,29 +109,15 @@ public class GaiaLocalClient {
         }
     }
     
-    public func handleSignAndBroadcast(restApi: CosmosRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: TDMNode, irisSpaghetti: Bool = false, irisRenameShares: Bool = false, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
+    public func handleSignAndBroadcast(restApi: CosmosRestAPI, data: [TransactionTx], gaiaAcc: GaiaAccount, node: TDMNode, completion: ((_ data: TransferResponse?, _ errMsg: String?) -> ())?) {
         
         guard let kdelegate = delegate else { return }
         
-        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node, irisSpaghetti: irisSpaghetti, irisRenameShares: irisRenameShares) { signed, signedV2, err in
+        generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node) { signed, signedV2, err in
             
             if let bcData = signed {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    restApi.broadcastIris(transferData: bcData) { result in
-                        switch result {
-                        case .success(let data):
-                            if let hash = data.first?.irisHash {
-                                let persistable = PersitsableHash(hash: hash, date: Date(), height: "0")
-                                kdelegate.storeHash(persistable)
-                            }
-                            DispatchQueue.main.async { completion?(data.first, data.first?.irisHash) }
-                        case .failure(let error):
-                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
-                case .regen, .kava, .kava_118, .certik, .stargate, .terra, .terra_118, .bitsong, .microtick:
+                case .regen, .kava, .kava_118, .certik, .stargate, .terra, .terra_118, .bitsong, .microtick, .iris, .iris_fuxi:
                     restApi.broadcastV3(transferData: bcData) { result in
                         switch result {
                         case .success(let data):

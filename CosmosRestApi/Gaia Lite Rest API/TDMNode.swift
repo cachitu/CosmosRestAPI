@@ -17,18 +17,17 @@ public enum TDMNodeState: String, Codable {
 
 public enum TDMNodeType: String, Codable, CaseIterable {
     case stargate = "Cosmos Stargate"
-    case cosmos = "Cosmos Hub"
     case iris = "Iris Network"
     case iris_fuxi = "Iris Fuxi & Nyan"
     case terra = "Terra Money"
     case terra_118 = "Terra Old HD"
     case kava = "Kava Network"
     case kava_118 = "Kava Old HD"
-    case bitsong = "Bitsong Testnet"
-    case emoney = "E-money Testnet"
+    case bitsong = "Bitsong"
+    case emoney = "E-money"
     case regen = "Regen Network"
-    case certik = "Certik Testnet"
-    case microtick = "Microtick Network"
+    case certik = "Certik"
+    case microtick = "Microtick"
 }
 
 public enum BroadcastMode: String, Codable {
@@ -54,11 +53,11 @@ public class TDMNode: Codable {
     
     public init(
         name: String = "Gaia Node",
-        type: TDMNodeType = .cosmos,
+        type: TDMNodeType = .stargate,
         scheme: String = "https",
         host: String = "localhost",
-        rcpPort: Int? = 1317,
-        secured: Bool) {
+        rcpPort: Int? = nil,
+        secured: Bool = false) {
         self.type = type
         self.name = name
         self.scheme = scheme
@@ -67,7 +66,7 @@ public class TDMNode: Codable {
         self.securedNodeAccess = secured
         self.broadcastMode = .async
         if type == .iris || type == .iris_fuxi {
-            self.feeAmount = "300000000000000000"
+            self.feeAmount = "300000"
         }
         if type == .terra || type == .terra_118 {
             self.feeAmount = "500000"
@@ -76,10 +75,25 @@ public class TDMNode: Codable {
         if type == .emoney {
             self.feeAmount = "400000"
         }
+        if type == .stargate {
+            self.feeAmount = "100000"
+        }
+        if type == .emoney {
+            self.feeAmount = "500000"
+        }
+        if type == .kava {
+            self.feeAmount = "10000"
+        }
+        if type == .bitsong {
+            self.feeAmount = "100000"
+        }
+        if type == .certik {
+            self.feeAmount = "100000"
+        }
     }
     
     public var state: TDMNodeState = .unknown
-    public var type: TDMNodeType = .cosmos
+    public var type: TDMNodeType = .stargate
     public var name: String
     public var scheme: String
     public var host: String
@@ -98,12 +112,12 @@ public class TDMNode: Codable {
     public var securedSigning: Bool = false
 
     public var isReadOnly: Bool {
-        return false//type == .iris || type == .iris_fuxi
+        return false
     }
     
     public var nodeLogo: UIImage? {
         switch type {
-        case .cosmos, .stargate:    return CoinLogos.atom
+        case .stargate:    return CoinLogos.atom
         case .iris:      return CoinLogos.iris
         case .iris_fuxi: return CoinLogos.iris
         case .kava, .kava_118:      return CoinLogos.kava
@@ -118,14 +132,15 @@ public class TDMNode: Codable {
     
     public var nodeLogoWhite: UIImage? {
         switch type {
-        case .cosmos:    return CoinLogos.atomWhite
+        case .stargate:
+            return CoinLogos.atomWhite
         default: return nodeLogo
         }
     }
 
     public var adddressPrefix: String {
         switch type {
-        case .cosmos, .stargate: return "cosmos"
+        case .stargate: return "cosmos"
         case .iris: return "iaa"
         case .iris_fuxi: return "faa"
         case .kava, .kava_118: return "kava"
@@ -140,7 +155,6 @@ public class TDMNode: Codable {
     
     public var decimals: Double {
         switch type {
-        case .iris, .iris_fuxi: return 18
         default: return 6
         }
     }
@@ -183,20 +197,6 @@ public class TDMNode: Codable {
     
     public func getNodeInfo(completion: (() -> ())?) {
         switch type {
-        case .iris, .iris_fuxi:
-            IrisRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfo { [weak self] result in
-                switch result {
-                case .success(let data):
-                    self?.network = data.first?.network ?? ""
-                    self?.nodeID = data.first?.id ?? ""
-                    self?.version = data.first?.version ?? ""
-                case .failure(_):
-                    self?.state = .unknown
-                }
-                DispatchQueue.main.async {
-                    completion?()
-                }
-            }
         default:
             CosmosRestAPI(scheme: scheme, host: host, port: rcpPort).getNodeInfoV2 { [weak self] result in
                 switch result {
@@ -228,28 +228,6 @@ public class TDMNode: Codable {
     
     public func getStakingInfo(completion: ((_ satkeDenom: String?) -> ())?) {
         switch self.type {
-        case .iris, .iris_fuxi:
-            stakeDenom = "iris-atto"
-            DispatchQueue.main.async {
-                completion?("iris-atto")
-            }
-//        case .regen:
-//            let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
-//            restApi.getStakeParameters() { [weak self] result in
-//                var denom: String? = nil
-//                switch result {
-//                case .success(let data):
-//                    denom = data.first?.bondDenom
-//                    self?.stakeDenom = denom ?? "stake"
-//                    if self?.feeDenom == "" {
-//                        self?.feeDenom = denom ?? ""
-//                    }
-//                case .failure(_): break
-//                }
-//                DispatchQueue.main.async {
-//                    completion?(denom)
-//                }
-//            }
         default:
             let restApi = CosmosRestAPI(scheme: scheme, host: host, port: rcpPort)
             restApi.getStakeParametersV2() { [weak self] result in

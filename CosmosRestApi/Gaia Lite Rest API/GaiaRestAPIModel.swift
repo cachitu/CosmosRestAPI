@@ -559,12 +559,7 @@ public struct TxValueMsg: Codable {
 }
 
 public struct TxMsgVal: Codable, PropertyLoopable {
-    
-    //iris
-    public let inputs: [IrisTxInputOutpt]?
-    public let outputs: [IrisTxInputOutpt]?
-    public let params: [IrisProposalParams]?
-    
+        
     public let delegatorAddress: String?
     public let validatorAddress: String?
     public let delegatorAddr: String?
@@ -624,9 +619,6 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     }
     
     enum CodingKeys : String, CodingKey {
-        case inputs
-        case outputs
-        case params
         case delegatorAddress = "delegator_address"
         case validatorAddress = "validator_address"
         case delegatorAddr = "delegator_addr"
@@ -1065,9 +1057,6 @@ public struct Coin: Codable {
         if denom.contains("-min") {
             return denom.replacingOccurrences(of: "-min", with: "")
         }
-        if denom.contains("-atto") {
-            return denom.replacingOccurrences(of: "-atto", with: "")
-        }
         if denom.starts(with: "u") {
             return String(denom.dropFirst())
         }
@@ -1153,6 +1142,21 @@ public struct TransferPostData: Codable {
     }
 }
 
+public struct LegacyBaseReq: Codable {
+    
+    public let chainId: String?
+    public let gas: String?
+    public let fee: String?
+    public let memo: String?
+
+    enum CodingKeys : String, CodingKey {
+        case chainId = "chain_id"
+        case gas
+        case fee
+        case memo
+     }
+}
+
 public struct TransferBaseReq: Codable {
     
     public let name: String?
@@ -1208,7 +1212,7 @@ public struct TransferResponseV2: Codable {
     
     public let height: String?
     public let hash: String?
-    public let irisHash: String?
+    public let legacyHash: String?
     public let gasWanted: String?
     public let gasUsed: String?
     public let logs: [RespLogV2]?
@@ -1218,7 +1222,7 @@ public struct TransferResponseV2: Codable {
     enum CodingKeys : String, CodingKey {
         case height
         case hash = "txhash"
-        case irisHash = "hash"
+        case legacyHash = "hash"
         case gasWanted = "gas_used"
         case gasUsed = "gas_wanted"
         case logs
@@ -1233,7 +1237,7 @@ public struct TransferResponse: Codable {
     //public let checkTx: TransferCheckTx?
     //public let deliverTx: TransferDeliverTx?
     public let hash: String?
-    public let irisHash: String?
+    public let legacyHash: String?
     public let gasWanted: String?
     public let gasUsed: String?
     public let logs: [RespLog]?
@@ -1247,7 +1251,7 @@ public struct TransferResponse: Codable {
         self.gasUsed = v2.gasUsed
         self.logs = nil//v2.logs
         self.tags = v2.tags
-        self.irisHash = v2.irisHash
+        self.legacyHash = v2.legacyHash
         self.rawLog = v2.rawLog
     }
     
@@ -1258,7 +1262,7 @@ public struct TransferResponse: Codable {
         self.gasUsed = "-"
         self.logs = nil//v2.logs
         self.tags = nil
-        self.irisHash = "-"
+        self.legacyHash = "-"
         self.rawLog = "-"
     }
 
@@ -1266,7 +1270,7 @@ public struct TransferResponse: Codable {
         //case checkTx = "check_tx"
         //case deliverTx =  "deliver_tx"
         case hash = "txhash"
-        case irisHash = "hash"
+        case legacyHash = "hash"
         case height
         case gasWanted = "gas_used"
         case gasUsed = "gas_wanted"
@@ -2114,13 +2118,13 @@ public struct ProposalDepositPostData: Codable {
 public struct ProposalVotePostData: Codable {
     
     public let baseReq: TransferBaseReq?
-    public let baseTx: IrisBaseReq?
+    public let baseTx: LegacyBaseReq?
     public let voter: String?
     public var option: String?
 
     public init(keyName: String, memo: String, chain: String, accNum: String, sequence: String, voter: String, option: String, fees: [TxFeeAmount]?) {
         self.baseReq = TransferBaseReq(name: keyName, memo: memo, chainId: chain, accountNumber: accNum, sequence: sequence, fees: fees)
-        self.baseTx = IrisBaseReq(chainId: chain, gas: "20000", fee: "0.41iris", memo: memo)
+        self.baseTx = LegacyBaseReq(chainId: chain, gas: "20000", fee: "0.41iris", memo: memo)
         self.voter = voter
         self.option = option
     }

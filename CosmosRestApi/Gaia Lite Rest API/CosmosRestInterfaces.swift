@@ -24,22 +24,6 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisBankSendData(baseTx: req, recipient: toAddress, amount: amount + denom)
-                    irisApi.bankTransfer(from: key.address, transferData: data) { result in
-                        print("\n... Transfered \(amount) \(denom) ...")
-                        switch result {
-                        case .success(let data):
-                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, completion: completion)
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                        
-                    }
-                    
                 default:
                     let data = TransferPostData(name: key.address,
                                                 memo: node.defaultMemo,
@@ -72,19 +56,6 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisWithdrawData(baseTx: req, validatorAddress: validator, isValidator: false)
-                    irisApi.withdrawReward(to: key.address, transferData: data) { result in
-                        switch result {
-                        case .success(let data):
-                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
                 default:
                     let data = TransferPostData(name: key.address,
                                                 memo: node.defaultMemo,
@@ -114,20 +85,6 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisWithdrawData(baseTx: req, validatorAddress: nil, isValidator: true)
-                    irisApi.withdrawReward(to: key.address, transferData: data) { result in
-                        switch result {
-                        case .success(let data):
-                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
-                    
                 default:
                     let data = TransferPostData(name: key.address,
                                                 memo: node.defaultMemo,
@@ -157,21 +114,6 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    let damount = Double(amount) ?? 0
-                    let corrected = "\(damount / pow(10, node.decimals))"
-                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "25000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisRedelegateData(baseTx: req, redelegate: IrisRedelegateContent(validatorSource: fromValidator, validatorDestination: toValidator, sharesAmount: corrected, sharesPercent: nil))
-                    irisApi.redelegation(from: key.address, transferData: data) { result in
-                        switch result {
-                        case .success(let data):
-                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, irisRenameShares: true, completion: completion)
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
                 default:
                     let data = RedelegationPostData(
                         sourceValidator: fromValidator,
@@ -206,20 +148,6 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisDelegateData(baseTx: req, delegate: IrisDelegateContent(delegation: amount + denom, validatorAddr: toValidator))
-                    irisApi.delegation(from: key.address, transferData: data) { result in
- 
-                        switch result {
-                        case .success(let data):
-                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
                 default:
                     let data = DelegationPostData(
                         validator: toValidator,
@@ -255,22 +183,6 @@ extension GaiaKeysManagementCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    let damount = Double(amount) ?? 0
-                    let corrected = "\(damount / pow(10, node.decimals))"
-                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisUnbondData(baseTx: req, unbond: IrisUnbondContent(sharesAmount: corrected, sharesPercent: nil, validatorAddr: fromValidator))
-                    irisApi.unbonding(from: key.address, transferData: data) { result in
-                        switch result {
-                        case .success(let data):
-                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, completion: completion)
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
-                    
                 default:
                     let data = UnbondingDelegationPostData(
                         validator: fromValidator,
@@ -355,30 +267,13 @@ extension GaiaKeysManagementCapable {
 
 public protocol GaiaValidatorsCapable {
     func retrieveAllValidators(node: TDMNode, status: String, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
-    func retrieveIrisValidators(node: TDMNode, page: Int, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->())
 }
 
 extension GaiaValidatorsCapable {
     
     public func retrieveAllValidators(node: TDMNode, status: String, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .iris, .iris_fuxi:
-            retrieveIrisValidators(node: node, completion: completion)
-//        case .regen:
-//            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-//             restApi.getStakeValidators { result in
-//                switch result {
-//                case .success(let data):
-//                    var gaiaValidators: [GaiaValidator] = []
-//                    for validator in data {
-//                        gaiaValidators.append(GaiaValidator(validator: validator))
-//                    }
-//                    DispatchQueue.main.async { completion(gaiaValidators, nil) }
-//                case .failure(let error):
-//                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-//                }
-//            }
-        case .stargate, .regen:
+        case .stargate, .regen, .iris, .iris_fuxi:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getStakeValidatorsStargate(status: status) { result in
                 switch result {
@@ -407,35 +302,7 @@ extension GaiaValidatorsCapable {
                 }
             }
         }
-    }
-    
-    public func retrieveIrisValidators(node: TDMNode, page: Int = 1, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
-        let restApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-        
-        var gaiaValidators: [GaiaValidator] = []
-        restApi.getStakeValidators(page: page) { result in
-            switch result {
-            case .success(let data):
-                for validator in data {
-                    gaiaValidators.append(GaiaValidator(validator: validator))
-                }
-                restApi.getStakeValidators(page: 2) { result in
-                    switch result {
-                    case .success(let data):
-                        for validator in data {
-                            gaiaValidators.append(GaiaValidator(validator: validator))
-                        }
-                        DispatchQueue.main.async { completion(gaiaValidators.filter { $0.jailed == false }, nil) }
-                    case .failure(let error):
-                        DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                    }
-                }
-            case .failure(let error):
-                DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-            }
-        }
-    }
-    
+    }    
 }
 
 public protocol GaiaGovernaceCapable {
@@ -450,21 +317,7 @@ extension GaiaGovernaceCapable {
     
     public func retrieveAllPropsals(node: TDMNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .iris, .iris_fuxi:
-            let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            irisApi.getPorposals { result in
-                switch result {
-                case .success(let data):
-                    var gaiaPropsals: [GaiaProposal] = []
-                    for proposal in data {
-                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
-                    }
-                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
-        case .stargate, .regen:
+        case .stargate, .regen, .iris, .iris_fuxi:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalsStargate { result in
                 switch result {
@@ -512,17 +365,6 @@ extension GaiaGovernaceCapable {
     public func getPropsalDetails(node: TDMNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->()) {
         
         switch node.type {
-        case .iris, .iris_fuxi:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getPorposalVotes(forId: proposal.proposalId) { result in
-                switch result {
-                case .success(let data):
-                    proposal.votes = data
-                    DispatchQueue.main.async { completion(proposal, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
 //        case .regen:
 //            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
 //            restApi.getPorposalTally(forId: proposal.proposalId) { result in
@@ -591,7 +433,7 @@ extension GaiaGovernaceCapable {
                     print("\n... Submit vote id \(proposal) ...")
                     switch result {
                     case .success(let data):
-                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, completion: completion)
+                        GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, completion: completion)
                     case .failure(let error):
                         print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
                         DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
@@ -608,19 +450,6 @@ extension GaiaGovernaceCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisProposeData(baseTx: req, title: title, description: description, proposer: key.address, proposalType: "PlainText", initialDeposit: deposit + node.stakeDenom)
-                    irisApi.submitProposal(transferData: data) { result in
-                        switch result {
-                        case .success(let data):
-                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, completion: completion)
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
                 default:
                     let data = ProposalPostData(
                         keyName: key.address,
@@ -656,19 +485,6 @@ extension GaiaGovernaceCapable {
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
                 switch node.type {
-                case .iris, .iris_fuxi:
-                    let irisApi = IrisRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-                    let req = IrisBaseReq(chainId: node.network, gas: "20000", fee: "\(node.feeAmount)\(node.feeDenom)", memo: node.defaultMemo)
-                    let data = IrisProposalDepositData(baseTx: req, depositor: key.address, amount: amount + node.stakeDenom)
-                    irisApi.depositToProposal(id: proposalId, transferData: data) { result in
-                        switch result {
-                        case .success(let data):
-                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: data, gaiaAcc: gaiaAcc, node: node, irisSpaghetti: true, completion: completion)
-                        case .failure(let error):
-                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
-                    }
                 default:
                     let data = ProposalDepositPostData(
                         keyName: key.address,
