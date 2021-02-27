@@ -251,33 +251,6 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                     }
                 }
 
-//        case .regen:
-//            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-//            restApi.getAccountV3(address: self.address) { [weak self] result in
-//                switch result {
-//                case .success(let data):
-//                    if let item = data.first, let type = item.result?.type {
-//                        if type.contains("VestingAccount") {
-//                            self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
-//                        } else {
-//                            let gaiaAcc = GaiaAccount(accountValue: item.result?.value, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
-//                            DispatchQueue.main.async {
-//                                completion?(gaiaAcc, nil)
-//                            }
-//                        }
-//                    } else {
-//                        DispatchQueue.main.async {
-//                            completion?(nil, nil)
-//                        }
-//                    }
-//                case .failure(let error):
-//                    DispatchQueue.main.async {
-//                        //let message = error.code == 204 ? nil : error.localizedDescription
-//                        completion?(nil, error.localizedDescription)
-//                    }
-//                }
-//            }
-
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getAccountV2(address: self.address) { [weak self] result in
@@ -452,7 +425,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     public func queryValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: Int?, _ items: [TxFeeAmount]?, _ message: String?) -> ())) {
 
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi:
+        case .stargate, .regen, .iris, .iris_fuxi, .microtick:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getValidatorRewardsStargate(from: validator) { result in
                 switch result {
