@@ -578,7 +578,7 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     public let proposalType: String?
     public let proposer: String?
     public let voter: String?
-    public let option: String?
+    public let option: DynamicOption?
     public let content: ProposalContent?
     public let initialDeposit: [TxFeeAmount]?
     public let delegation: TxFeeAmount?
@@ -590,6 +590,34 @@ public struct TxMsgVal: Codable, PropertyLoopable {
     public let offerCoin: TxFeeAmount?
     public let askDenom: String?
     
+    public enum DynamicOption: Codable {
+        case intOption(Int)
+        case stringOption(String)
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.singleValueContainer()
+            if let x = try? container.decode(String.self) {
+                self = .stringOption(x)
+                return
+            }
+            if let x = try? container.decode(Int.self) {
+                self = .intOption(x)
+                return
+            }
+            throw DecodingError.typeMismatch(DynamicOption.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Wrong type for MyValue"))
+        }
+        
+        public func encode(to encoder: Encoder) throws {
+            var container = encoder.singleValueContainer()
+            switch self {
+            case .intOption(let x):
+                try container.encode(x)
+            case .stringOption(let x):
+                try container.encode(x)
+            }
+        }
+    }
+
     public enum DynamicAmount: Codable {
         case amount(TxFeeAmount)
         case amounts([TxFeeAmount])
@@ -2148,6 +2176,30 @@ public struct ProposalDeposit: Codable {
         case proposalId = "proposal_id"
         case amount
      }
+}
+
+public struct ProposalVoteResultStargate: Codable {
+    
+    public let height: String?
+    public var result: [ProposalVoteStargate]?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct ProposalVoteStargate: Codable {
+    
+    public let voter: String?
+    public var proposalId: String?
+    public let option: Int?
+    
+    enum CodingKeys : String, CodingKey {
+        case voter
+        case proposalId = "proposal_id"
+        case option
+    }
 }
 
 public struct ProposalVoteResult: Codable {

@@ -58,7 +58,7 @@ extension RestNetworking {
         completion: ((RestResult<[Resp]>) -> Void)?)
     {
         
-        let debug = false
+        let debug = true
         
         var urlComponents = URLComponents()
         urlComponents.scheme = connData.scheme

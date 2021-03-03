@@ -290,6 +290,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, singleItemResponse: true, completion: completion)
     }
 
+    public func getPorposalVotesStargate(forId id: String, completion: ((RestResult<[ProposalVoteResultStargate]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes", delegate: self, singleItemResponse: true, queryItems: [URLQueryItem(name: "page", value: "1"),URLQueryItem(name: "limit", value: "9999")], completion: completion)
+    }
+
     public func getPorposalVote(forId id: String, by voter: String, completion: ((RestResult<[ProposalVote]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/votes/\(voter)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -303,6 +307,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     }
 
     public func getPorposalTallyV2(forId id: String, completion: ((RestResult<[ProposalTallyResult]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/tally", delegate: self, singleItemResponse: true, completion: completion)
+    }
+
+    public func getPorposalTallyStargate(forId id: String, completion: ((RestResult<[ProposalTallyResult]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/gov/proposals/\(id)/tally", delegate: self, singleItemResponse: true, completion: completion)
     }
 

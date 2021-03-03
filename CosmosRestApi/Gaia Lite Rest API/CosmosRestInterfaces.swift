@@ -364,31 +364,48 @@ extension GaiaGovernaceCapable {
     
     public func getPropsalDetails(node: TDMNode, proposal: GaiaProposal, completion: @escaping (_ data: GaiaProposal?, _ errMsg: String?)->()) {
         
+        func stringStatus(for intStatus: Int) -> String {
+            switch intStatus {
+            case 1: return "Yes"
+            case 2: return "Abstain"
+            case 3: return "No"
+            case 4: return "No With Veto"
+            default: return "-"
+            }
+        }
+
         switch node.type {
-//        case .regen:
-//            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-//            restApi.getPorposalTally(forId: proposal.proposalId) { result in
-//                switch result {
-//                case .success(let data):
-//                    if let tally = data.first {
-//                        proposal.yes = tally.yes ?? "0"
-//                        proposal.no = tally.no ?? "0"
-//                        proposal.abstain = tally.abstain ?? "0"
-//                        proposal.noWithVeto = tally.noWithVeto ?? "0"
-//                    }
-//                    restApi.getPorposalVotes(forId: proposal.proposalId) { result in
-//                        switch result {
-//                        case .success(let data):
-//                            proposal.votes = data
-//                            DispatchQueue.main.async { completion(proposal, nil) }
-//                        case .failure(let error):
-//                            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-//                        }
-//                    }
-//                case .failure(let error):
-//                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-//                }
-//            }
+
+        case .stargate, .regen, .iris, .iris_fuxi:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getPorposalTallyStargate(forId: proposal.proposalId) { result in
+                switch result {
+                case .success(let data):
+                    if let tally = data.first?.result {
+                        proposal.yes = tally.yes ?? "0"
+                        proposal.no = tally.no ?? "0"
+                        proposal.abstain = tally.abstain ?? "0"
+                        proposal.noWithVeto = tally.noWithVeto ?? "0"
+                    }
+                    restApi.getPorposalVotesStargate(forId: proposal.proposalId) { result in
+                        switch result {
+                        case .success(let data):
+                            let votes = data.first?.result ?? []
+                            var compatibleVotes: [ProposalVote] = []
+                            for vote in votes {
+                                let newVote = ProposalVote(voter: vote.voter, proposalId: vote.proposalId, option:"\(stringStatus(for: vote.option ?? -1))")
+                                compatibleVotes.append(newVote)
+                            }
+                            proposal.votes = compatibleVotes
+                            DispatchQueue.main.async { completion(proposal, nil) }
+                        case .failure(let error):
+                            DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                        }
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalTallyV2(forId: proposal.proposalId) { result in
@@ -413,7 +430,6 @@ extension GaiaGovernaceCapable {
                     DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-
         }
     }
 
