@@ -147,7 +147,7 @@ public class TDMNode: Codable {
         case .terra, .terra_118: return "terra"
         case .bitsong: return "bitsong"
         case .emoney: return "emoney"
-        case .regen: return "regen:"
+        case .regen: return "regen"
         case .certik: return "certik"
         case .microtick: return "micro"
         }
