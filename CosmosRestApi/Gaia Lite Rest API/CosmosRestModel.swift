@@ -282,6 +282,28 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     
     private func getVestedAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
+        case .regen:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getVestedAccountV4(address: self.address) { result in
+                switch result {
+                case .success(let data):
+                    if let item = data.first?.result?.value?.baseVestingAccount {
+                        let gaiaAcc = GaiaAccount(accountValue: item, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
+                        DispatchQueue.main.async {
+                            completion?(gaiaAcc, nil)
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            completion?(nil, nil)
+                        }
+                    }
+                case .failure(let error):
+                    DispatchQueue.main.async {
+                        //let message = error.code == 204 ? nil : error.localizedDescription
+                        completion?(nil, error.localizedDescription)
+                    }
+                }
+            }
         case .certik:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getVestedAccountV3(address: self.address) { result in
@@ -695,6 +717,29 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.assets = []
         
         for coin in accountValue?.coins ?? [] {
+            if coin.denom == stakeDenom {
+                assets.insert(coin, at: 0)
+                self.amount = Double(coin.amount ?? "0.0") ?? 0.0
+                self.denom = coin.denom ?? stakeDenom
+            } else {
+                assets.insert(coin, at: assets.count)
+            }
+        }
+        
+        self.noFeeToken = true
+    }
+
+    init(accountValue: BaseVestingAccountV4?, gaiaKey: GaiaKey, seed: String? = nil, stakeDenom: String) {
+        self.accNumber = accountValue?.baseAccount?.accountNumber ?? "0"
+        self.accSequence = accountValue?.baseAccount?.sequence ?? "0"
+        self.address = accountValue?.baseAccount?.address ?? "="
+        self.pubKey = accountValue?.baseAccount?.publicKey?.value ?? "-"
+        self.amount = 0.0
+        self.denom = stakeDenom
+        self.gaiaKey = gaiaKey
+        self.assets = []
+        
+        for coin in accountValue?.originalVesting ?? [] {
             if coin.denom == stakeDenom {
                 assets.insert(coin, at: 0)
                 self.amount = Double(coin.amount ?? "0.0") ?? 0.0

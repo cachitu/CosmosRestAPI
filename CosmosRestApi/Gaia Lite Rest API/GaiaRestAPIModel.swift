@@ -983,6 +983,61 @@ public struct VestedAccountValueV3: Codable {
     }
 }
 
+public struct VestedAccountResultV4: Codable {
+    
+    public let height: String?
+    public let result: VestedAccountV4?
+    
+    enum CodingKeys : String, CodingKey {
+        case height
+        case result
+    }
+}
+
+public struct VestedAccountV4: Codable {
+    
+    public let type: String?
+    public let value: VestedAccountValueV4?
+    
+    enum CodingKeys : String, CodingKey {
+        case type
+        case value
+    }
+}
+
+public struct VestedAccountValueV4: Codable {
+    
+    public let baseVestingAccount: BaseVestingAccountV4?
+
+    enum CodingKeys : String, CodingKey {
+        case baseVestingAccount = "base_vesting_account"
+    }
+}
+
+public struct BaseVestingAccountV4: Codable {
+    public let baseAccount: BaseVestingAccountV4Data?
+    public let originalVesting: [Coin]?
+
+    enum CodingKeys : String, CodingKey {
+        case baseAccount = "base_account"
+        case originalVesting = "original_vesting"
+    }
+}
+
+public struct BaseVestingAccountV4Data: Codable {
+    public let address: String?
+    public let publicKey: PublicKey?
+    public let accountNumber: String?
+    public let sequence: String?
+
+    enum CodingKeys : String, CodingKey {
+        case address
+        case publicKey = "public_key"
+        case accountNumber = "account_number"
+        case sequence
+    }
+}
+
 public struct VestedAccountResult: Codable {
     
     public let height: String?
