@@ -29,6 +29,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case certik = "Certik"
     case microtick = "Microtick"
     case agoric = "Agoric"
+    case osmosis = "Osmosis"
 }
 
 public enum BroadcastMode: String, Codable {
@@ -49,6 +50,7 @@ public enum CoinLogos {
     static let certik: UIImage? = UIImage(named: "certik")
     static let microtick: UIImage? = UIImage(named: "microtick")
     static let agoric: UIImage? = UIImage(named: "agoric")
+    static let osmosis: UIImage? = UIImage(named: "osmosis")
 }
 
 public class TDMNode: Codable {
@@ -78,6 +80,9 @@ public class TDMNode: Codable {
             self.feeAmount = "400000"
         }
         if type == .stargate {
+            self.feeAmount = "100000"
+        }
+        if type == .osmosis {
             self.feeAmount = "100000"
         }
         if type == .emoney {
@@ -133,6 +138,7 @@ public class TDMNode: Codable {
         case .certik:    return CoinLogos.certik
         case .microtick: return CoinLogos.microtick
         case .agoric: return CoinLogos.agoric
+        case .osmosis: return CoinLogos.osmosis
         }
     }
     
@@ -157,6 +163,7 @@ public class TDMNode: Codable {
         case .certik: return "certik"
         case .microtick: return "micro"
         case .agoric: return "agoric"
+        case .osmosis: return "osmos"
         }
     }
     

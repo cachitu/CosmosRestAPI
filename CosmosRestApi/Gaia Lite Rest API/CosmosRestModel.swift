@@ -152,7 +152,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 
     public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .regen, .stargate, .iris, .iris_fuxi, .agoric:
+        case .regen, .stargate, .iris, .iris_fuxi, .agoric, .osmosis:
                 let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                 restApi.getAccountV5(address: self.address) { [weak self] result in
                     switch result {
@@ -289,8 +289,21 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                 case .success(let data):
                     if let item = data.first?.result?.value?.baseVestingAccount {
                         let gaiaAcc = GaiaAccount(accountValue: item, gaiaKey: gaiaKey, stakeDenom: node.stakeDenom)
-                        DispatchQueue.main.async {
-                            completion?(gaiaAcc, nil)
+                        restApi.getBalanceV2(address: self.address) { result in
+                            switch result {
+                            case .success(let data):
+                                let goodAmount = data.first?.result?.first?.amount ?? "0.0"
+                                gaiaAcc.amount = Double(goodAmount) ?? 0.0
+                                gaiaAcc.assets = data.first?.result ?? []
+                                DispatchQueue.main.async {
+                                    completion?(gaiaAcc, nil)
+                                }
+
+                            case .failure(let error):
+                                DispatchQueue.main.async {
+                                    completion?(nil, error.localizedDescription)
+                                }
+                            }
                         }
                     } else {
                         DispatchQueue.main.async {
@@ -412,7 +425,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     
     public func getDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegationsStargate(for: self.address) { result in
                 switch result {
@@ -447,7 +460,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     public func queryValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: Int?, _ items: [TxFeeAmount]?, _ message: String?) -> ())) {
 
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi, .microtick, .agoric:
+        case .stargate, .regen, .iris, .iris_fuxi, .microtick, .agoric, .osmosis:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getValidatorRewardsStargate(from: validator) { result in
                 switch result {
@@ -621,6 +634,14 @@ public class GaiaDelegation {
         self.height = delegation.height ?? 0
         self.shares = delegation.shares ?? "0"
     }
+    
+    public init(delegation: DelegationV3) {
+        self.validatorAddr = delegation.delegation?.validatorAddr ?? "-"
+        self.delegatorAddr = delegation.delegation?.delegatorAddr ?? "-"
+        self.height = 0
+        self.shares = delegation.delegation?.shares ?? "0"
+    }
+
 }
 
 public class GaiaAccount/*: CustomStringConvertible*/ {
@@ -739,16 +760,26 @@ public class GaiaAccount/*: CustomStringConvertible*/ {
         self.gaiaKey = gaiaKey
         self.assets = []
         
+        var originalAmount: Double = 0.0
+        var delegatedAmount: Double = 0.0
         for coin in accountValue?.originalVesting ?? [] {
             if coin.denom == stakeDenom {
-                assets.insert(coin, at: 0)
                 self.amount = Double(coin.amount ?? "0.0") ?? 0.0
+                originalAmount = self.amount
                 self.denom = coin.denom ?? stakeDenom
             } else {
                 assets.insert(coin, at: assets.count)
             }
         }
-        
+        for coin in accountValue?.delegatedVesting ?? [] {
+            if coin.denom == stakeDenom {
+                delegatedAmount = Double(coin.amount ?? "0.0") ?? 0.0
+                self.amount = originalAmount - delegatedAmount
+                self.denom = coin.denom ?? stakeDenom
+                assets.insert(Coin(amount: "\(self.amount)", denom: self.denom), at: 0)
+            }
+        }
+
         self.noFeeToken = true
     }
 
@@ -819,6 +850,20 @@ public class GaiaValidator {
     public func getValidatorDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         
         switch node.type {
+        case .regen:
+            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
+            restApi.getStakeValidatorDelegationsV3(for: self.validator) { result in
+                switch result {
+                case .success(let delegations):
+                    var gaiaDelegations: [GaiaDelegation] = []
+                    for delegation in delegations.first?.result ?? [] {
+                        let gaiaDelegation = GaiaDelegation(delegation: delegation)
+                        gaiaDelegations.append(gaiaDelegation)
+                    }
+                    DispatchQueue.main.async { completion(gaiaDelegations, nil) }
+                case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
+                }
+            }
         default:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getStakeValidatorDelegationsV2(for: self.validator) { result in
@@ -833,7 +878,6 @@ public class GaiaValidator {
                 case .failure(let error): DispatchQueue.main.async { completion(nil, error.localizedDescription) }
                 }
             }
-            
         }
     }
     

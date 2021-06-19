@@ -1017,10 +1017,12 @@ public struct VestedAccountValueV4: Codable {
 public struct BaseVestingAccountV4: Codable {
     public let baseAccount: BaseVestingAccountV4Data?
     public let originalVesting: [Coin]?
+    public let delegatedVesting: [Coin]?
 
     enum CodingKeys : String, CodingKey {
         case baseAccount = "base_account"
         case originalVesting = "original_vesting"
+        case delegatedVesting = "delegated_vesting"
     }
 }
 
@@ -1476,6 +1478,56 @@ public struct DelegationsResult: Codable {
     
     enum CodingKeys : String, CodingKey {
         case result
+        case height
+    }
+}
+
+public struct DelegationResultV3: Codable {
+    
+    public let result: [DelegationV3]?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case result
+        case height
+    }
+}
+
+public struct DelegationV3: Codable {
+    
+    public let balance: Coin?
+    public let delegation: DelegationV3Data?
+    
+    enum CodingKeys : String, CodingKey {
+        case balance
+        case delegation
+    }
+}
+
+public struct DelegationV3Data: Codable {
+    
+    public let delegatorAddr: String?
+    public let validatorAddr: String?
+    public let shares: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case delegatorAddr = "delegator_address"
+        case validatorAddr = "validator_address"
+        case shares
+    }
+}
+
+public struct DelegationV3Balance: Codable {
+    
+    public let delegatorAddr: String?
+    public let validatorAddr: String?
+    public let shares: String?
+    public let height: Int?
+    
+    enum CodingKeys : String, CodingKey {
+        case delegatorAddr = "delegator_address"
+        case validatorAddr = "validator_address"
+        case shares
         case height
     }
 }
