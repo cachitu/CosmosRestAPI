@@ -273,7 +273,7 @@ extension GaiaValidatorsCapable {
     
     public func retrieveAllValidators(node: TDMNode, status: String, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .microtick, .certik:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getStakeValidatorsStargate(status: status) { result in
                 switch result {
@@ -317,23 +317,9 @@ extension GaiaGovernaceCapable {
     
     public func retrieveAllPropsals(node: TDMNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .microtick, .certik:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalsStargate { result in
-                switch result {
-                case .success(let data):
-                    var gaiaPropsals: [GaiaProposal] = []
-                    for proposal in data.first?.result ?? [] {
-                        gaiaPropsals.append(GaiaProposal(proposal: proposal))
-                    }
-                    DispatchQueue.main.async { completion(gaiaPropsals, nil) }
-                case .failure(let error):
-                    DispatchQueue.main.async { completion(nil, error.localizedDescription) }
-                }
-            }
-        case .microtick:
-            let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
-            restApi.getPorposalsV3 { result in
                 switch result {
                 case .success(let data):
                     var gaiaPropsals: [GaiaProposal] = []
@@ -376,7 +362,7 @@ extension GaiaGovernaceCapable {
 
         switch node.type {
 
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .certik:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalTallyStargate(forId: proposal.proposalId) { result in
                 switch result {

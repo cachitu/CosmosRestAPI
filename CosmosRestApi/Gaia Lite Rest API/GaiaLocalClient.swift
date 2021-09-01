@@ -82,29 +82,13 @@ public class GaiaLocalClient {
     }
     
     public func generateBroadcatsData(tx: TransactionTx?, account: GaiaAccount, node: TDMNode, completion: ((SignedTx?, SignedTxV2?, String?) -> ())?) {
-        
-        switch node.type {
-        case .microtick:
-            delegate?.signV2(transferData: tx, account: account, node: node) { response in
-                switch response {
-                case .success(let data):
-                    let txV2 = TransactionTxV2(type: tx?.type, value: TxValueV2(msg: tx?.value?.msg, fee: tx?.value?.fee, signatures: [data], memo: tx?.value?.memo))
-                    let txV2Signed = SignedTxV2(tx: txV2, mode: node.broadcastMode.rawValue)
-                    completion?(nil, txV2Signed, nil)
-                case .failure(let error):
-                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                    completion?(nil, nil, error.localizedDescription)
-                }
-            }
-        default:
-            delegate?.sign(transferData: tx, account: account, node: node) { response in
-                switch response {
-                case .success(let data):
-                    completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil, nil)
-                case .failure(let error):
-                    print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
-                    completion?(nil, nil, error.localizedDescription)
-                }
+        delegate?.sign(transferData: tx, account: account, node: node) { response in
+            switch response {
+            case .success(let data):
+                completion?(SignedTx(tx: data.first, mode: node.broadcastMode.rawValue), nil, nil)
+            case .failure(let error):
+                print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                completion?(nil, nil, error.localizedDescription)
             }
         }
     }
@@ -156,7 +140,7 @@ public class GaiaLocalClient {
                 }
             } else if let bcData = signedV2 {
                 switch node.type {
-                case .microtick:
+                case .microtick, .certik:
                     restApi.broadcastV4(transferData: bcData) { result in
                         switch result {
                         case .success(let data):
