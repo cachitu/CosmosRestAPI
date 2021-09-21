@@ -152,7 +152,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
 
     public func getGaiaAccount(node: TDMNode, gaiaKey: GaiaKey, completion: ((_ data: GaiaAccount?, _ errMsg: String?) -> ())?) {
         switch node.type {
-        case .regen, .stargate, .iris, .iris_fuxi, .agoric, .osmosis, .certik, .microtick:
+        case .regen, .stargate, .iris, .iris_fuxi, .agoric, .osmosis, .certik, .microtick, .emoney:
                 let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
                 restApi.getAccountV5(address: self.address) { [weak self] result in
                     switch result {
@@ -355,7 +355,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     
     public func getDelegations(node: TDMNode, completion: @escaping ((_ delegations: [GaiaDelegation]?, _ message: String?) -> ())) {
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .microtick, .certik:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .microtick, .certik, .emoney:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getDelegationsStargate(for: self.address) { result in
                 switch result {
@@ -390,7 +390,7 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
     public func queryValidatorRewards(node: TDMNode, validator: String, completion: @escaping ((_ delegations: Int?, _ items: [TxFeeAmount]?, _ message: String?) -> ())) {
 
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .certik:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .certik, .emoney:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getValidatorRewardsStargate(from: validator) { result in
                 switch result {

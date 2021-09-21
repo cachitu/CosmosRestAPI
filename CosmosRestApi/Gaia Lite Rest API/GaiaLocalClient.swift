@@ -101,7 +101,7 @@ public class GaiaLocalClient {
             
             if let bcData = signed {
                 switch node.type {
-                case .regen, .kava, .kava_118, .certik, .stargate, .terra, .terra_118, .bitsong, .microtick, .iris, .iris_fuxi, .agoric, .osmosis:
+                case .regen, .kava, .kava_118, .certik, .stargate, .terra, .terra_118, .bitsong, .microtick, .iris, .iris_fuxi, .agoric, .osmosis, .emoney:
                     restApi.broadcastV3(transferData: bcData) { result in
                         switch result {
                         case .success(let data):
