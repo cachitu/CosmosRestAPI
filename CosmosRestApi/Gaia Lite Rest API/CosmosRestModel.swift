@@ -157,7 +157,8 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                 restApi.getAccountV5(address: self.address) { [weak self] result in
                     switch result {
                     case .success(let data):
-                        if let item = data.first, let type = item.result?.type {
+                        if let item = data.first {
+                            let type = item.result?.type ?? ""
                             if type.contains("VestingAccount") {
                                 self?.getVestedAccount(node: node, gaiaKey: gaiaKey, completion: completion)
                             } else {
@@ -171,7 +172,10 @@ public class GaiaKey: CustomStringConvertible, Codable, Equatable {
                                         }
 
                                     case .failure(let error):
-                                        print(error)
+                                        DispatchQueue.main.async {
+                                            //let message = error.code == 204 ? nil : error.localizedDescription
+                                            completion?(nil, error.localizedDescription)
+                                        }
                                     }
                                 }
                             }

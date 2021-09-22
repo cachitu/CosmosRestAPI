@@ -805,6 +805,17 @@ public struct KeyPasswordData: Codable {
     }
 }
 
+public struct TdmAccResultV6: Codable {
+    
+    public let result: AccountValueV5?
+    public let height: String?
+    
+    enum CodingKeys : String, CodingKey {
+        case result
+        case height
+    }
+}
+
 public struct TdmAccResultV5: Codable {
     
     public let result: TdmAccountV5?

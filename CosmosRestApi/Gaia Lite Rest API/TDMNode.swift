@@ -33,9 +33,9 @@ public enum TDMNodeType: String, Codable, CaseIterable {
 }
 
 public enum BroadcastMode: String, Codable {
-    case block
-    case sync
-    case async
+    case blockMode = "block"
+    case syncMode  = "sync"
+    case asyncMode = "async"
 }
 
 public enum CoinLogos {
@@ -68,7 +68,7 @@ public class TDMNode: Codable {
         self.host = host
         self.rcpPort = rcpPort
         self.securedNodeAccess = secured
-        self.broadcastMode = .async
+        self.broadcastMode = .asyncMode
         if type == .iris || type == .iris_fuxi {
             self.feeAmount = "300000"
         }
@@ -116,7 +116,7 @@ public class TDMNode: Codable {
     public var feeAmount: String = "0"
     public var feeDenom: String = ""
     public var defaultMemo: String = ""
-    public var broadcastMode: BroadcastMode = .async
+    public var broadcastMode: BroadcastMode = .asyncMode
     public var appleKeyCreated: Bool = false
     public var securedNodeAccess: Bool
     public var securedSigning: Bool = false

@@ -23,16 +23,28 @@ extension GaiaKeysManagementCapable {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
+                let data = TransferPostData(name: key.address,
+                                            memo: node.defaultMemo,
+                                            chain: node.network,
+                                            amount: amount,
+                                            denom: denom,
+                                            accNum: gaiaAcc.accNumber,
+                                            sequence:gaiaAcc.accSequence,
+                                            fees: node.feeAmount != "0" ? [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)] : [])
                 switch node.type {
+                case .certik:
+                    restApi.bankTransferV2(to: toAddress, transferData: data) { result in
+                        print("\n... Transfered \(amount) \(denom) ...")
+                        switch result {
+                        case .success(let data):
+                            let adjusted = TransactionTx(type: "bla", value: data.first)
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: [adjusted], gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
                 default:
-                    let data = TransferPostData(name: key.address,
-                                                memo: node.defaultMemo,
-                                                chain: node.network,
-                                                amount: amount,
-                                                denom: denom,
-                                                accNum: gaiaAcc.accNumber,
-                                                sequence:gaiaAcc.accSequence,
-                                                fees: node.feeAmount != "0" ? [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)] : [])
                     restApi.bankTransfer(to: toAddress, transferData: data) { result in
                         print("\n... Transfered \(amount) \(denom) ...")
                         switch result {
@@ -55,14 +67,25 @@ extension GaiaKeysManagementCapable {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
+                let data = TransferPostData(name: key.address,
+                                            memo: node.defaultMemo,
+                                            chain: node.network,
+                                            accNum: gaiaAcc.accNumber,
+                                            sequence: gaiaAcc.accSequence,
+                                            fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                 switch node.type {
+                case .certik:
+                    restApi.withdrawRewardV2(to: gaiaAcc.address, fromValidator: validator, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            let adjusted = TransactionTx(type: "bla", value: data.first)
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: [adjusted], gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
                 default:
-                    let data = TransferPostData(name: key.address,
-                                                memo: node.defaultMemo,
-                                                chain: node.network,
-                                                accNum: gaiaAcc.accNumber,
-                                                sequence: gaiaAcc.accSequence,
-                                                fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.withdrawReward(to: gaiaAcc.address, fromValidator: validator, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -72,7 +95,6 @@ extension GaiaKeysManagementCapable {
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                         }
                     }
-                    
                 }
             } else {
                 DispatchQueue.main.async { completion?(nil, errMsg) }
@@ -84,14 +106,25 @@ extension GaiaKeysManagementCapable {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
+                let data = TransferPostData(name: key.address,
+                                            memo: node.defaultMemo,
+                                            chain: node.network,
+                                            accNum: gaiaAcc.accNumber,
+                                            sequence: gaiaAcc.accSequence,
+                                            fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                 switch node.type {
+                case .certik:
+                    restApi.withdrawComissionV2(from: key.validator, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            let adjusted = TransactionTx(type: "bla", value: data.first)
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: [adjusted], gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
                 default:
-                    let data = TransferPostData(name: key.address,
-                                                memo: node.defaultMemo,
-                                                chain: node.network,
-                                                accNum: gaiaAcc.accNumber,
-                                                sequence: gaiaAcc.accSequence,
-                                                fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.withdrawComission(from: key.validator, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -101,7 +134,6 @@ extension GaiaKeysManagementCapable {
                             DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                         }
                     }
-                    
                 }
             } else {
                 DispatchQueue.main.async { completion?(nil, errMsg) }
@@ -113,20 +145,31 @@ extension GaiaKeysManagementCapable {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
+                let data = RedelegationPostData(
+                    sourceValidator: fromValidator,
+                    destValidator: toValidator,
+                    delegator: key.address,
+                    name: key.address,
+                    memo: node.defaultMemo,
+                    chain: node.network,
+                    amount: amount,
+                    denom: node.stakeDenom,
+                    accNum: gaiaAcc.accNumber,
+                    sequence: gaiaAcc.accSequence,
+                    fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                 switch node.type {
+                case .certik:
+                    restApi.redelegationV2(from: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            let adjusted = TransactionTx(type: "bla", value: data.first)
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: [adjusted], gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
                 default:
-                    let data = RedelegationPostData(
-                        sourceValidator: fromValidator,
-                        destValidator: toValidator,
-                        delegator: key.address,
-                        name: key.address,
-                        memo: node.defaultMemo,
-                        chain: node.network,
-                        amount: amount,
-                        denom: node.stakeDenom,
-                        accNum: gaiaAcc.accNumber,
-                        sequence: gaiaAcc.accSequence,
-                        fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.redelegation(from: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -147,20 +190,31 @@ extension GaiaKeysManagementCapable {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
+                let data = DelegationPostData(
+                    validator: toValidator,
+                    delegator: key.address,
+                    name: key.address,
+                    memo: node.defaultMemo,
+                    pass: key.getPassFromKeychain() ?? "",
+                    chain: node.network,
+                    amount: amount,
+                    denom: denom,
+                    accNum: gaiaAcc.accNumber,
+                    sequence: gaiaAcc.accSequence,
+                    fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                 switch node.type {
+                case .certik:
+                    restApi.delegationV2(from: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            let adjusted = TransactionTx(type: "bla", value: data.first)
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: [adjusted], gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
                 default:
-                    let data = DelegationPostData(
-                        validator: toValidator,
-                        delegator: key.address,
-                        name: key.address,
-                        memo: node.defaultMemo,
-                        pass: key.getPassFromKeychain() ?? "",
-                        chain: node.network,
-                        amount: amount,
-                        denom: denom,
-                        accNum: gaiaAcc.accNumber,
-                        sequence: gaiaAcc.accSequence,
-                        fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.delegation(from: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):
@@ -182,19 +236,30 @@ extension GaiaKeysManagementCapable {
         let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
         key.getGaiaAccount(node: node, gaiaKey: key) { (gaiaAccount, errMsg) in
             if let gaiaAcc = gaiaAccount  {
+                let data = UnbondingDelegationPostData(
+                    validator: fromValidator,
+                    delegator: key.address,
+                    name: key.address,
+                    memo: node.defaultMemo,
+                    chain: node.network,
+                    amount: amount,
+                    denom: node.stakeDenom,
+                    accNum: gaiaAcc.accNumber,
+                    sequence: gaiaAcc.accSequence,
+                    fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                 switch node.type {
+                case .certik:
+                    restApi.unbondingV2(from: key.address, transferData: data) { result in
+                        switch result {
+                        case .success(let data):
+                            let adjusted = TransactionTx(type: "bla", value: data.first)
+                            GaiaLocalClient(delegate: clientDelegate).handleSignAndBroadcast(restApi: restApi, data: [adjusted], gaiaAcc: gaiaAcc, node: node, completion: completion)
+                        case .failure(let error):
+                            print(" -> [FAIL] - ", error.localizedDescription, ", code: ", error.code)
+                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                        }
+                    }
                 default:
-                    let data = UnbondingDelegationPostData(
-                        validator: fromValidator,
-                        delegator: key.address,
-                        name: key.address,
-                        memo: node.defaultMemo,
-                        chain: node.network,
-                        amount: amount,
-                        denom: node.stakeDenom,
-                        accNum: gaiaAcc.accNumber,
-                        sequence: gaiaAcc.accSequence,
-                        fees: [TxFeeAmount(amount: node.feeAmount, denom: node.feeDenom)])
                     restApi.unbonding(from: key.address, transferData: data) { result in
                         switch result {
                         case .success(let data):

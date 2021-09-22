@@ -121,6 +121,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func getAccountV5(address: String, completion: ((RestResult<[TdmAccResultV5]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
     }
+    
+    public func getAccountV6(address: String, completion: ((RestResult<[TdmAccResultV6]>) -> Void)?) {
+        genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
+    }
 
     public func getVestedAccount(address: String, completion: ((RestResult<[VestedAccount]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/auth/accounts/\(address)", delegate: self, singleItemResponse: true, completion: completion)
@@ -141,6 +145,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     // ICS20
     
     public func bankTransfer(to address: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/bank/accounts/\(address)/transfers", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func bankTransferV2(to address: String, transferData: TransferPostData, completion:((RestResult<[TxValue]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/bank/accounts/\(address)/transfers", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 
@@ -170,6 +178,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
+    public func delegationV2(from address: String, transferData: DelegationPostData, completion:((RestResult<[TxValue]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     public func getDelegation(for address: String, validator: String, completion: ((RestResult<[Delegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -182,6 +194,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
+    public func unbondingV2(from address: String, transferData: UnbondingDelegationPostData, completion:((RestResult<[TxValue]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     public func getUnbondingDelegation(for address: String, validator: String, completion: ((RestResult<[UnbondingDelegation]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/unbonding_delegations/\(validator)", delegate: self, singleItemResponse: true, completion: completion)
     }
@@ -194,6 +210,10 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
         genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
     
+    public func redelegationV2(from address: String, transferData: RedelegationPostData, completion:((RestResult<[TxValue]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/staking/delegators/\(address)/redelegations", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
     public func getDelegatorValidators(for address: String, completion: ((RestResult<[DelegatorValidator]>) -> Void)?) {
         genericRequest(bodyData: EmptyBody(), connData: connectData, path: "/staking/delegators/\(address)/validators", delegate: self, singleItemResponse: false, completion: completion)
     }
@@ -379,8 +399,16 @@ public class CosmosRestAPI: NSObject, RestNetworking, URLSessionDelegate {
     public func withdrawReward(to address: String, fromValidator: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/delegators/\(address)/rewards/\(fromValidator)", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
+    
+    public func withdrawRewardV2(to address: String, fromValidator: String, transferData: TransferPostData, completion:((RestResult<[TxValue]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/delegators/\(address)/rewards/\(fromValidator)", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
 
     public func withdrawComission(from validator: String, transferData: TransferPostData, completion:((RestResult<[TransactionTx]>) -> Void)?) {
+        genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/validators/\(validator)/rewards", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
+    }
+
+    public func withdrawComissionV2(from validator: String, transferData: TransferPostData, completion:((RestResult<[TxValue]>) -> Void)?) {
         genericRequest(bodyData: transferData, connData: connectData, path: "/distribution/validators/\(validator)/rewards", delegate: self, reqMethod: "POST", singleItemResponse: true, completion: completion)
     }
 

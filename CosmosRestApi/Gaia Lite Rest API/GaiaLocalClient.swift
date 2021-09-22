@@ -100,42 +100,18 @@ public class GaiaLocalClient {
         generateBroadcatsData(tx: data.first, account: gaiaAcc, node: node) { signed, signedV2, err in
             
             if let bcData = signed {
-                switch node.type {
-                case .regen, .kava, .kava_118, .certik, .stargate, .terra, .terra_118, .bitsong, .microtick, .iris, .iris_fuxi, .agoric, .osmosis, .emoney:
-                    restApi.broadcastV3(transferData: bcData) { result in
-                        switch result {
-                        case .success(let data):
-                            let resp = TransferResponse(v3: data.first!)
-                            if let hash = resp.hash {
-                                let persistable = PersitsableHash(hash: hash, date: Date(), height: resp.height ?? "0")
-                                kdelegate.storeHash(persistable)
-                            }
-                            DispatchQueue.main.async { completion?(resp, data.first?.hash) }
-                        case .failure(let error):
-                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
+                restApi.broadcastV3(transferData: bcData) { result in
+                    switch result {
+                    case .success(let data):
+                        let resp = TransferResponse(v3: data.first!)
+                        if let hash = resp.hash {
+                            let persistable = PersitsableHash(hash: hash, date: Date(), height: resp.height ?? "0")
+                            kdelegate.storeHash(persistable)
                         }
-                    }
-                default:
-                    restApi.broadcastV2(transferData: bcData) { result in
-                        switch result {
-                        case .success(let data):
-                            if data.first?.hash != nil {
-                                let resp = TransferResponse(v2: data.first!)
-                                if let hash = data.first?.hash {
-                                    let persistable = PersitsableHash(hash: hash, date: Date(), height: "0")
-                                    kdelegate.storeHash(persistable)
-                                }
-                                DispatchQueue.main.async { completion?(resp, data.first?.hash) }
-                            } else {
-                                print(" -> [FAIL] - Broadcast", data.first?.logs?.first?.log ?? "", ", code: ", -1)
-                                DispatchQueue.main.async { completion?(nil, data.first?.logs?.first?.log ?? data.first?.rawLog ?? "Unknown") }
-
-                            }
-                        case .failure(let error):
-                            print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
-                            DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
-                        }
+                        DispatchQueue.main.async { completion?(resp, data.first?.hash) }
+                    case .failure(let error):
+                        print(" -> [FAIL] - Broadcast", error.localizedDescription, ", code: ", error.code)
+                        DispatchQueue.main.async { completion?(nil, error.localizedDescription) }
                     }
                 }
             } else if let bcData = signedV2 {
