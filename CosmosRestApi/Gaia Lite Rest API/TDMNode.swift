@@ -73,8 +73,8 @@ public class TDMNode: Codable {
             self.feeAmount = "300000"
         }
         if type == .terra || type == .terra_118 {
-            self.feeAmount = "500000"
-            self.feeDenom  = "ukrw"
+            self.feeAmount = "10000"
+            self.feeDenom  = "uluna"
         }
         if type == .emoney {
             self.feeAmount = "400000"
