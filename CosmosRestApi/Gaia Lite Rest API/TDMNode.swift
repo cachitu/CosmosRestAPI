@@ -30,6 +30,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case microtick = "Microtick"
     case agoric = "Agoric"
     case osmosis = "Osmosis"
+    case juno = "Juno"
 }
 
 public enum BroadcastMode: String, Codable {
@@ -51,6 +52,7 @@ public enum CoinLogos {
     static let microtick: UIImage? = UIImage(named: "microtick")
     static let agoric: UIImage? = UIImage(named: "agoric")
     static let osmosis: UIImage? = UIImage(named: "osmosis")
+    static let juno: UIImage? = UIImage(named: "juno")
 }
 
 public class TDMNode: Codable {
@@ -62,45 +64,48 @@ public class TDMNode: Codable {
         host: String = "localhost",
         rcpPort: Int? = nil,
         secured: Bool = false) {
-        self.type = type
-        self.name = name
-        self.scheme = scheme
-        self.host = host
-        self.rcpPort = rcpPort
-        self.securedNodeAccess = secured
-        self.broadcastMode = .asyncMode
-        if type == .iris || type == .iris_fuxi {
-            self.feeAmount = "300000"
+            self.type = type
+            self.name = name
+            self.scheme = scheme
+            self.host = host
+            self.rcpPort = rcpPort
+            self.securedNodeAccess = secured
+            self.broadcastMode = .asyncMode
+            if type == .iris || type == .iris_fuxi {
+                self.feeAmount = "300000"
+            }
+            if type == .terra || type == .terra_118 {
+                self.feeAmount = "10000"
+                self.feeDenom  = "uluna"
+            }
+            if type == .emoney {
+                self.feeAmount = "400000"
+            }
+            if type == .stargate {
+                self.feeAmount = "100000"
+            }
+            if type == .osmosis {
+                self.feeAmount = "100000"
+            }
+            if type == .juno {
+                self.feeAmount = "10000"
+            }
+            if type == .emoney {
+                self.feeAmount = "500000"
+            }
+            if type == .kava {
+                self.feeAmount = "10000"
+            }
+            if type == .bitsong {
+                self.feeAmount = "100000"
+            }
+            if type == .certik {
+                self.feeAmount = "100000"
+            }
+            if type == .agoric {
+                self.feeAmount = "0"
+            }
         }
-        if type == .terra || type == .terra_118 {
-            self.feeAmount = "10000"
-            self.feeDenom  = "uluna"
-        }
-        if type == .emoney {
-            self.feeAmount = "400000"
-        }
-        if type == .stargate {
-            self.feeAmount = "100000"
-        }
-        if type == .osmosis {
-            self.feeAmount = "100000"
-        }
-        if type == .emoney {
-            self.feeAmount = "500000"
-        }
-        if type == .kava {
-            self.feeAmount = "10000"
-        }
-        if type == .bitsong {
-            self.feeAmount = "100000"
-        }
-        if type == .certik {
-            self.feeAmount = "100000"
-        }
-        if type == .agoric {
-            self.feeAmount = "0"
-        }
-    }
     
     public var state: TDMNodeState = .unknown
     public var type: TDMNodeType = .stargate
@@ -139,6 +144,7 @@ public class TDMNode: Codable {
         case .microtick: return CoinLogos.microtick
         case .agoric: return CoinLogos.agoric
         case .osmosis: return CoinLogos.osmosis
+        case .juno: return CoinLogos.juno
         }
     }
     
@@ -164,6 +170,7 @@ public class TDMNode: Codable {
         case .microtick: return "micro"
         case .agoric: return "agoric"
         case .osmosis: return "osmos"
+        case .juno: return "juno"
         }
     }
     

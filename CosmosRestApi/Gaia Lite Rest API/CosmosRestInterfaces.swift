@@ -338,7 +338,7 @@ extension GaiaValidatorsCapable {
     
     public func retrieveAllValidators(node: TDMNode, status: String, completion: @escaping (_ data: [GaiaValidator]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .microtick, .certik, .emoney, .terra, .terra_118:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .microtick, .certik, .emoney, .terra, .terra_118, .juno:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getStakeValidatorsStargate(status: status) { result in
                 switch result {
@@ -367,7 +367,7 @@ extension GaiaValidatorsCapable {
                 }
             }
         }
-    }    
+    }
 }
 
 public protocol GaiaGovernaceCapable {
@@ -382,7 +382,7 @@ extension GaiaGovernaceCapable {
     
     public func retrieveAllPropsals(node: TDMNode, completion: @escaping (_ data: [GaiaProposal]?, _ errMsg: String?)->()) {
         switch node.type {
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .microtick, .certik, .emoney, .terra, .terra_118:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .microtick, .certik, .emoney, .terra, .terra_118, .juno:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalsStargate { result in
                 switch result {
@@ -427,7 +427,7 @@ extension GaiaGovernaceCapable {
 
         switch node.type {
 
-        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .certik, .emoney, .terra, .terra_118:
+        case .stargate, .regen, .iris, .iris_fuxi, .agoric, .osmosis, .certik, .emoney, .terra, .terra_118, .juno:
             let restApi = CosmosRestAPI(scheme: node.scheme, host: node.host, port: node.rcpPort)
             restApi.getPorposalTallyStargate(forId: proposal.proposalId) { result in
                 switch result {
