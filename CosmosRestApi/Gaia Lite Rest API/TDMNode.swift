@@ -31,6 +31,7 @@ public enum TDMNodeType: String, Codable, CaseIterable {
     case agoric = "Agoric"
     case osmosis = "Osmosis"
     case juno = "Juno"
+    case evmos = "Evmos"
 }
 
 public enum BroadcastMode: String, Codable {
@@ -53,6 +54,7 @@ public enum CoinLogos {
     static let agoric: UIImage? = UIImage(named: "agoric")
     static let osmosis: UIImage? = UIImage(named: "osmosis")
     static let juno: UIImage? = UIImage(named: "juno")
+    static let evmos: UIImage? = UIImage(named: "evmos")
 }
 
 public class TDMNode: Codable {
@@ -71,6 +73,7 @@ public class TDMNode: Codable {
             self.rcpPort = rcpPort
             self.securedNodeAccess = secured
             self.broadcastMode = .asyncMode
+            self.feeAmount = "10000"
             if type == .iris || type == .iris_fuxi {
                 self.feeAmount = "300000"
             }
@@ -145,6 +148,7 @@ public class TDMNode: Codable {
         case .agoric: return CoinLogos.agoric
         case .osmosis: return CoinLogos.osmosis
         case .juno: return CoinLogos.juno
+        case .evmos: return CoinLogos.evmos
         }
     }
     
@@ -171,6 +175,7 @@ public class TDMNode: Codable {
         case .agoric: return "agoric"
         case .osmosis: return "osmos"
         case .juno: return "juno"
+        case .evmos: return "evmos"
         }
     }
     
